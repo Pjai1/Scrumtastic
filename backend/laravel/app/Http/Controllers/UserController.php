@@ -16,7 +16,7 @@ class UserController extends ApiController
 
     public function __construct(UserRepository $user) 
     {
-        $this->middleware('auth:api', ['except' => ['resend', 'verify']]);
+        $this->middleware('auth:api', ['except' => ['store', 'resend', 'verify']]);
         $this->middleware('user.admin', ['only' => ['index']]);
         $this->middleware('user.resources', ['only' => ['showWithComments', 'showUserTeams', 'showUserTasks', 'showUserProjects']]);
     	$this->user = $user;
