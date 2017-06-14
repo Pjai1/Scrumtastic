@@ -7,6 +7,7 @@ class SignUp extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            showSuccess: false,
             name: '',
             email: '',
             password: '',
@@ -55,8 +56,12 @@ class SignUp extends Component {
         })
             .then((data) => {
                 if(data.data.access_token) {
+                    console.log(data.data.access_token);
                     localStorage.setItem('token', data.data.access_token);
+                    localStorage.setItem('email', this.state.email);
                     this.setState({token: data.data.access_token});
+                    this.setState({showSuccess: true});
+                    setInterval(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);
                 }
             })
             .catch((error) => {
@@ -73,7 +78,7 @@ class SignUp extends Component {
             let i = 0;
             for(var key in errorArray) {
                 if(errorArray.hasOwnProperty(key)) {
-                    errors.push(<span className="errorMessage" key={"error_" + i}>{errorArray[key][0]}</span>);
+                    errors.push(<p className="errorMessage" key={"error_" + i}>{errorArray[key][0]}</p>);
                 }
                 i++;
             }
@@ -97,6 +102,11 @@ class SignUp extends Component {
                                     id="name"
                                     type="text"
                                     onChange={event => this.setState({name:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.signUp();
+                                        }
+                                    }}
                                 />
                                 <label htmlFor="name">Name</label>
                             </div>
@@ -110,6 +120,11 @@ class SignUp extends Component {
                                     id="email"
                                     type="email"
                                     onChange={event => this.setState({email:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.signUp();
+                                        }
+                                    }}
                                 />
                                 <label htmlFor="email">Email</label>
                             </div>
@@ -123,6 +138,11 @@ class SignUp extends Component {
                                     id="password"
                                     type="password"
                                     onChange={event => this.setState({password:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.signUp();
+                                        }
+                                    }}
                                 />
                                 <label htmlFor="password">Password</label>
                             </div>
@@ -136,6 +156,11 @@ class SignUp extends Component {
                                     id="password-confirmation"
                                     type="password"
                                     onChange={event => this.setState({passwordConfirmation:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.signUp();
+                                        }
+                                    }}
                                 />
                                 <label htmlFor="password-confirmation">Password (Confirm)</label>
                             </div>
@@ -144,7 +169,12 @@ class SignUp extends Component {
                     </form>
                 </div>
                 <div className="row">
-                    { this.renderErrors() }
+                    <div className="col s4"></div>  
+                    {this.state.showSuccess ? <div className="card-panel teal lighten-2 center-align col s4">Logged in succesfully!</div> : null}
+                    <div className="col s4"></div>  
+                </div>
+                <div className="row">
+                    {this.renderErrors()} 
                 </div>
                 <div className="row center-align">    
                     <a 

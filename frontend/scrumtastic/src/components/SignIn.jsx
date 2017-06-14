@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
-import { Link, Router, browserHistory } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
 import SignUp from './SignUp';
+import Toast from './Toast'
 
 class SignIn extends Component {
     constructor(props) {
         super(props);
+        this.statusMessage = null
         this.state = {
+            showSuccess: false, 
             email: '',
             password: '',
             error: [],
-            token: ''
+            token: '',
         }
     }
 
@@ -26,6 +29,9 @@ class SignIn extends Component {
     }
 
     signIn() {
+        // var t = new Toast("Yo im a toast", 2000)
+        // t.Render() 
+
         axios.post(`${BASE_URL}/oauth/token`, {
             "grant_type": "password",
             "client_id": CLIENT_ID,
@@ -35,10 +41,12 @@ class SignIn extends Component {
         })
             .then((data) => {
                 if(data.data.access_token) {
+                    console.log(data.data.access_token);
                     localStorage.setItem('token', data.data.access_token);
-                    this.setState({token: data.data.access_token});
+                    localStorage.setItem('email', this.state.email);
+                    this.setState({token: data.data.access_token, showSuccess: true});
+                    setTimeout(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);
                 }
-                
             })
             .catch((error) => {
                 this.setState({error});
@@ -54,7 +62,7 @@ class SignIn extends Component {
             let i = 0;
             for(var key in errorArray) {
                 if(errorArray.hasOwnProperty(key)) {
-                    errors.push(<span key={"error_" + i}>{errorArray[key][0]}</span>);
+                    errors.push(<p key={"error_" + i}>{errorArray[key][0]}</p>);
                 }
                 i++;
             }
@@ -78,6 +86,11 @@ class SignIn extends Component {
                                     id="email"
                                     type="email"
                                     onChange={event => this.setState({email:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.signIn();
+                                        }
+                                    }}
                                 />
                                 <label htmlFor="email">Email</label>
                             </div>
@@ -87,12 +100,22 @@ class SignIn extends Component {
                                     id="password"
                                     type="password"
                                     onChange={event => this.setState({password:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.signIn();
+                                        }
+                                    }}
                                 />
                                 <label htmlFor="password">Password</label>
                             </div>
                         </div>
                         <div className="col s2"></div>
                     </form>
+                </div>
+                <div className="row">
+                    <div className="col s4"></div>  
+                    {this.state.showSuccess ? <div className="card-panel teal lighten-2 center-align col s4">Logged in succesfully!</div> : null}
+                    <div className="col s4"></div>  
                 </div>
                 <div className="row">
                     { this.renderErrors() }
