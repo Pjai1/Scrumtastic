@@ -16,7 +16,7 @@ class UserController extends ApiController
 
     public function __construct(UserRepository $user) 
     {
-        $this->middleware('auth:api', ['except' => ['store', 'resend', 'verify']]);
+        $this->middleware('auth:api', ['except' => ['showUserByEmail', 'store', 'resend', 'verify']]);
         $this->middleware('user.admin', ['only' => ['index']]);
         $this->middleware('user.resources', ['only' => ['showWithComments', 'showUserTeams', 'showUserTasks', 'showUserProjects']]);
     	$this->user = $user;
@@ -60,6 +60,15 @@ class UserController extends ApiController
         $projects = $this->user->findAllProjects($user);
 
         return $this->showAll($projects);
+    }
+
+    public function showUserByEmail(Request $request)
+    {
+        $email = $request->email;
+
+        $user = $this->user->findUserByEmail($email);
+
+        return $this->showAll($user);
     }
 
     /**

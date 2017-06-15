@@ -11,6 +11,7 @@ class SignIn extends Component {
         this.statusMessage = null
         this.state = {
             showSuccess: false, 
+            userId: '',
             email: '',
             password: '',
             error: [],
@@ -45,12 +46,26 @@ class SignIn extends Component {
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
                     this.setState({token: data.data.access_token, showSuccess: true});
-                    setTimeout(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);
+                    this.getUserId();
                 }
             })
             .catch((error) => {
                 this.setState({error});
             })
+    }
+
+    getUserId() {
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.post(`${BASE_URL}/userid`, {
+            "email": this.state.email
+        })
+            .then((data) => {
+                localStorage.setItem('userId', data.data[0].id);
+                setTimeout(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
     }
 
     renderErrors() {

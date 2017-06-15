@@ -9,6 +9,7 @@ import App from './components/App';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import BoardView from './components/BoardView';
+import ProjectView from './components/ProjectView'
 
 const store = createStore(reducer);
 
@@ -37,7 +38,8 @@ ReactDOM.render(
             <Route path="/" component={App} onEnter={requireAuthentication.bind(this)}  />
             <Route path="/signin" component={SignIn} />
             <Route path="/signup" component={SignUp} />
-            <Route path="/board" component={BoardView} />
+            <Route path="/board" onEnter={requireAuthentication.bind(this)} component={BoardView} />
+            <Route path="/projects" onEnter={requireAuthentication.bind(this)} component={ProjectView} />
         </Router>
     </Provider>,
     document.getElementById('root')

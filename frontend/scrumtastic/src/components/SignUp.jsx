@@ -8,6 +8,7 @@ class SignUp extends Component {
         super(props);
         this.state = {
             showSuccess: false,
+            userId: '',
             name: '',
             email: '',
             password: '',
@@ -37,6 +38,7 @@ class SignUp extends Component {
         })
             .then((data) => {
                 console.log(data);
+                localStorage.setItem('userId', data.reponse.data.id)
                 this.getToken();
             })
             .catch((error) => {
@@ -59,6 +61,7 @@ class SignUp extends Component {
                     console.log(data.data.access_token);
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
+
                     this.setState({token: data.data.access_token});
                     this.setState({showSuccess: true});
                     setInterval(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);

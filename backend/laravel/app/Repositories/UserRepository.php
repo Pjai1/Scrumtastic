@@ -48,6 +48,11 @@ class UserRepository
         return $this->user->where('id', $user->id)->with('projects')->get();
     }
 
+    public function findUserByEmail($email)
+    {
+        return $this->user->where('email', $email)->get();
+    }
+
     public function getToken($token)
     {
         return $this->user->where('verification_token', $token)->firstOrFail();

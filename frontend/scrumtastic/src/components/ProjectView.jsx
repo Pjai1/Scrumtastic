@@ -5,14 +5,13 @@ import axios from 'axios';
 import { BASE_URL } from '../constants';
 import '../App.css';
 
-class App extends Component {
+class ProjectView extends Component {
     constructor(props) {
         super(props);
         this.state = {
             'userId': '',
             'email': '',
             'token': '',
-            'projects': []
         }
     }
 
@@ -22,28 +21,6 @@ class App extends Component {
        let token = localStorage.getItem('token');
        let userId = localStorage.getItem('userId');
        this.setState({'email': email, 'token': token, 'userId': userId});
-    }
-
-    componentDidMount() {
-        console.log(this.state.token, this.state.userId)
-        const token = 'Bearer ' + this.state.token
-
-        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-        axios.defaults.headers.common['Authorization'] = token
-        axios.get(BASE_URL + '/users/' + this.state.userId + '/projects')
-            .then((data) => {
-                console.log(data.data);
-                console.log(data.data[0].projects);
-                let userProjects = [];
-                data.data[0].projects.forEach((project) => {
-                    userProjects.push(project);
-                })
-                console.log('projects', userProjects);
-                this.setState({'projects': userProjects});
-            })
-            .catch((error) => {
-                console.log(error)
-            }) 
     }
 
     logOut() {
@@ -65,26 +42,6 @@ class App extends Component {
             .catch((error) => {
                 console.log(error)
             }) 
-    }
-
-    renderProjects() {
-        const projects = this.state.projects;
-        console.log('projects state', projects);
-        return (
-            <ul>
-                {
-                    projects.map((project, key) => {
-                        return (
-                            <Col m={6} s={12}>
-                                <Card key={key} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a href='/projects'>Details</a>]}>
-                                    {project.description}
-                                </Card>
-                            </Col>     
-                        )
-                    })
-                }
-            </ul>
-        )
     }
 
     render() {
@@ -116,24 +73,9 @@ class App extends Component {
                         </Dropdown>*/}
                     </div>
                 </nav>
-                <div className="row">
-                    <div className="col s2"/>
-                    <div className="col s8"> 
-                        <h2 style={{color: '#26a69a'}}>Projects</h2>
-                        {
-                            this.renderProjects()
-                        }
-                        <Col m={6} s={12}>
-                            <Card style={{backgroundColor: '#b64d87'}} textClassName='white-text' actions={[<a href='#'>+ Make new project</a>]}>
-                                <div style={{fontSize: '20px'}}>[Your new project will appear here]</div>
-                            </Card>
-                        </Col>  
-                    </div>
-                    <div className="col s2"/>
-                </div>
-            </div>    
+            </div>
         )
     }
 }
 
-export default App;
+export default ProjectView;

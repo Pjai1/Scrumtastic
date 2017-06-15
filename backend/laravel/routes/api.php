@@ -125,5 +125,6 @@ Route::get('slack', function() {
     $admin->notify(new TaskCompleted($user));
 });
 
+Route::post('userid', 'UserController@showUserByEmail');
 Route::post('oauth/token', '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken');
 Route::post('logout', 'UserController@logout');
