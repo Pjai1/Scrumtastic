@@ -31,7 +31,7 @@ class SignIn extends Component {
     signIn() {
         // var t = new Toast("Yo im a toast", 2000)
         // t.Render() 
-
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.post(`${BASE_URL}/oauth/token`, {
             "grant_type": "password",
             "client_id": CLIENT_ID,

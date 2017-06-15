@@ -8,6 +8,7 @@ import reducer from './reducers';
 import App from './components/App';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
+import BoardView from './components/BoardView';
 
 const store = createStore(reducer);
 
@@ -36,6 +37,7 @@ ReactDOM.render(
             <Route path="/" component={App} onEnter={requireAuthentication.bind(this)}  />
             <Route path="/signin" component={SignIn} />
             <Route path="/signup" component={SignUp} />
+            <Route path="/board" component={BoardView} />
         </Router>
     </Provider>,
     document.getElementById('root')

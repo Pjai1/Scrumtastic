@@ -25,6 +25,7 @@ class App extends Component {
     logOut() {
         const token = 'Bearer ' + this.state.token
 
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = token
         axios.post(`${BASE_URL}/logout`, {
             'email': this.state.email,

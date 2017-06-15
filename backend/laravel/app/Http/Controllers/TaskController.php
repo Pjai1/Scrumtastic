@@ -16,7 +16,7 @@ class TaskController extends ApiController
 
     public function __construct(TaskRepository $task, SprintRepository $sprint) 
     {
-        $this->middleware('auth:api');
+        // $this->middleware('auth:api');
     	$this->task = $task;
         $this->sprint = $sprint;
     }
