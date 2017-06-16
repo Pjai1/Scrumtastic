@@ -132,7 +132,7 @@ class App extends Component {
         for (var i=0; i < array.length; i++) {
             if (array[i].id === keyName) {
                 console.log('array index', array.indexOf(array[i].id), array[i].id)
-                array = array.splice(array[i].id, 1);
+                delete array[i]
                 this.setState({'projects': array});
                 return array;
             }
