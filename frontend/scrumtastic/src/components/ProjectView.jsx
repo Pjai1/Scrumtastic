@@ -12,6 +12,8 @@ class ProjectView extends Component {
             'userId': '',
             'email': '',
             'token': '',
+            'projectId': '',
+            'projectName': ''
         }
     }
 
@@ -20,7 +22,9 @@ class ProjectView extends Component {
        let email = localStorage.getItem('email');
        let token = localStorage.getItem('token');
        let userId = localStorage.getItem('userId');
-       this.setState({'email': email, 'token': token, 'userId': userId});
+       let projectId = localStorage.getItem('projectId');
+       let projectName = localStorage.getItem('projectName');
+       this.setState({'email': email, 'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName});
     }
 
     logOut() {
@@ -65,10 +69,15 @@ class ProjectView extends Component {
                                 </li>
                             </ul>
                         </ul>
-                        <h2>Project ...</h2>
-                        <h4>Sprints</h4>
                     </div>
                 </nav>
+                <div className="row">
+                    <div className="col s2" />
+                    <div className="col s8">
+                        <h2 style={{color: '#26a69a'}}>Project: {this.state.projectName}</h2>
+                    </div>
+                    <div className="col s2" />
+                </div>
             </div>
         )
     }

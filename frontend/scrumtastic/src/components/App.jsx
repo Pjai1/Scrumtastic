@@ -19,7 +19,8 @@ class App extends Component {
             'newName': '',
             'description': null,
             'newDesc': '',
-            'showEditingMode': -1
+            'showEditingMode': -1,
+            'clickedProject': null
         }
     }
 
@@ -92,7 +93,8 @@ class App extends Component {
                     projects.map((project) => {
                         return (
                             <Col key={project.id} m={6} s={12}>
-                                {(!this.state.editingMode) ? <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a onClick={() => {this.projectView(project.id)}}>Details</a>]}>
+                            {console.log('look at me', this.state.clickedProject, project.id)}
+                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
                                     {project.description}
                                     <a onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                     <a onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
@@ -177,6 +179,11 @@ class App extends Component {
             this.setState({'newName': projectName, 'newDesc': projectDescription});
             console.log(projectName, projectDescription);
         }
+
+        if(projectId) {
+            console.log('projectId changed', projectId);
+            this.setState({'clickedProject': projectId});
+        }
         this.setState({'editingMode': !this.state.editingMode});
     }
 
@@ -205,9 +212,10 @@ class App extends Component {
         }    
     }
 
-    projectView(projectId) {
+    projectView(projectId, projectName) {
         localStorage.setItem('projectId', projectId);
-        browserHistory.push('/newproject');
+        localStorage.setItem('projectName', projectName);
+        browserHistory.push('/projects');
     }
 
     newProject() {
