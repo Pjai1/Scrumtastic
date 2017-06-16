@@ -51,7 +51,7 @@ class ProjectView extends Component {
                     <div className="nav-wrapper">
                     <a className="brand-logo">Logo</a>
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
-                            <li><a href="sass.html">Projects</a></li>
+                            <li><a href="/">Projects</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down">
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
@@ -65,12 +65,8 @@ class ProjectView extends Component {
                                 </li>
                             </ul>
                         </ul>
-                        {/*<Dropdown trigger={
-                            <Button>{this.state.email || "WHO ARE U" }</Button>
-                            }>
-                            <NavItem onClick={this.logOut.bind(this)}>Log Out Feggeht</NavItem>
-                            <NavItem divider />
-                        </Dropdown>*/}
+                        <h2>Project ...</h2>
+                        <h4>Sprints</h4>
                     </div>
                 </nav>
             </div>

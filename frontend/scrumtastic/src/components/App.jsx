@@ -12,7 +12,8 @@ class App extends Component {
             'userId': '',
             'email': '',
             'token': '',
-            'projects': []
+            'projects': [],
+            'projectId': ''
         }
     }
 
@@ -46,6 +47,10 @@ class App extends Component {
             }) 
     }
 
+    // shouldComponentUpdate() {
+    //     this.forceUpdate();
+    // }
+
     logOut() {
         const token = 'Bearer ' + this.state.token
 
@@ -73,11 +78,11 @@ class App extends Component {
         return (
             <ul>
                 {
-                    projects.map((project, key) => {
+                    projects.map((project) => {
                         return (
-                            <Col key={key} m={6} s={12}>
-                                <Card key={key} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a href='/projects'>Details</a>]}>
-                                    {project.description}
+                            <Col key={project.id} m={6} s={12}>
+                                <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a onClick={() => {this.projectView(project.id)}}>Details</a>]}>
+                                    {project.description}<a onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                 </Card>
                             </Col>     
                         )
@@ -85,6 +90,52 @@ class App extends Component {
                 }
             </ul>
         )
+    }
+
+    editProject(projectId) {
+        const token = 'Bearer ' + this.state.token
+        let projects = this.state.projects;
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.put(BASE_URL + '/projects/' + projectId)
+            .then((data) => {
+                console.log(data);
+                this.searchAndDeleteProjectFromState(projectId, projects);
+            })
+            .catch((error) => {
+                console.log(error)
+            })  
+    }
+
+    deleteProject(projectId) {
+        const token = 'Bearer ' + this.state.token
+        let projects = this.state.projects;
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.delete(BASE_URL + '/projects/' + projectId)
+            .then((data) => {
+                console.log(data);
+                this.searchAndDeleteProjectFromState(projectId, projects);
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
+    }
+
+    searchAndDeleteProjectFromState(keyName, array) {
+        for (var i=0; i < array.length; i++) {
+            if (array[i].name === keyName) {
+                array.splice(array.indexOf(array[i]), 1);
+                console.log('delete project', array);
+                this.setState({'projects': array});
+                return array;
+            }
+        }    
+    }
+
+    projectView(projectId) {
+        localStorage.setItem('projectId', projectId);
+        browserHistory.push('/newproject');
     }
 
     newProject() {
@@ -97,9 +148,6 @@ class App extends Component {
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
                     <a className="brand-logo">Logo</a>
-                        {/*<ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
-                            <li><a href="sass.html">Projects</a></li>
-                        </ul>*/}
                         <ul id="nav-mobile" className="right hide-on-med-and-down">
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
                             <div style={{display: 'inline'}}><a className='dropdown-button btn' data-activates='dropdownMenu'>{this.state.email}</a></div>
