@@ -26,7 +26,8 @@ trait ApiResponses
         // $transformer = $collection->first()->transformer;
 
         // $collection = $this->transformData($collection, $transformer);
-        $collection = $this->cacheResponse($collection);
+        // caching disabled for now, was delaying DOM updates
+        // $collection = $this->cacheResponse($collection);
 
         return $this->successResponse($collection, $code);
     }

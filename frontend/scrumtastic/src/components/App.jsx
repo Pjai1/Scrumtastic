@@ -25,6 +25,10 @@ class App extends Component {
        this.setState({'email': email, 'token': token, 'userId': userId});
     }
 
+    componentDidUpdate() {
+        console.log('state comp upd', this.state)
+    }
+
     componentDidMount() {
         console.log(this.state.token, this.state.userId)
         const token = 'Bearer ' + this.state.token
@@ -47,9 +51,10 @@ class App extends Component {
             }) 
     }
 
-    // shouldComponentUpdate() {
-    //     this.forceUpdate();
-    // }
+    shouldComponentUpdate(nextState) {
+        console.log('nextState',nextState)
+        return true
+    }
 
     logOut() {
         const token = 'Bearer ' + this.state.token
@@ -114,7 +119,7 @@ class App extends Component {
         axios.defaults.headers.common['Authorization'] = token
         axios.delete(BASE_URL + '/projects/' + projectId)
             .then((data) => {
-                console.log(data);
+                console.log(projects, projectId);
                 this.searchAndDeleteProjectFromState(projectId, projects);
             })
             .catch((error) => {
@@ -123,10 +128,11 @@ class App extends Component {
     }
 
     searchAndDeleteProjectFromState(keyName, array) {
+        console.log(keyName, array);
         for (var i=0; i < array.length; i++) {
-            if (array[i].name === keyName) {
-                array.splice(array.indexOf(array[i]), 1);
-                console.log('delete project', array);
+            if (array[i].id === keyName) {
+                console.log('array index', array.indexOf(array[i].id), array[i].id)
+                array = array.splice(array[i].id, 1);
                 this.setState({'projects': array});
                 return array;
             }

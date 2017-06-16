@@ -14,7 +14,8 @@ class CreateProject extends Component {
             'token': '',
             'name': '',
             'description': '',
-            'error': []
+            'error': [],
+            'projects': []
         }
     }
 
@@ -23,7 +24,8 @@ class CreateProject extends Component {
        let email = localStorage.getItem('email');
        let token = localStorage.getItem('token');
        let userId = localStorage.getItem('userId');
-       this.setState({'email': email, 'token': token, 'userId': userId});
+       let projects = localStorage.getItem('projects');
+       this.setState({'email': email, 'token': token, 'userId': userId, 'projects': projects});
     }
 
     logOut() {
@@ -59,6 +61,7 @@ class CreateProject extends Component {
         })
             .then((data) => {
                 console.log(data)
+                // localStorage.setItem('projects', data.projects)
                 browserHistory.push('/projects');
             })
             .catch((error) => {
@@ -124,11 +127,6 @@ class CreateProject extends Component {
                                             id="name"
                                             type="text"
                                             onChange={event => this.setState({name:event.target.value})}
-                                            onKeyPress={event => {
-                                            if(event.key === "Enter") {
-                                                    this.createProject();
-                                                }
-                                            }}
                                         />
                                         <label htmlFor="name">Name Project</label>
                                     </div>
