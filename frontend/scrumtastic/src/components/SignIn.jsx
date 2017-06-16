@@ -70,7 +70,6 @@ class SignIn extends Component {
 
     renderErrors() {
         let errors = [];
-        console.log(this.state.error);
         if(this.state.error.response && this.state.error.response.data.error)
         {
             let errorArray = this.state.error.response.data.error;

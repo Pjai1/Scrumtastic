@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Project;
+use App\ProjectUser;
 use App\Repositories\ProjectRepository;
 use App\Http\Controllers\ApiController;
 
@@ -56,8 +57,14 @@ class ProjectController extends ApiController
         $this->validate($request, $rules);
 
         $data = $request->all();
+        $userId = $request->user_id;
 
         $project = Project::create($data);
+
+        $projectUser = new ProjectUser;
+        $projectUser->project_id = $project->id;
+        $projectUser->user_id = $userId;
+        $projectUser->save();
 
         return $this->showOne($project, 201);
     }

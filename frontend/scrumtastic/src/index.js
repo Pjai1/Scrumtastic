@@ -9,12 +9,14 @@ import App from './components/App';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import BoardView from './components/BoardView';
-import ProjectView from './components/ProjectView'
+import ProjectView from './components/ProjectView';
+import CreateProject from './components/CreateProject';
 
 const store = createStore(reducer);
 
 function requireAuthentication(nextState, replace) {
-    if(!isUserAuthenticated()) {
+    if(!isUserAuthenticated() || !checkNewProjectStorage()) {
+        console.log('nextstate', nextState);
         replace({
             pathname: '/signin',
             state: { nextPathname: nextState.location.pathname }
@@ -23,13 +25,23 @@ function requireAuthentication(nextState, replace) {
 }
 
 function isUserAuthenticated() {
-    var authenticated = false 
+    var authenticated = false; 
 
     if(localStorage.getItem('token')) {
         authenticated = true;
     }
 
-    return authenticated
+    return authenticated;
+}
+
+function checkNewProjectStorage() {
+    var userIdStored = false;
+
+    if(localStorage.getItem('userId')) {
+        userIdStored = true;
+    }
+
+    return userIdStored;
 }
 
 ReactDOM.render(
@@ -40,6 +52,7 @@ ReactDOM.render(
             <Route path="/signup" component={SignUp} />
             <Route path="/board" onEnter={requireAuthentication.bind(this)} component={BoardView} />
             <Route path="/projects" onEnter={requireAuthentication.bind(this)} component={ProjectView} />
+            <Route path="/newproject" onEnter={requireAuthentication.bind(this)} component={CreateProject} />
         </Router>
     </Provider>,
     document.getElementById('root')

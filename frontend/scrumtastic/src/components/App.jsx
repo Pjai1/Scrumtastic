@@ -75,7 +75,7 @@ class App extends Component {
                 {
                     projects.map((project, key) => {
                         return (
-                            <Col m={6} s={12}>
+                            <Col key={key} m={6} s={12}>
                                 <Card key={key} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a href='/projects'>Details</a>]}>
                                     {project.description}
                                 </Card>
@@ -87,15 +87,19 @@ class App extends Component {
         )
     }
 
+    newProject() {
+        browserHistory.push('/newproject');
+    }
+
     render() {
         return (
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
                     <a className="brand-logo">Logo</a>
-                        <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
+                        {/*<ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
                             <li><a href="sass.html">Projects</a></li>
-                        </ul>
+                        </ul>*/}
                         <ul id="nav-mobile" className="right hide-on-med-and-down">
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
                             <div style={{display: 'inline'}}><a className='dropdown-button btn' data-activates='dropdownMenu'>{this.state.email}</a></div>
@@ -124,7 +128,7 @@ class App extends Component {
                             this.renderProjects()
                         }
                         <Col m={6} s={12}>
-                            <Card style={{backgroundColor: '#b64d87'}} textClassName='white-text' actions={[<a href='#'>+ Make new project</a>]}>
+                            <Card style={{backgroundColor: '#b64d87'}} textClassName='white-text' actions={[<a style={{cursor: 'pointer'}} onClick={this.newProject}>+ Make new project</a>]}>
                                 <div style={{fontSize: '20px'}}>[Your new project will appear here]</div>
                             </Card>
                         </Col>  
