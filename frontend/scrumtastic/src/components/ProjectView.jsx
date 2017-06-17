@@ -118,7 +118,8 @@ class ProjectView extends Component {
         axios.defaults.headers.common['Authorization'] = token
         axios.post(`${BASE_URL}/stories`, {
             'description': this.state.storyDesc,
-            'feature_id': featureId
+            'feature_id': featureId,
+            'project_id': this.state.projectId
         })
             .then((data) => {
                 console.log('story data test', data);
@@ -223,6 +224,15 @@ class ProjectView extends Component {
             }) 
     }
 
+    addSprint() {
+        const features = this.state.features;
+        const stories = this.state.stories;
+
+        localStorage.setItem('features', features);
+        localStorage.setItem('stories', stories);
+        browserHistory.push('/sprints');
+    }
+
 
     renderFeatures() {
         const features = this.state.features;
@@ -316,7 +326,7 @@ class ProjectView extends Component {
                 <div className="row center-align">    
                     <a 
                         className="waves-effect waves-light btn-large"
-                        onClick={() => this.addFeature()}
+                        onClick={() => this.addSprint()}
                     >
                         Add Sprint
                     </a>
@@ -334,6 +344,7 @@ class ProjectView extends Component {
                     <a className="brand-logo">Logo</a>
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
                             <li><a href="/">Projects</a></li>
+                            <li><a href="/sprints">Sprints</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down">
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
@@ -352,7 +363,7 @@ class ProjectView extends Component {
                 <div className="row">
                     <div className="col s2" />
                     <div className="col s8">
-                        <h2 style={{color: '#26a69a'}}>Project Backlog: {this.state.projectName}</h2>
+                        <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Backlog</h2>
                             {this.renderFeatures()}
                     </div>
                     <div className="col s2" />

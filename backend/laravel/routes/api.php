@@ -83,6 +83,8 @@ Route::resource('statuses', 'StatusController', ['except' => ['create', 'edit']]
 **/
 
 Route::resource('stories', 'StoryController', ['except' => ['create', 'edit']]);
+Route::post('sprintstories', 'StoryController@storeWithSprint');
+Route::post('storestorypivot', 'StoryController@storePivotSprint');
 
 /** 
  * Tasks

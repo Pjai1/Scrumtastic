@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Story;
 use App\Repositories\StoryRepository;
 use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\DB;
 
 class StoryController extends ApiController
 {
@@ -56,6 +57,41 @@ class StoryController extends ApiController
         $data = $request->all();
 
         $story = Story::create($data);  
+
+        return $this->showOne($story, 201);
+    }
+
+    public function storeWithSprint(Request $request)
+    {
+        $rules = [
+            'sprint_id' => 'required|exists:sprints,id',
+            'project_id' => 'required|exists:projects,id',
+            'description' => 'required'
+        ];
+
+        $this->validate($request, $rules);   
+
+        $story = new Story;
+        $story->project_id = $request->project_id;
+        $story->description = $request->description;
+        $story->save();
+
+        $story->sprints()->attach($request->sprint_id);
+
+        return $this->showOne($story, 201);
+    }
+
+    public function storePivotSprint(Request $request)
+    {
+        $rules = [
+            'sprint_id' => 'required|exists:sprints,id',
+            'story_id' => 'required|exists:stories,id'
+        ];
+
+        $this->validate($request, $rules);   
+
+        $story = Story::find($request->story_id);
+        $story->sprints()->attach($request->sprint_id);
 
         return $this->showOne($story, 201);
     }

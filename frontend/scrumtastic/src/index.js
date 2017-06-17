@@ -11,6 +11,8 @@ import SignUp from './components/SignUp';
 import BoardView from './components/BoardView';
 import ProjectView from './components/ProjectView';
 import CreateProject from './components/CreateProject';
+import SprintView from './components/SprintView';
+
 
 const store = createStore(reducer);
 
@@ -53,6 +55,7 @@ ReactDOM.render(
             <Route path="/board" onEnter={requireAuthentication.bind(this)} component={BoardView} />
             <Route path="/projects" onEnter={requireAuthentication.bind(this)} component={ProjectView} />
             <Route path="/newproject" onEnter={requireAuthentication.bind(this)} component={CreateProject} />
+            <Route path="/sprints" onEnter={requireAuthentication.bind(this)} component={SprintView} />
         </Router>
     </Provider>,
     document.getElementById('root')
