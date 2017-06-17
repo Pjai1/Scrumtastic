@@ -13,7 +13,8 @@ class Story extends Model
 
     protected $fillable = [
         'description',
-        'project_id'
+        'project_id',
+        'feature_id'
     ];
 
     protected $dates = ['deleted_at'];

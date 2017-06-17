@@ -15,7 +15,7 @@ class CreateStoriesTable extends Migration
     {
         Schema::create('stories', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('project_id')->unsigned();
+            $table->integer('project_id')->unsigned()->nullable();
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
             $table->integer('feature_id')->unsigned()->nullable();
             $table->foreign('feature_id')->references('id')->on('features')->onDelete('cascade');

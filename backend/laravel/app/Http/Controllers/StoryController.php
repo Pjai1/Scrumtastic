@@ -47,7 +47,6 @@ class StoryController extends ApiController
     public function store(Request $request)
     {
         $rules = [
-            'project_id' => 'required|exists:projects,id',
             'feature_id' => 'required|exists:features,id',
             'description' => 'required'
         ];
@@ -97,7 +96,6 @@ class StoryController extends ApiController
         $story = $this->story->findBy($story);
 
         $rules = [
-            'project_id' => 'required|exists:projects,id',
             'feature_id' => 'required|exists:features,id',
             'description' => 'required'
         ];

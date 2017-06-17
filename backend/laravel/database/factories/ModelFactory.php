@@ -120,7 +120,6 @@ $factory->define(Feature::class, function (Faker\Generator $faker) {
 $factory->define(Story::class, function (Faker\Generator $faker) {
 
     return [
-        'project_id' => Project::all()->random()->id,
         'feature_id' => Feature::all()->random()->id,
         'description' => $faker->paragraph(1) 
     ];

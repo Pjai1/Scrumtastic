@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { Link, browserHistory } from 'react-router';
 import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
 import axios from 'axios';
@@ -13,7 +14,15 @@ class ProjectView extends Component {
             'email': '',
             'token': '',
             'projectId': '',
-            'projectName': ''
+            'projectName': '',
+            'features': [],
+            'stories': [],
+            'storyDesc': '',
+            'newStoryDesc': '',
+            'storyEditingMode': false,
+            'clickedStory': null,
+            'featureEditingMode': false,
+            'clickedFeature': null,
         }
     }
 
@@ -27,8 +36,31 @@ class ProjectView extends Component {
        this.setState({'email': email, 'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName});
     }
 
-    logOut() {
+    componentDidMount() {
+        console.log(this.state.token, this.state.userId)
         const token = 'Bearer ' + this.state.token
+        let projectFeatures = [];
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.get(BASE_URL + '/projects/' + this.state.projectId + '/features')
+            .then((data) => {
+                let projectFeatures = [];
+                console.log('features', data.data[0].features);
+                data.data[0].features.forEach((feature) => {
+                    projectFeatures.push(feature);
+                })
+                console.log('features', projectFeatures);
+                this.setState({'features': projectFeatures});
+                this.getStories(projectFeatures);
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
+    }
+
+    logOut() {
+        const token = 'Bearer ' + this.state.token;
 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = token
@@ -46,6 +78,205 @@ class ProjectView extends Component {
             .catch((error) => {
                 console.log(error)
             }) 
+    }
+
+    getStories(projectFeatures) {
+        const token = 'Bearer ' + this.state.token;
+        let stateStories = this.state.stories;
+        console.log('state stories', stateStories);
+
+        projectFeatures.forEach(feature => {
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token
+            axios.get(BASE_URL + '/features/' + feature.id + '/stories')
+                .then((data) => {
+                    console.log('features', data.data[0].stories);
+                    let featureStories = [];
+                    data.data[0].stories.forEach((story) => {
+                        featureStories.push(story);
+                    })
+                    featureStories.forEach(story => {
+                        console.log('story of feature story', story)
+                        stateStories.push(story);
+                    })
+                    console.log('stories', stateStories);
+                    this.setState({'stories': stateStories});
+                })
+                .catch((error) => {
+                    console.log(error)
+                }) 
+        })
+    }
+
+    createStory(featureId) {
+        let stories = this.state.stories;
+
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.post(`${BASE_URL}/stories`, {
+            'description': this.state.storyDesc,
+            'feature_id': featureId
+        })
+            .then((data) => {
+                console.log('story data test', data);
+                stories.push(data.data);
+                this.setState({'storyDesc': ''});
+                this.setState({'stories': stories});
+                console.log('state of stories when story is added', this.state.stories)
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
+    }
+    
+    deleteStory(storyId) {
+        let stories = this.state.stories;
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.delete(`${BASE_URL}/stories/${storyId}`)
+            .then((data) => {
+                console.log('story data delete', data);
+                this.searchAndDeleteStoryFromState(storyId, stories);
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
+    }
+
+    searchAndDeleteStoryFromState(keyName, array) {
+        console.log(keyName, array);
+        for (var i=0; i < array.length; i++) {
+            if (array[i].id === keyName) {
+                delete array[i]
+                this.setState({'stories': array});
+            }
+        }    
+    }
+
+    editStory(storyId, storyDescription, featureId) {
+        console.log('storytime', storyId);
+
+        if(this.state.storyEditingMode === true) {
+            const token = 'Bearer ' + this.state.token;
+            let newStoryDesc = this.state.newStoryDesc;
+            let stories = this.state.stories;
+
+            if(this.state.storyDesc) {
+                newStoryDesc = this.state.storyDesc
+                console.log('newStoryDesc', newStoryDesc)
+            }
+
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token
+            axios.put(`${BASE_URL}/stories/${storyId}`, {
+                'description': newStoryDesc,
+                'feature_id': featureId
+            })
+                .then((data) => {
+                    console.log('update story', data)
+                    for (var i=0; i < stories.length; i++) {
+                        if (stories[i].id === storyId) {
+                            stories[i].description = newStoryDesc;
+                            this.setState({'storyDesc': ''});
+                            this.setState({'stories': stories});
+                        }
+                    }  
+                })
+                .catch((error) => {
+                    console.log(error)
+                }) 
+        } 
+        else {
+            this.setState({'newStoryDesc': storyDescription});
+            console.log(storyDescription);
+        }
+
+        if(storyId) {
+            console.log('storyId changed', storyId);
+            this.setState({'clickedStory': storyId});
+        }
+        this.setState({'storyEditingMode': !this.state.storyEditingMode});
+    }
+
+    addFeature() {
+        
+    }
+
+
+    renderFeatures() {
+        const features = this.state.features;
+        const stories = this.state.stories;
+        console.log('feature view', features);
+        return (
+            <div className="row">
+                {
+                    features.map((feature) => {
+                        console.log('does this execute: feature render');
+                        return (
+                            <ul key={feature.id} className="collection with-header">
+                                <li className="collection-header"><h4>Feature: {feature.name}</h4></li>
+                                {
+                                    stories.map((story) => {
+                                        if(story.feature_id === feature.id) {
+                                            console.log('does this execute: story render');
+                                            return (
+                                                <li key={story.id} className="collection-item">
+                                                {
+                                                    (!this.state.storyEditingMode && (this.state.clickedStory === null)) || (!this.state.storyEditingMode && (this.state.clickedStory === story.id)) || (!this.state.storyEditingMode && (this.state.clickedStory !== story.id)) || (this.state.storyEditingMode && (this.state.clickedStory !== story.id)) ?
+                                                    <div>
+                                                        User Story: {story.description}
+                                                        <a onClick={() => {this.deleteStory(story.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
+                                                        <a onClick={() => {this.editStory(story.id, story.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                                    </div> : 
+                                                    <div className="row">
+                                                        <div className="input-field col s8">
+                                                            <input 
+                                                                type="text"
+                                                                placeholder={story.description}
+                                                                onChange={event => this.setState({storyDesc:event.target.value})}
+                                                                onKeyPress={event => {
+                                                                if(event.key === "Enter") {
+                                                                        this.editStory(story.id, null, feature.id);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <a onClick={() => {this.editStory(story.id, null, feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                                    </div>
+                                                }
+                                                </li>
+                                            )
+                                        }
+                                    })
+                                }
+                                <li className="collection-item">
+                                    <div className="input-field inline col s6">
+                                        <input 
+                                            className="validate"
+                                            id="story"
+                                            type="text"
+                                            defaultValue=""
+                                            onChange={event => this.setState({storyDesc:event.target.value})}
+                                            onKeyPress={event => {
+                                            if(event.key === "Enter") {
+                                                    this.createStory(feature.id);
+                                                }
+                                            }}
+                                        />
+                                        <label htmlFor="story">User Story</label>
+                                    </div>
+                                </li>
+                            </ul>
+                        )
+                    })
+                }
+            </div>
+        )
+
     }
 
     render() {
@@ -74,7 +305,8 @@ class ProjectView extends Component {
                 <div className="row">
                     <div className="col s2" />
                     <div className="col s8">
-                        <h2 style={{color: '#26a69a'}}>Project: {this.state.projectName}</h2>
+                        <h2 style={{color: '#26a69a'}}>Project Backlog: {this.state.projectName}</h2>
+                            {this.renderFeatures()}
                     </div>
                     <div className="col s2" />
                 </div>
