@@ -23,7 +23,8 @@ class SprintView extends Component {
             'sprintEndDate': '',
             'storyDesc': '',
             'userStoryCheck': false,
-            'selectValue': ''
+            'selectValue': '',
+            'sprintId': ''
         }
     }
 
@@ -61,6 +62,10 @@ class SprintView extends Component {
             .catch((error) => {
                 console.log(error)
             }) 
+    }
+
+    saveStoriesToStorage() {
+        localStorage.setItem('stories', this.state.stories);
     }
 
     getStories(projectSprints) {
@@ -234,6 +239,12 @@ class SprintView extends Component {
         this.addStoryToSprint(storyId, sprintId);
     }
 
+    goToTasks(sprintId) {
+        console.log('sprintttt', this.state.sprintId);
+        localStorage.setItem('sprintId', sprintId);
+        browserHistory.push('/board');
+    }
+
     renderSprints() {
         const sprints = this.state.sprints;
         const stories = this.state.stories;
@@ -245,7 +256,7 @@ class SprintView extends Component {
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={sprint.name} >
+                            <Tab key={sprint.id} title={sprint.name} onClick={event => this.setState({'sprintId': sprint.id})} >
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
                                     stories.map(story => {
@@ -293,6 +304,12 @@ class SprintView extends Component {
                                 <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
                                     <label htmlFor="filled-in-box">Check to select a User Story</label>
                                 </p>
+                                <a 
+                                    className="waves-effect waves-light btn-large"
+                                    onClick={() => this.goToTasks(sprint.id)}
+                                >
+                                Go To Sprint Board
+                                </a>
                             </Tab>
                         )
                     })
@@ -312,6 +329,7 @@ class SprintView extends Component {
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
                             <li><a href="/">Projects</a></li>
                             <li><a href="/projects">Backlog</a></li>
+                            <li><a onClick={this.saveStoriesToStorage.bind(this)} href="/board">Tasks</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down">
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
