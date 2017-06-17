@@ -15,6 +15,7 @@ class ProjectView extends Component {
             'token': '',
             'projectId': '',
             'projectName': '',
+            'featureName': '',
             'features': [],
             'stories': [],
             'storyDesc': '',
@@ -202,8 +203,24 @@ class ProjectView extends Component {
         this.setState({'storyEditingMode': !this.state.storyEditingMode});
     }
 
-    addFeature() {
-        
+    createFeature() {
+        let features = this.state.features;
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.post(`${BASE_URL}/features`, {
+            'project_id': this.state.projectId,
+            'name': this.state.featureName
+        })
+            .then((data) => {
+                console.log('featureAdd', data);
+                features.push(data.data);
+                this.setState({'features': features});
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
     }
 
 
@@ -272,8 +289,38 @@ class ProjectView extends Component {
                                 </li>
                             </ul>
                         )
+                        
                     })
                 }
+                <div className="row">
+                    <ul className="collection with-header">
+                        <li className="collection-header"><h4>Feature: ...
+                            <div className="row">
+                                <div className="input-field col s6">
+                                    <input 
+                                        className="validate"
+                                        type="text"
+                                        placeholder="Your feature name"
+                                        onChange={event => this.setState({featureName:event.target.value})}
+                                        onKeyPress={event => {
+                                        if(event.key === "Enter") {
+                                                this.createFeature();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </h4></li>
+                    </ul>
+                </div>
+                <div className="row center-align">    
+                    <a 
+                        className="waves-effect waves-light btn-large"
+                        onClick={() => this.addFeature()}
+                    >
+                        Add Sprint
+                    </a>
+                </div>
             </div>
         )
 
