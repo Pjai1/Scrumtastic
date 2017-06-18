@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Project;
 use App\Sprint;
+use App\Task;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Story extends Model
@@ -27,5 +28,10 @@ class Story extends Model
     public function sprints()
     {
         return $this->belongsToMany(Sprint::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
     }
 }

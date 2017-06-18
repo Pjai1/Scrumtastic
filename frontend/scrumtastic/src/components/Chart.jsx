@@ -12,13 +12,13 @@ class SprintChart extends Component {
         legend: 'none',
       },
       data: [
-        ['Date', 'Storypoints'],
-        [8, 12],
-        [4, 5.5],
-        [11, 14],
-        [4, 5],
-        [3, 3.5],
-        [6.5, 7],
+        ['Date', 'Storypoints (Max)', 'Storypoints (Day)'],
+        [8, 12, 5],
+        [4, 5.5, 10],
+        [11, 14, 12],
+        [4, 5, 6],
+        [3, 3.5, 8],
+        [6.5, 7, 9],
       ],
     };
   }

@@ -7,7 +7,7 @@ use App\Bug;
 use App\Comment;
 use App\Notification;
 use App\Status;
-use App\Sprint;
+use App\Story;
 use App\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,7 +19,7 @@ class Task extends Model
         'name',
         'remaining_storypoints',
         'total_storypoints',
-        'sprint_id',
+        'story_id',
         'status_id'
     ];
 
@@ -47,9 +47,9 @@ class Task extends Model
         return $this->belongsTo(Status::class);
     }
 
-    public function sprint()
+    public function story()
     {
-        return $this->belongsTo(Sprint::class);
+        return $this->belongsTo(Story::class);
     }
 
     public function users()

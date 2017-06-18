@@ -87,7 +87,15 @@ class DatabaseSeeder extends Seeder
         ]);
 
         factory(Project::class, $seedQuantity)->create();
-        factory(Sprint::class, $seedQuantity)->create();    
+        factory(Sprint::class, $seedQuantity)->create();
+        factory(Feature::class, $seedQuantity)->create();
+        factory(Story::class, $seedQuantity)->create()->each(
+            function ($story) {
+                $sprints = Sprint::all()->random(mt_rand(1,5))->pluck('id');
+
+                $story->sprints()->attach($sprints);
+            }
+        );    
         factory(Task::class, $seedQuantity)->create()->each(
             function ($task) {
                 $users = User::all()->random(mt_rand(1,2))->pluck('id');
@@ -107,14 +115,6 @@ class DatabaseSeeder extends Seeder
         factory(Comment::class, $commentsQuantity)->create();  
         factory(Notification::class, $seedQuantity)->create();
         factory(Bug::class, $seedQuantity)->create();
-        factory(Feature::class, $seedQuantity)->create();
-        factory(Story::class, $seedQuantity)->create()->each(
-            function ($story) {
-                $sprints = Sprint::all()->random(mt_rand(1,5))->pluck('id');
-
-                $story->sprints()->attach($sprints);
-            }
-        );
         factory(SprintLog::class, $seedQuantity)->create();
         factory(Chart::class, $seedQuantity)->create();
         factory(ProjectUser::class, $seedQuantity)->create();

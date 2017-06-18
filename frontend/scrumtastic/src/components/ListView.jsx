@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
+import { Dropdown, Button, NavItem, Col, Card, Table } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -16,11 +16,13 @@ class ListView extends Component {
             'token': '',
             'name': '',
             'projectId': '',
+            'sprintId': '',
             'projectName': '',
             'description': '',
             'error': [],
             'projects': [],
-            'stories': []
+            'stories': [],
+            'statuses': []
         }
     }
 
@@ -30,9 +32,41 @@ class ListView extends Component {
        let userId = localStorage.getItem('userId');
        let projectId = localStorage.getItem('projectId');
        let projectName = localStorage.getItem('projectName');
-       let stories = localStorage.getItem('stories');
-       this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email});
+       let sprintId = localStorage.getItem('sprintId');
+       this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email, 'sprintId': sprintId});
     }
+
+    componentDidMount() {
+        const token = 'Bearer ' + this.state.token;
+        const sprintId = this.state.sprintId;
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token;
+
+        axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
+            .then((data) => {
+                console.log(data.data[0].stories);
+                this.setState({'stories': data.data[0].stories})
+            })
+            .catch((error) => {
+                console.log(error)
+            }) 
+    }
+
+    // getSprintStories() {
+    //     const token = 'Bearer ' + this.state.token;
+    //     const sprintId = this.state.sprintId;
+    //     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    //     axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+
+    //     axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
+    //         .then((data) => {
+    //             console.log(data.data[0].stories);
+    //             this.setState({'stories': data.data[0].stories})
+    //         })
+    //         .catch((error) => {
+    //             console.log(error)
+    //         }) 
+    // }
 
     logOut() {
         const token = 'Bearer ' + this.state.token;
@@ -55,6 +89,27 @@ class ListView extends Component {
 
             }) 
     }
+
+    renderStories() {
+        const stories = this.state.stories;
+        console.log(stories);
+        return (
+            <tbody>
+                {
+                    stories.map(story => {
+                        return (
+                            <tr key={story.id}>
+                                <td>
+                                    {story.description}
+                                </td>
+                            </tr>
+                        )
+                    })
+                }
+            </tbody>
+        )
+    }
+
     render() {
         return (
             <div>
@@ -80,7 +135,17 @@ class ListView extends Component {
                 <div className="row">
                     <div className="col s2"/>
                     <div className="col s8"> 
-                        <h2 style={{color: '#26a69a'}}>Create Your Project</h2>
+                        <h2 style={{color: '#26a69a'}}>{this.state.projectName}: List View</h2>
+                        <Table className="highlight">
+                            <thead>
+                                <tr>
+                                    <th data-field="story">User Story</th>
+                                    <th data-field="name">Tasks</th>
+                                    <th data-field="price">Status</th>
+                                </tr>
+                            </thead>
+                                {this.renderStories()}
+                        </Table>
                     </div>
                     <div className="col s2" />
                 </div>

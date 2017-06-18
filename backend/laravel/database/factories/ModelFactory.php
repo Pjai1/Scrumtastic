@@ -51,6 +51,22 @@ $factory->define(Project::class, function (Faker\Generator $faker) {
     ];
 });
 
+$factory->define(Feature::class, function (Faker\Generator $faker) {
+
+    return [
+        'project_id' => Project::all()->random()->id,
+        'name' => $faker->word 
+    ];
+});
+
+$factory->define(Story::class, function (Faker\Generator $faker) {
+
+    return [
+        'feature_id' => Feature::all()->random()->id,
+        'description' => $faker->paragraph(1) 
+    ];
+});
+
 $factory->define(Sprint::class, function (Faker\Generator $faker) use ($incrementCounter) {
     $startDate = $faker->dateTimeBetween('next Monday', 'next Monday +7 days');
     $incrementCounter->next();
@@ -69,7 +85,7 @@ $factory->define(Task::class, function (Faker\Generator $faker) {
 
     return [
         'name' => $faker->word,
-        'sprint_id' => Sprint::all()->random()->id,
+        'story_id' => Story::all()->random()->id,
         'status_id' => Status::all()->random()->id,
         'description' => $faker->paragraph(1),
         'total_storypoints' => $faker->numberBetween(6,8),
@@ -105,22 +121,6 @@ $factory->define(Bug::class, function (Faker\Generator $faker) {
 
     return [
         'task_id' => Task::all()->random()->id,
-        'description' => $faker->paragraph(1) 
-    ];
-});
-
-$factory->define(Feature::class, function (Faker\Generator $faker) {
-
-    return [
-        'project_id' => Project::all()->random()->id,
-        'name' => $faker->word 
-    ];
-});
-
-$factory->define(Story::class, function (Faker\Generator $faker) {
-
-    return [
-        'feature_id' => Feature::all()->random()->id,
         'description' => $faker->paragraph(1) 
     ];
 });
