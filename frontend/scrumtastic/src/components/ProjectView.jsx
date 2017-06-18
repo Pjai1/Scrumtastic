@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, browserHistory } from 'react-router';
 import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
+import logo from '../images/scrumtastic_logo_white.png';
+import Toast from './Toast';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
 import '../App.css';
@@ -38,7 +40,6 @@ class ProjectView extends Component {
     }
 
     componentDidMount() {
-        console.log(this.state.token, this.state.userId)
         const token = 'Bearer ' + this.state.token
         let projectFeatures = [];
 
@@ -47,16 +48,14 @@ class ProjectView extends Component {
         axios.get(BASE_URL + '/projects/' + this.state.projectId + '/features')
             .then((data) => {
                 let projectFeatures = [];
-                console.log('features', data.data[0].features);
                 data.data[0].features.forEach((feature) => {
                     projectFeatures.push(feature);
                 })
-                console.log('features', projectFeatures);
                 this.setState({'features': projectFeatures});
                 this.getStories(projectFeatures);
             })
             .catch((error) => {
-                console.log(error)
+
             }) 
     }
 
@@ -69,42 +68,40 @@ class ProjectView extends Component {
             'email': this.state.email,
         })
             .then((data) => {
-                console.log(data)
                 if(data.status === 200) {
                     localStorage.removeItem('token')
                     localStorage.removeItem('email')
-                    browserHistory.push('/signin')
+                    let t = new Toast("Succesfully logged out!", 2500)
+                    t.Render(); 
+                    setTimeout(() => {browserHistory.push('/signin')}, 2500)
                 }
             })
             .catch((error) => {
-                console.log(error)
+
             }) 
     }
 
     getStories(projectFeatures) {
         const token = 'Bearer ' + this.state.token;
         let stateStories = this.state.stories;
-        console.log('state stories', stateStories);
 
         projectFeatures.forEach(feature => {
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
             axios.defaults.headers.common['Authorization'] = token
             axios.get(BASE_URL + '/features/' + feature.id + '/stories')
                 .then((data) => {
-                    console.log('features', data.data[0].stories);
+
                     let featureStories = [];
                     data.data[0].stories.forEach((story) => {
                         featureStories.push(story);
                     })
                     featureStories.forEach(story => {
-                        console.log('story of feature story', story)
                         stateStories.push(story);
                     })
-                    console.log('stories', stateStories);
                     this.setState({'stories': stateStories});
                 })
                 .catch((error) => {
-                    console.log(error)
+
                 }) 
         })
     }
@@ -122,14 +119,12 @@ class ProjectView extends Component {
             'project_id': this.state.projectId
         })
             .then((data) => {
-                console.log('story data test', data);
                 stories.push(data.data);
                 this.setState({'storyDesc': ''});
                 this.setState({'stories': stories});
-                console.log('state of stories when story is added', this.state.stories)
             })
             .catch((error) => {
-                console.log(error)
+
             }) 
     }
     
@@ -141,16 +136,14 @@ class ProjectView extends Component {
         axios.defaults.headers.common['Authorization'] = token
         axios.delete(`${BASE_URL}/stories/${storyId}`)
             .then((data) => {
-                console.log('story data delete', data);
                 this.searchAndDeleteStoryFromState(storyId, stories);
             })
             .catch((error) => {
-                console.log(error)
+
             }) 
     }
 
     searchAndDeleteStoryFromState(keyName, array) {
-        console.log(keyName, array);
         for (var i=0; i < array.length; i++) {
             if (array[i].id === keyName) {
                 delete array[i]
@@ -160,7 +153,6 @@ class ProjectView extends Component {
     }
 
     editStory(storyId, storyDescription, featureId) {
-        console.log('storytime', storyId);
 
         if(this.state.storyEditingMode === true) {
             const token = 'Bearer ' + this.state.token;
@@ -169,7 +161,6 @@ class ProjectView extends Component {
 
             if(this.state.storyDesc) {
                 newStoryDesc = this.state.storyDesc
-                console.log('newStoryDesc', newStoryDesc)
             }
 
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -179,7 +170,6 @@ class ProjectView extends Component {
                 'feature_id': featureId
             })
                 .then((data) => {
-                    console.log('update story', data)
                     for (var i=0; i < stories.length; i++) {
                         if (stories[i].id === storyId) {
                             stories[i].description = newStoryDesc;
@@ -189,16 +179,14 @@ class ProjectView extends Component {
                     }  
                 })
                 .catch((error) => {
-                    console.log(error)
+
                 }) 
         } 
         else {
             this.setState({'newStoryDesc': storyDescription});
-            console.log(storyDescription);
         }
 
         if(storyId) {
-            console.log('storyId changed', storyId);
             this.setState({'clickedStory': storyId});
         }
         this.setState({'storyEditingMode': !this.state.storyEditingMode});
@@ -215,12 +203,11 @@ class ProjectView extends Component {
             'name': this.state.featureName
         })
             .then((data) => {
-                console.log('featureAdd', data);
                 features.push(data.data);
                 this.setState({'features': features});
             })
             .catch((error) => {
-                console.log(error)
+
             }) 
     }
 
@@ -237,19 +224,16 @@ class ProjectView extends Component {
     renderFeatures() {
         const features = this.state.features;
         const stories = this.state.stories;
-        console.log('feature view', features);
         return (
             <div className="row">
                 {
                     features.map((feature) => {
-                        console.log('does this execute: feature render');
                         return (
                             <ul key={feature.id} className="collection with-header">
                                 <li className="collection-header"><h4>Feature: {feature.name}</h4></li>
                                 {
                                     stories.map((story) => {
                                         if(story.feature_id === feature.id) {
-                                            console.log('does this execute: story render');
                                             return (
                                                 <li key={story.id} className="collection-item">
                                                 {
@@ -341,22 +325,19 @@ class ProjectView extends Component {
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
-                    <a className="brand-logo">Logo</a>
-                        <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
+                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                        <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                             <li><a href="/">Projects</a></li>
                             <li><a href="/sprints">Sprints</a></li>
                         </ul>
-                        <ul id="nav-mobile" className="right hide-on-med-and-down">
+                        <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
-                            <div style={{display: 'inline'}}><a className='dropdown-button btn' data-activates='dropdownMenu'>{this.state.email}</a></div>
-
-                            <ul id='dropdownMenu' className='dropdown-content' style={{marginLeft: '15px', marginTop: '35px' }}>
-                                <li><a style={{paddingLeft: '30px'}} onClick={this.logOut.bind(this)}>
-                                        <i className="material-icons">input</i>
-                                        Log out
-                                    </a>
-                                </li>
-                            </ul>
+                            <Dropdown trigger={
+                                <Button style={{display: 'inline'}}>{this.state.email}</Button>
+                                }>
+                                <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
+                                <NavItem divider />
+                            </Dropdown>
                         </ul>
                     </div>
                 </nav>

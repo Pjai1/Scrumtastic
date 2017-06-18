@@ -223,24 +223,15 @@ class App extends Component {
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
                     <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
-                        <ul id="nav-mobile" className="right hide-on-med-and-down">
+                        <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
-                            <div style={{display: 'inline'}}><a className='dropdown-button btn' data-activates='dropdownMenu'>{this.state.email}</a></div>
-
-                            <ul id='dropdownMenu' className='dropdown-content' style={{marginLeft: '15px', marginTop: '35px' }}>
-                                <li><a style={{paddingLeft: '30px'}} onClick={this.logOut.bind(this)}>
-                                        <i className="material-icons">input</i>
-                                        Log out
-                                    </a>
-                                </li>
-                            </ul>
+                            <Dropdown trigger={
+                                <Button style={{display: 'inline'}}>{this.state.email}</Button>
+                                }>
+                                <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
+                                <NavItem divider />
+                            </Dropdown>
                         </ul>
-                        {/*<Dropdown trigger={
-                            <Button>{this.state.email || "WHO ARE U" }</Button>
-                            }>
-                            <NavItem onClick={this.logOut.bind(this)}>Log Out Feggeht</NavItem>
-                            <NavItem divider />
-                        </Dropdown>*/}
                     </div>
                 </nav>
                 <div className="row">
