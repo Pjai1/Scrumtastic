@@ -23,7 +23,10 @@ class ListView extends Component {
             'tasks': [],
             'stories': [],
             'statuses': [],
-            'listViewArray': []
+            'listViewArray': [],
+            'renderArray': [],
+            'maxStorypoints': '',
+            'dailyStorypoints': ''
         }
     }
 
@@ -35,14 +38,17 @@ class ListView extends Component {
        let projectName = localStorage.getItem('projectName');
        let sprintId = localStorage.getItem('sprintId');
        this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email, 'sprintId': sprintId});
-
+       let t = new Toast("Content being loaded in, hold on!", 3000)
+       t.Render(); 
        this.getStatuses().then(() => {
            this.getUserStoriesForSprint().then(() => {
                 this.getStoryTasks().then((tasks) => {
                     console.log("Tasks is: ", tasks)
+                    this.setState({renderArray: tasks})
                 })
            })
        })
+       console.log('rendering', this.state.renderArray);
     }
 
     getUserStoriesForSprint() {
@@ -56,7 +62,6 @@ class ListView extends Component {
                 .then((data) => {
                     console.log(data.data[0].stories);
                     this.setState({stories: data.data[0].stories, listViewArray: data.data[0].stories})
-                    console.log('listviewarr', this.state.listViewArray);
                     resolve()
                 })
                 .catch((error) => {
@@ -64,26 +69,6 @@ class ListView extends Component {
                     reject(error)
                 }) 
         }.bind(this))
-    }
-
-    getStatuses() {
-        const token = 'Bearer ' + this.state.token;
-
-        return new Promise(function(resolve, reject) {
-            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-            axios.defaults.headers.common['Authorization'] = token;
-
-            axios.get(`${BASE_URL}/statuses`)
-                .then((data) => {
-                    this.setState({statuses: data.data})
-                    console.log('statuses', this.state.statuses);
-                    resolve()
-                })
-                .catch((error) => {
-                    console.log(error)
-                    reject(error)
-                }) 
-            }.bind(this))
     }
 
     getStoryTasks() {
@@ -94,6 +79,7 @@ class ListView extends Component {
             let promises = []
 
             stories.forEach((story, i) => {
+                console.log("value i", story)
                 promises.push(
                     this.getTasksForStory(story, i).then(function(taskArray) {
                         if(taskArray) {
@@ -116,46 +102,64 @@ class ListView extends Component {
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
             axios.defaults.headers.common['Authorization'] = token;
 
-            let tasksForStory = { tasks: [] }
+            let tasksForStory = 
+                {
+                    "story": story,
+                    "tasks": []
+                }
+
+            let taskObject = {
+                        "id": null,
+                        "name": null,
+                        "total_storypoints": null,
+                        "remaining_storypoints": null,
+                        "users": [
+                        ],
+                        "status": null
+                    }
+
             var self = this
 
             axios.get(`${BASE_URL}/stories/${story.id}/tasks`)
                 .then((data) => {
-                    
-
-                    let tasks = data.data[0].tasks 
+                    let tasks = data.data[0].tasks
+                    console.log('TASKS', tasks) 
                     let promises = []
 
                     if(tasks.length === 0) {
-                        resolve() 
+                        resolve({ tasks: [], status: null, story: story }) 
                     }
 
-                    tasks.forEach(function(task) {
+                    tasks.forEach((task, i) => {
+                        console.log('how many tasks', i)
                         promises.push(new Promise(function(resolve, reject) {
-                            let taskObj = { users: [], status: null }
-
                             Promise.all([
                                 self.getUsersForTask(task.id).then((users) => {
                                     if(users.length > 0) {
-                                        taskObj.users = users
+                                        taskObject.users = users;
                                     }
                                     resolve()
                                 }),
                                 self.getTaskStatus(task.status_id).then((status) => {
                                     if(status) {
-                                        taskObj.status = status
+                                        taskObject.status = status;
                                     }
                                     resolve()
                                 })                                 
                             ]).then(function() {
-                                tasksForStory.tasks.push(taskObj)
+                                taskObject.id = task.id;
+                                taskObject.name = task.name;
+                                taskObject.total_storypoints = task.total_storypoints;
+                                taskObject.remaining_storypoints = task.remaining_storypoints;
+                                tasksForStory.tasks.push(taskObject)
                                 resolve()
                             })
                         }))
-                      
-                        Promise.all(promises).then(function() {
-                            resolve(tasksForStory)
-                        })
+                    })
+
+                    console.log("PROMISES FOR STORY " + story.id + " IS: ", promises)
+                    Promise.all(promises).then(function() {
+                        resolve(tasksForStory)
                     })
                 })
                 .catch((error) => {
@@ -211,6 +215,26 @@ class ListView extends Component {
         }.bind(this))
     }
 
+    getStatuses() {
+        const token = 'Bearer ' + this.state.token;
+
+        return new Promise(function(resolve, reject) {
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token;
+
+            axios.get(`${BASE_URL}/statuses`)
+                .then((data) => {
+                    this.setState({statuses: data.data})
+                    console.log('statuses', this.state.statuses);
+                    resolve()
+                })
+                .catch((error) => {
+                    console.log(error)
+                    reject(error)
+                }) 
+            }.bind(this))
+    }
+
     logOut() {
         const token = 'Bearer ' + this.state.token;
 
@@ -234,16 +258,38 @@ class ListView extends Component {
     }
 
     renderStories() {
-        const stories = this.state.stories;
-        console.log(stories);
+        const renderArray = this.state.renderArray;
+        console.log('renderarr',renderArray);
         return (
             <tbody>
                 {
-                    stories.map(story => {
+                    renderArray.map((story, key) => {
                         return (
-                            <tr key={story.id}>
+                            <tr key={key}>
+                                <td className="story-description">
+                                    {story.story.description}
+                                </td>
+                                <td> 
+                                    {   
+                                        story.tasks.length === 0 ? "/" : story.tasks.map((task, key) => {
+                                            return (
+                                                <div style={{marginBottom: '30px'}} key={key}><b>{task.name}:</b> {task.users.map((user, key) => {
+                                                        return (
+                                                            <p key={key}><em>{user.name}</em></p>
+                                                        )
+                                                    })}</div>
+                                            )
+                                        })
+                                    }
+                                </td>
                                 <td>
-                                    {story.description}
+                                    {   
+                                        story.tasks.length === 0 ? "/" : story.tasks.map((task, key) => {
+                                            return (
+                                                <div className="task-status" key={key}>{task.status}</div>
+                                            )
+                                        })
+                                    }
                                 </td>
                             </tr>
                         )
@@ -251,6 +297,11 @@ class ListView extends Component {
                 }
             </tbody>
         )
+    }
+
+    goToChart() {
+
+        browserHistory.push('/chart');
     }
 
     render() {
@@ -280,16 +331,21 @@ class ListView extends Component {
                 <div className="row">
                     <div className="col s2"/>
                     <div className="col s8"> 
-                        <h2 style={{color: '#26a69a'}}>{this.state.projectName}: List View</h2>
-                        <Table className="highlight">
+                        <h2 style={{color: '#26a69a'}}>{this.state.projectName}: List View</h2><a 
+                                    className="waves-effect waves-light btn-large"
+                                    onClick={() => this.goToChart()}
+                                >
+                                Go To Burndown
+                                </a>
+                        <Table className="striped">
                             <thead>
                                 <tr>
                                     <th data-field="story">User Story</th>
-                                    <th data-field="name">Tasks</th>
-                                    <th data-field="price">Status</th>
+                                    <th data-field="tasks">Tasks + User(s)</th>
+                                    <th data-field="status">Status</th>
                                 </tr>
                             </thead>
-                                {/*{this.renderStories()}*/}
+                                {this.renderStories()}
                         </Table>
                     </div>
                     <div className="col s2" />

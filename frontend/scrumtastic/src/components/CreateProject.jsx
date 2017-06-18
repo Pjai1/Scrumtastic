@@ -64,7 +64,7 @@ class CreateProject extends Component {
         })
             .then((data) => {
 
-                localStorage.setItem('projectId', data.id);
+                localStorage.setItem('projectId', data.data.id);
                 localStorage.setItem('projectName', this.state.name);
                 browserHistory.push('/projects');
             })

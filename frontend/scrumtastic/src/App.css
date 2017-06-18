@@ -41,6 +41,18 @@
   height: 64px;
 }
 
+.story-description {
+  font-size: 20px;
+  text-align: justify;
+  max-width: 350px;
+  padding-right: 50px;
+}
+
+.task-status
+{
+  margin-bottom: 100px;
+}
+
 .toast-message {
   height: 35px;
   margin-top: 50px;
