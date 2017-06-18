@@ -109,6 +109,13 @@ class StoryController extends ApiController
         return $this->showOne($story);
     }
 
+    public function showStoryTasks(Story $story)
+    {
+        $tasks = $this->story->findAllTasks($story);
+
+        return $this->showAll($tasks);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

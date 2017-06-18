@@ -23,11 +23,6 @@ class SprintRepository
         return $sprint;
     }
 
-    public function findAllTasks(Sprint $sprint)
-    {
-        return $this->sprint->where('id', $sprint->id)->with('tasks')->get();
-    }
-
     public function findAllSprintLogs(Sprint $sprint)
     {
         return $this->sprint->where('id', $sprint->id)->with('sprintlogs')->get();

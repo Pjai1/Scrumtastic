@@ -22,4 +22,9 @@ class StoryRepository
     {
         return $story;
     }
+
+    public function findAllTasks(Story $story)
+    {
+        return $this->story->where('id', $story->id)->with('tasks')->get();
+    }
 }
