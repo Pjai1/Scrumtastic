@@ -95,6 +95,13 @@ class TaskController extends ApiController
         return $this->showAll($comments);
     }
 
+    public function showTaskStatus(Task $task)
+    {
+        $status = $this->task->findStatus($task);
+
+        return $this->showOne($status);
+    }
+
     public function showTaskUsers(Task $task)
     {
         $users = $this->task->findAllUsers($task);

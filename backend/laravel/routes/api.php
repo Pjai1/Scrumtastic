@@ -96,7 +96,7 @@ Route::get('tasks/{task}/users', 'TaskController@showTaskUsers');
 Route::get('tasks/{task}/comments', 'TaskController@showTaskComments');
 Route::get('tasks/{task}/notifications', 'TaskController@showTaskNotifications');
 Route::get('tasks/{task}/bugs', 'TaskController@showTaskBugs');
-
+Route::get('tasks/{task}/statuses', 'TaskController@showTaskStatus');
 
 /** 
  * Teams

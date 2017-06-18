@@ -20,9 +20,10 @@ class ListView extends Component {
             'projectName': '',
             'description': '',
             'error': [],
-            'projects': [],
+            'tasks': [],
             'stories': [],
-            'statuses': []
+            'statuses': [],
+            'listViewArray': []
         }
     }
 
@@ -34,39 +35,181 @@ class ListView extends Component {
        let projectName = localStorage.getItem('projectName');
        let sprintId = localStorage.getItem('sprintId');
        this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email, 'sprintId': sprintId});
+
+       this.getStatuses().then(() => {
+           this.getUserStoriesForSprint().then(() => {
+                this.getStoryTasks().then((tasks) => {
+                    console.log("Tasks is: ", tasks)
+                })
+           })
+       })
     }
 
-    componentDidMount() {
+    getUserStoriesForSprint() {
+        return new Promise(function(resolve, reject) {
+            const token = 'Bearer ' + this.state.token;
+            const sprintId = this.state.sprintId;
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token;
+
+            axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
+                .then((data) => {
+                    console.log(data.data[0].stories);
+                    this.setState({stories: data.data[0].stories, listViewArray: data.data[0].stories})
+                    console.log('listviewarr', this.state.listViewArray);
+                    resolve()
+                })
+                .catch((error) => {
+                    console.log(error)
+                    reject(error)
+                }) 
+        }.bind(this))
+    }
+
+    getStatuses() {
         const token = 'Bearer ' + this.state.token;
-        const sprintId = this.state.sprintId;
-        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-        axios.defaults.headers.common['Authorization'] = token;
 
-        axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
-            .then((data) => {
-                console.log(data.data[0].stories);
-                this.setState({'stories': data.data[0].stories})
-            })
-            .catch((error) => {
-                console.log(error)
-            }) 
+        return new Promise(function(resolve, reject) {
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token;
+
+            axios.get(`${BASE_URL}/statuses`)
+                .then((data) => {
+                    this.setState({statuses: data.data})
+                    console.log('statuses', this.state.statuses);
+                    resolve()
+                })
+                .catch((error) => {
+                    console.log(error)
+                    reject(error)
+                }) 
+            }.bind(this))
     }
 
-    // getSprintStories() {
-    //     const token = 'Bearer ' + this.state.token;
-    //     const sprintId = this.state.sprintId;
-    //     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-    //     axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    getStoryTasks() {
+        return new Promise(function(resolve, reject) {
+            let stories = JSON.parse(JSON.stringify(this.state.stories))
+            let tasks = []
 
-    //     axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
-    //         .then((data) => {
-    //             console.log(data.data[0].stories);
-    //             this.setState({'stories': data.data[0].stories})
-    //         })
-    //         .catch((error) => {
-    //             console.log(error)
-    //         }) 
-    // }
+            let promises = []
+
+            stories.forEach((story, i) => {
+                promises.push(
+                    this.getTasksForStory(story, i).then(function(taskArray) {
+                        if(taskArray) {
+                            tasks.push(taskArray)
+                        }
+                    })                    
+                )
+            })
+
+            Promise.all(promises).then(function() {
+                resolve(tasks)
+            })
+        }.bind(this))
+    }
+
+    getTasksForStory(story, i) {
+        const token = 'Bearer ' + this.state.token;
+
+        return new Promise(function(resolve, reject) {
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token;
+
+            let tasksForStory = { tasks: [] }
+            var self = this
+
+            axios.get(`${BASE_URL}/stories/${story.id}/tasks`)
+                .then((data) => {
+                    
+
+                    let tasks = data.data[0].tasks 
+                    let promises = []
+
+                    if(tasks.length === 0) {
+                        resolve() 
+                    }
+
+                    tasks.forEach(function(task) {
+                        promises.push(new Promise(function(resolve, reject) {
+                            let taskObj = { users: [], status: null }
+
+                            Promise.all([
+                                self.getUsersForTask(task.id).then((users) => {
+                                    if(users.length > 0) {
+                                        taskObj.users = users
+                                    }
+                                    resolve()
+                                }),
+                                self.getTaskStatus(task.status_id).then((status) => {
+                                    if(status) {
+                                        taskObj.status = status
+                                    }
+                                    resolve()
+                                })                                 
+                            ]).then(function() {
+                                tasksForStory.tasks.push(taskObj)
+                                resolve()
+                            })
+                        }))
+                      
+                        Promise.all(promises).then(function() {
+                            resolve(tasksForStory)
+                        })
+                    })
+                })
+                .catch((error) => {
+                    console.log("Error: ", error)
+                    reject(error)
+                }) 
+        }.bind(this))
+    }
+
+    getUsersForTask(taskId) {
+        const token = 'Bearer ' + this.state.token;
+
+        return new Promise(function(resolve, reject) {
+            if(!taskId) {
+                reject()
+            }
+
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token;
+
+            axios.get(`${BASE_URL}/tasks/${taskId}/users`)
+                .then((data) => {
+                   resolve(data.data[0].users)
+                })
+                .catch((error) => {
+                    console.log(error)
+                    reject(error)
+                }) 
+        }.bind(this))
+    }
+
+    getTaskStatus(statusId) {
+        return new Promise(function(resolve, reject) {
+            if(!statusId) {
+                reject()
+            }
+
+            const token = 'Bearer ' + this.state.token;
+
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token;
+
+            axios.get(`${BASE_URL}/statuses/${statusId}}`)
+                .then((data) => {
+                    return resolve(data.data.name)
+                })
+                .catch((error) => {
+                    console.log(error)
+                    reject(error)
+                }) 
+            
+            
+        }.bind(this))
+    }
 
     logOut() {
         const token = 'Bearer ' + this.state.token;
@@ -120,6 +263,8 @@ class ListView extends Component {
                             <li><a href="/">Projects</a></li>
                             <li><a href="/projects">Backlog</a></li>
                             <li><a href="/sprints">Sprints</a></li>
+                            <li><a href="/board">Board View</a></li>
+                            <li><a href="/chart">Chart</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
@@ -144,7 +289,7 @@ class ListView extends Component {
                                     <th data-field="price">Status</th>
                                 </tr>
                             </thead>
-                                {this.renderStories()}
+                                {/*{this.renderStories()}*/}
                         </Table>
                     </div>
                     <div className="col s2" />

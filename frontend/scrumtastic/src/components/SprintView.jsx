@@ -217,7 +217,7 @@ class SprintView extends Component {
 
     goToTasks(sprintId) {
         localStorage.setItem('sprintId', sprintId);
-        browserHistory.push('/board');
+        browserHistory.push('/list');
     }
 
     renderSprints() {

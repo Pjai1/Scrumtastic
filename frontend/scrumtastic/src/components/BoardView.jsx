@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
 import { Dropdown, Button, NavItem, Col, Card, Tabs, Tab, Row, Input } from 'react-materialize';
+import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
 import '../App.css';
@@ -218,28 +219,27 @@ class App extends Component {
       }
     return (
       <div>
-        <nav className="teal lighten-3">
-          <div className="nav-wrapper">
-          <a className="brand-logo">Logo</a>
-              <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '100px'}}>
-                  <li><a href="/">Projects</a></li>
-                  <li><a href="/projects">Backlog</a></li>
-                  <li><a href="/sprints">Sprints</a></li>
-              </ul>
-              <ul id="nav-mobile" className="right hide-on-med-and-down">
-                  <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
-                  <div style={{display: 'inline'}}><a className='dropdown-button btn' data-activates='dropdownMenu'>{this.state.email}</a></div>
-
-                  <ul id='dropdownMenu' className='dropdown-content' style={{marginLeft: '15px', marginTop: '35px' }}>
-                      <li><a style={{paddingLeft: '30px'}} onClick={this.logOut.bind(this)}>
-                              <i className="material-icons">input</i>
-                              Log out
-                          </a>
-                      </li>
+          <nav className="teal lighten-3">
+            <div className="nav-wrapper">
+              <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                  <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
+                      <li><a href="/">Projects</a></li>
+                      <li><a href="/projects">Backlog</a></li>
+                      <li><a href="/sprints">Sprints</a></li>
+                      <li><a href="/list">List View</a></li>
+                      <li><a href="/chart">Chart</a></li>
                   </ul>
-              </ul>
-          </div>
-        </nav>
+                  <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
+                      <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
+                      <Dropdown trigger={
+                          <Button style={{display: 'inline'}}>{this.state.email}</Button>
+                          }>
+                          <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
+                          <NavItem divider />
+                      </Dropdown>
+                  </ul>
+              </div>
+          </nav>
         <Board data={data} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
         </div>
     );

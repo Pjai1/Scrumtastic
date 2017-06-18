@@ -38,6 +38,11 @@ class TaskRepository
         return $this->task->where('id', $task->id)->with('notifications')->get();
     }
 
+    public function findStatus(Task $task)
+    {
+        return $this->task->where('id', $task->id)->with('statuses')->get();
+    }
+
     public function findAllUsers(Task $task)
     {
         return $this->task->where('id', $task->id)->with('users')->get();
