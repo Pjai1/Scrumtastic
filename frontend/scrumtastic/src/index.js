@@ -12,6 +12,8 @@ import BoardView from './components/BoardView';
 import ProjectView from './components/ProjectView';
 import CreateProject from './components/CreateProject';
 import SprintView from './components/SprintView';
+import ListView from './components/ListView';
+import SprintChart from './components/Chart';
 
 
 const store = createStore(reducer);
@@ -56,6 +58,8 @@ ReactDOM.render(
             <Route path="/projects" onEnter={requireAuthentication.bind(this)} component={ProjectView} />
             <Route path="/newproject" onEnter={requireAuthentication.bind(this)} component={CreateProject} />
             <Route path="/sprints" onEnter={requireAuthentication.bind(this)} component={SprintView} />
+            <Route path="/chart" onEnter={requireAuthentication.bind(this)} component={SprintChart} />
+            <Route path="/list" onEnter={requireAuthentication.bind(this)} component={ListView} />
         </Router>
     </Provider>,
     document.getElementById('root')
