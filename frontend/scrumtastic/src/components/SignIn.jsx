@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
+import logo from '../images/scrumtastic_logo_black_inverse.png';
 import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
 import SignUp from './SignUp';
 import Toast from './Toast'
+import '../App.css';
+
 
 class SignIn extends Component {
     constructor(props) {
         super(props);
         this.statusMessage = null
         this.state = {
-            showSuccess: false, 
             userId: '',
             email: '',
             password: '',
@@ -30,8 +32,6 @@ class SignIn extends Component {
     }
 
     signIn() {
-        // var t = new Toast("Yo im a toast", 2000)
-        // t.Render() 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.post(`${BASE_URL}/oauth/token`, {
             "grant_type": "password",
@@ -42,10 +42,11 @@ class SignIn extends Component {
         })
             .then((data) => {
                 if(data.data.access_token) {
-                    console.log(data.data.access_token);
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
-                    this.setState({token: data.data.access_token, showSuccess: true});
+                    this.setState({token: data.data.access_token});
+                    let t = new Toast("Succesfully logged in!", 2500)
+                    t.Render(); 
                     this.getUserId();
                 }
             })
@@ -61,7 +62,7 @@ class SignIn extends Component {
         })
             .then((data) => {
                 localStorage.setItem('userId', data.data[0].id);
-                setTimeout(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);
+                setTimeout(() => {browserHistory.push('/')}, 2500);
             })
             .catch((error) => {
                 this.setState({error});
@@ -89,7 +90,7 @@ class SignIn extends Component {
         return (
             <div className="container">
                 <div className="Align">
-                <h5 className="center-align">LOGO</h5>
+                <div><img className="logo-login" src={logo} /></div>
                 <div className="row">
                     <form className="col s12">
                         <div className="row">
@@ -106,7 +107,7 @@ class SignIn extends Component {
                                         }
                                     }}
                                 />
-                                <label htmlFor="email">Email</label>
+                                <label htmlFor="email">Your Email</label>
                             </div>
                             <div className="input-field inline col s4">
                                 <input 
@@ -120,7 +121,7 @@ class SignIn extends Component {
                                         }
                                     }}
                                 />
-                                <label htmlFor="password">Password</label>
+                                <label htmlFor="password">Your Password</label>
                             </div>
                         </div>
                         <div className="col s2"></div>
@@ -142,7 +143,7 @@ class SignIn extends Component {
                         Sign In
                     </a>
                 </div>
-                <div className="row">
+                <div className="row" style={{marginBottom: '200px'}}>
                     <div className="center-align">Not got an account yet? <Link to={"/signup"}>Sign Up</Link> instead!</div>
                 </div>
                 </div>

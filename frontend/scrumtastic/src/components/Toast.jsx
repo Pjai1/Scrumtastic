@@ -11,7 +11,7 @@ Toast.prototype.Render = function() {
 
     var node = document.createElement('div')
     node.className = 'toast-body'
-    node.innerHTML = '<span class="toast-message">' + this.message + '</span>'
+    node.innerHTML = '<span id="toast-container" class="toast-message waves-effect waves-light teal lighten-2">' + this.message + '</span>'
 
     var body = document.querySelector('body')
     if(body && !this.domNode && !this.parent) {

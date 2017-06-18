@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
 import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
+import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
+import Toast from './Toast'
 import '../App.css';
 
 class App extends Component {
@@ -32,10 +34,6 @@ class App extends Component {
        this.setState({'email': email, 'token': token, 'userId': userId});
     }
 
-    componentDidUpdate() {
-        console.log('state comp upd', this.state)
-    }
-
     componentDidMount() {
         console.log(this.state.token, this.state.userId)
         const token = 'Bearer ' + this.state.token
@@ -58,11 +56,6 @@ class App extends Component {
             }) 
     }
 
-    shouldComponentUpdate(nextState) {
-        console.log('nextState',nextState)
-        return true
-    }
-
     logOut() {
         const token = 'Bearer ' + this.state.token
 
@@ -76,7 +69,9 @@ class App extends Component {
                 if(data.status === 200) {
                     localStorage.removeItem('token')
                     localStorage.removeItem('email')
-                    browserHistory.push('/signin')
+                    let t = new Toast("Succesfully logged out!", 2500)
+                    t.Render(); 
+                    setTimeout(() => {browserHistory.push('/signin')}, 2500)
                 }
             })
             .catch((error) => {
@@ -94,13 +89,13 @@ class App extends Component {
                         return (
                             <Col key={project.id} m={6} s={12}>
                             {console.log('look at me', this.state.clickedProject, project.id)}
-                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
+                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
                                     {project.description}
-                                    <a onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
-                                    <a onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                    <a key="Delete Project" onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
+                                    <a key="Edit Project" onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
                                 </Card> : 
                                 <Card key={project.id} style={{backgroundColor: '#b64d87', height: '220px'}} textClassName='white-text'>
-                                    <form className="col s6">
+                                    <form className="col s8">
                                         <div className="row">
                                             <div className="input-field col s12">
                                                 <input 
@@ -227,7 +222,7 @@ class App extends Component {
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
-                    <a className="brand-logo">Logo</a>
+                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
                         <ul id="nav-mobile" className="right hide-on-med-and-down">
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
                             <div style={{display: 'inline'}}><a className='dropdown-button btn' data-activates='dropdownMenu'>{this.state.email}</a></div>
@@ -256,8 +251,8 @@ class App extends Component {
                             this.renderProjects()
                         }
                         <Col m={6} s={12}>
-                            <Card style={{backgroundColor: '#b64d87'}} textClassName='white-text' actions={[<a style={{cursor: 'pointer'}} onClick={this.newProject}>+ Make new project</a>]}>
-                                <div style={{fontSize: '20px'}}>[Your new project will appear here]</div>
+                            <Card key="New Project" style={{backgroundColor: '#b64d87'}} textClassName='white-text' actions={[<a key="New Project" style={{cursor: 'pointer'}} onClick={this.newProject}>+ Make new project</a>]}>
+                                <div key="New Project" style={{fontSize: '20px'}}>[Your new project will appear here]</div>
                             </Card>
                         </Col>  
                     </div>

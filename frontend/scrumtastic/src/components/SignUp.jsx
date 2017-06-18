@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { Link, Router, browserHistory } from 'react-router';
+import logo from '../images/scrumtastic_logo_black_inverse.png';
 import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
+import Toast from './Toast'
+import '../App.css';
 
 class SignUp extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            showSuccess: false,
             userId: '',
             name: '',
             email: '',
@@ -37,13 +39,11 @@ class SignUp extends Component {
             password_confirmation: this.state.passwordConfirmation
         })
             .then((data) => {
-                console.log(data);
-                localStorage.setItem('userId', data.reponse.data.id)
+                localStorage.setItem('userId', data.data.id)
                 this.getToken();
             })
             .catch((error) => {
                 this.setState({error});
-                console.log(error.response.data.error);
             });
     }
 
@@ -58,13 +58,12 @@ class SignUp extends Component {
         })
             .then((data) => {
                 if(data.data.access_token) {
-                    console.log(data.data.access_token);
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
-
+                    let t = new Toast("Succesfully logged in!", 2500)
+                    t.Render(); 
                     this.setState({token: data.data.access_token});
-                    this.setState({showSuccess: true});
-                    setInterval(() => {this.setState({showSuccess:false});browserHistory.push('/');}, 2000);
+                    setInterval(() => {browserHistory.push('/')}, 2500);
                 }
             })
             .catch((error) => {
@@ -74,7 +73,6 @@ class SignUp extends Component {
 
     renderErrors() {
         let errors = [];
-        console.log(this.state.error);
         if(this.state.error.response && this.state.error.response.data.error)
         {
             let errorArray = this.state.error.response.data.error;
@@ -94,7 +92,7 @@ class SignUp extends Component {
         return (
             <div className="container">
                 <div className="Align">
-                    <h5 className="center-align">LOGO</h5>
+                    <div><img className="logo-login" src={logo} /></div>
                     <div className="row">
                     <form className="col s12">
                         <div className="row">
@@ -111,7 +109,7 @@ class SignUp extends Component {
                                         }
                                     }}
                                 />
-                                <label htmlFor="name">Name</label>
+                                <label htmlFor="name">Your Name</label>
                             </div>
                             <div className="col s4"></div>
                         </div>
@@ -129,7 +127,7 @@ class SignUp extends Component {
                                         }
                                     }}
                                 />
-                                <label htmlFor="email">Email</label>
+                                <label htmlFor="email">Your Email</label>
                             </div>
                             <div className="col s4"></div>
                         </div>
@@ -147,7 +145,7 @@ class SignUp extends Component {
                                         }
                                     }}
                                 />
-                                <label htmlFor="password">Password</label>
+                                <label htmlFor="password">Your Password</label>
                             </div>
                             <div className="col s4"></div>
                         </div>
@@ -165,16 +163,11 @@ class SignUp extends Component {
                                         }
                                     }}
                                 />
-                                <label htmlFor="password-confirmation">Password (Confirm)</label>
+                                <label htmlFor="password-confirmation">Your Password (Confirm)</label>
                             </div>
                             <div className="col s4"></div>
                         </div>
                     </form>
-                </div>
-                <div className="row">
-                    <div className="col s4"></div>  
-                    {this.state.showSuccess ? <div className="card-panel teal lighten-2 center-align col s4">Logged in succesfully!</div> : null}
-                    <div className="col s4"></div>  
                 </div>
                 <div className="row">
                     {this.renderErrors()} 
