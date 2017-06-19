@@ -3,7 +3,6 @@ import { Link, browserHistory } from 'react-router';
 import logo from '../images/scrumtastic_logo_black_inverse.png';
 import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
-import SignUp from './SignUp';
 import Toast from './Toast'
 import '../App.css';
 
@@ -19,10 +18,6 @@ class SignIn extends Component {
             error: [],
             token: '',
         }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps !== this.props || nextState !== this.state || nextState.error !== null
     }
 
     componentWillMount() {
@@ -90,7 +85,7 @@ class SignIn extends Component {
         return (
             <div className="container">
                 <div className="Align">
-                <div><img className="logo-login" src={logo} /></div>
+                <div><img className="logo-login" src={logo} alt="logo" /></div>
                 <div className="row">
                     <form className="col s12">
                         <div className="row">

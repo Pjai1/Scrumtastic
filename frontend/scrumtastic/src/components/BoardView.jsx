@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card, Tabs, Tab, Row, Input } from 'react-materialize';
+import { browserHistory } from 'react-router';
+import { Dropdown, Button, NavItem } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -114,13 +114,11 @@ class App extends Component {
 
     let dataCopy = {};
 
-    console.log('arra', data)
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     axios.defaults.headers.common['Authorization'] = token
 
     axios.get(`${BASE_URL}/statuses/`)
         .then((data) => {
-            console.log('statuses', data)
             dataCopy = {
               "lanes": [
                 {
@@ -141,10 +139,9 @@ class App extends Component {
                 }
               ]
             }
-            console.log('datacopy',dataCopy)
         })
         .catch((error) => {
-            console.log(error)
+
         }) 
     }
 
@@ -162,7 +159,6 @@ class App extends Component {
           'email': this.state.email,
       })
           .then((data) => {
-              console.log(data)
               if(data.status === 200) {
                   localStorage.removeItem('token')
                   localStorage.removeItem('email')
@@ -170,7 +166,6 @@ class App extends Component {
               }
           })
           .catch((error) => {
-              console.log(error)
           }) 
     }
 
@@ -221,7 +216,7 @@ class App extends Component {
       <div>
           <nav className="teal lighten-3">
             <div className="nav-wrapper">
-              <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+              <a className="brand-logo" href="/"><img className="nav-logo" src={logo} alt="logo"/></a>
                   <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                       <li><a href="/">Projects</a></li>
                       <li><a href="/projects">Backlog</a></li>
@@ -240,7 +235,7 @@ class App extends Component {
                   </ul>
               </div>
           </nav>
-        <Board data={data} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
+            <Board data={data} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
         </div>
     );
   }

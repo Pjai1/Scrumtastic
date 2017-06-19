@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card, Table } from 'react-materialize';
+import { browserHistory } from 'react-router';
+import { Dropdown, Button, NavItem, Table } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -43,12 +43,10 @@ class ListView extends Component {
        this.getStatuses().then(() => {
            this.getUserStoriesForSprint().then(() => {
                 this.getStoryTasks().then((tasks) => {
-                    console.log("Tasks is: ", tasks)
                     this.setState({renderArray: tasks})
                 })
            })
        })
-       console.log('rendering', this.state.renderArray);
     }
 
     getUserStoriesForSprint() {
@@ -60,12 +58,10 @@ class ListView extends Component {
 
             axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
                 .then((data) => {
-                    console.log(data.data[0].stories);
                     this.setState({stories: data.data[0].stories, listViewArray: data.data[0].stories})
                     resolve()
                 })
                 .catch((error) => {
-                    console.log(error)
                     reject(error)
                 }) 
         }.bind(this))
@@ -79,7 +75,6 @@ class ListView extends Component {
             let promises = []
 
             stories.forEach((story, i) => {
-                console.log("value i", story)
                 promises.push(
                     this.getTasksForStory(story, i).then(function(taskArray) {
                         if(taskArray) {
@@ -123,7 +118,6 @@ class ListView extends Component {
             axios.get(`${BASE_URL}/stories/${story.id}/tasks`)
                 .then((data) => {
                     let tasks = data.data[0].tasks
-                    console.log('TASKS', tasks) 
                     let promises = []
 
                     if(tasks.length === 0) {
@@ -131,7 +125,6 @@ class ListView extends Component {
                     }
 
                     tasks.forEach((task, i) => {
-                        console.log('how many tasks', i)
                         promises.push(new Promise(function(resolve, reject) {
                             Promise.all([
                                 self.getUsersForTask(task.id).then((users) => {
@@ -157,13 +150,11 @@ class ListView extends Component {
                         }))
                     })
 
-                    console.log("PROMISES FOR STORY " + story.id + " IS: ", promises)
                     Promise.all(promises).then(function() {
                         resolve(tasksForStory)
                     })
                 })
                 .catch((error) => {
-                    console.log("Error: ", error)
                     reject(error)
                 }) 
         }.bind(this))
@@ -185,7 +176,6 @@ class ListView extends Component {
                    resolve(data.data[0].users)
                 })
                 .catch((error) => {
-                    console.log(error)
                     reject(error)
                 }) 
         }.bind(this))
@@ -207,7 +197,6 @@ class ListView extends Component {
                     return resolve(data.data.name)
                 })
                 .catch((error) => {
-                    console.log(error)
                     reject(error)
                 }) 
             
@@ -225,11 +214,9 @@ class ListView extends Component {
             axios.get(`${BASE_URL}/statuses`)
                 .then((data) => {
                     this.setState({statuses: data.data})
-                    console.log('statuses', this.state.statuses);
                     resolve()
                 })
                 .catch((error) => {
-                    console.log(error)
                     reject(error)
                 }) 
             }.bind(this))
@@ -259,7 +246,6 @@ class ListView extends Component {
 
     renderStories() {
         const renderArray = this.state.renderArray;
-        console.log('renderarr',renderArray);
         return (
             <tbody>
                 {
@@ -309,7 +295,7 @@ class ListView extends Component {
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
-                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo} alt="logo"/></a>
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                             <li><a href="/">Projects</a></li>
                             <li><a href="/projects">Backlog</a></li>

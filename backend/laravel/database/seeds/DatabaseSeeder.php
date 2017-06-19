@@ -64,9 +64,9 @@ class DatabaseSeeder extends Seeder
         ProjectUser::flushEventListeners();
 
 
-        $usersQuantity = 2;
+        $usersQuantity = 5;
         $commentsQuantity = 10;
-        $seedQuantity = 5;
+        $seedQuantity = 20;
 
         factory(User::class, $usersQuantity)->create();
 
@@ -91,22 +91,22 @@ class DatabaseSeeder extends Seeder
         factory(Feature::class, $seedQuantity)->create();
         factory(Story::class, $seedQuantity)->create()->each(
             function ($story) {
-                $sprints = Sprint::all()->random(mt_rand(1,5))->pluck('id');
+                $sprints = Sprint::all()->random(mt_rand(1,20))->pluck('id');
 
                 $story->sprints()->attach($sprints);
             }
         );    
         factory(Task::class, $seedQuantity)->create()->each(
             function ($task) {
-                $users = User::all()->random(mt_rand(1,2))->pluck('id');
+                $users = User::all()->random(mt_rand(1,5))->pluck('id');
 
                 $task->users()->attach($users);
             }
         );   
         factory(Team::class, $seedQuantity)->create()->each(
             function ($team) {
-                $projects = Project::all()->random(mt_rand(1,5))->pluck('id');
-                $users = User::all()->random(mt_rand(1,2))->pluck('id');
+                $projects = Project::all()->random(mt_rand(1,20))->pluck('id');
+                $users = User::all()->random(mt_rand(1,5))->pluck('id');
 
                 $team->projects()->attach($projects);
                 $team->users()->attach($users);

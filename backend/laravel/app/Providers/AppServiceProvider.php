@@ -37,10 +37,6 @@ class AppServiceProvider extends ServiceProvider
 
         Validator::extend('greater_than_or_equal', function ($attribute, $value, $parameters, $validator) {
             $requestInput = $validator->getData();
-            // if($value <= $requestInput['total_storypoints']) {
-            //     return true;
-            // }
-            // return false;
 
             return $value <= $requestInput['total_storypoints'];
         });

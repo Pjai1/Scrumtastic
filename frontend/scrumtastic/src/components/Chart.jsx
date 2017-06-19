@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Chart } from 'react-google-charts';
-import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card, Table } from 'react-materialize';
+import { browserHistory } from 'react-router';
+import { Dropdown, Button, NavItem } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -20,7 +20,7 @@ class SprintChart extends Component {
         title: 'Burndown Chart Sprint',
         hAxis: { title: 'Date', minValue: 0, maxValue: 15 },
         vAxis: { title: 'Storypoints', minValue: 0, maxValue: 15 },
-        legend: 'none',
+        legend: 'true',
         },
         data: [
         ['Day', 'Storypoints (Max)', 'Storypoints (Day)'],
@@ -83,7 +83,7 @@ class SprintChart extends Component {
         <div>
             <nav className="teal lighten-3">
                 <div className="nav-wrapper">
-                <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                <a className="brand-logo" href="/"><img className="nav-logo" src={logo} alt="logo"/></a>
                     <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                         <li><a href="/">Projects</a></li>
                         <li><a href="/projects">Backlog</a></li>

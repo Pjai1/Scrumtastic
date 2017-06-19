@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card, Tabs, Tab, Row, Input } from 'react-materialize';
+import { browserHistory } from 'react-router';
+import { Dropdown, Button, NavItem, Tabs, Tab, Row, Input } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
 import moment from 'moment';
+import Toast from './Toast';
 import '../App.css';
 
 class SprintView extends Component {
@@ -25,7 +25,8 @@ class SprintView extends Component {
             'storyDesc': '',
             'userStoryCheck': false,
             'selectValue': '',
-            'sprintId': ''
+            'sprintId': '',
+            'error': []
         }
     }
 
@@ -55,7 +56,7 @@ class SprintView extends Component {
                 this.getStories(projectSprints);
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -87,7 +88,7 @@ class SprintView extends Component {
                     }
                 })
                 .catch((error) => {
-
+                    this.setState({error});
                 }) 
         })
     }
@@ -108,7 +109,7 @@ class SprintView extends Component {
                 this.setState({'backlogStories': projectStories});
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -124,11 +125,13 @@ class SprintView extends Component {
                 if(data.status === 200) {
                     localStorage.removeItem('token')
                     localStorage.removeItem('email')
-                    browserHistory.push('/signin')
+                    let t = new Toast("Succesfully logged out!", 2500)
+                    t.Render(); 
+                    setTimeout(() => {browserHistory.push('/signin')}, 2500)
                 }
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -150,7 +153,7 @@ class SprintView extends Component {
                 this.setState({sprints: sprints});
             })
             .catch((error) => {
-
+                this.setState({error});
             })         
     }
 
@@ -173,7 +176,7 @@ class SprintView extends Component {
                 this.forceUpdate();
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -182,6 +185,7 @@ class SprintView extends Component {
     }
 
     createStorySelect(stories, sprintId) {
+        
         let items = [];
         for(let i = 0; i < stories.length; i++) {
             items.push(<NavItem key={i} value={stories[i].description} onClick={this.handleChange.bind(this, stories[i].id, sprintId)}>{stories[i].description}</NavItem>);
@@ -207,8 +211,25 @@ class SprintView extends Component {
                 this.forceUpdate();
             })
             .catch((error) => {
-
+                this.setState({error});
             })        
+    }
+
+    renderErrors() {
+        let errors = [];
+        if(this.state.error.response && this.state.error.response.data.error)
+        {
+            let errorArray = this.state.error.response.data.error;
+            let i = 0;
+            for(var key in errorArray) {
+                if(errorArray.hasOwnProperty(key)) {
+                    errors.push(<p key={"error_" + i}>{errorArray[key][0]}</p>);
+                }
+                i++;
+            }
+        }
+
+        return <div className="center-align">{errors}</div>
     }
 
     handleChange(storyId, sprintId) {
@@ -226,6 +247,7 @@ class SprintView extends Component {
 
         return (
             <div className="row">
+                {this.state.sprints.length === 0 ? <p style={{marginLeft: '10px'}} className="toast-message waves-effect waves-light teal lighten-2">Seems like you need to add some sprints</p> : null }
                 <Tabs className='tab-demo z-depth-1'>
                 {
                     sprints.map(sprint => {
@@ -233,12 +255,12 @@ class SprintView extends Component {
                             <Tab key={sprint.id} title={sprint.name} onClick={event => this.setState({'sprintId': sprint.id})} >
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
-                                    stories.map(story => {
+                                    stories.map((story, key) => {
                                         if(story.pivot.sprint_id === sprint.id) {
                                             return (
-                                                <ul key={story.id} className="collection with-header">
+                                                <ul key={key} className="collection with-header">
                                                 {
-                                                    <li key={story.id} className="collection-item">
+                                                    <li key={key+1} className="collection-item">
                                                         <b>User Story:</b> {story.description}
                                                     </li>
                                                 }
@@ -250,31 +272,36 @@ class SprintView extends Component {
                                 }
 
                                 { !this.state.userStoryCheck ?
-
-                                <input 
-                                    className="validate"
-                                    type="text"
-                                    placeholder="Add Your User Story"
-                                    onChange={event => this.setState({storyDesc:event.target.value})}
-                                    onKeyPress={event => {
-                                    if(event.key === "Enter") {
-                                            this.createStory(sprint.id);
-                                        }
-                                    }}
-                                /> :
-
+                                    <div>
+                                    <input 
+                                        className="validate"
+                                        type="text"
+                                        placeholder="Add Your User Story"
+                                        onChange={event => this.setState({storyDesc:event.target.value})}
+                                        onKeyPress={event => {
+                                        if(event.key === "Enter") {
+                                                this.createStory(sprint.id);
+                                            }
+                                        }}
+                                    />
+                                    <p>
+                                        <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
+                                            <label htmlFor="filled-in-box">Check to select a User Story</label>
+                                    </p>
+                                </div>
+                                 :
+                                 <div>
                                     <Dropdown trigger={
                                         <Button defaultValue={this.state.selectValue} onChange={this.handleChange}>Select User Story</Button>
                                         }>
                                         {this.createStorySelect(stories, sprint.id)}
                                     </Dropdown>
-
+                                    <p>
+                                    <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
+                                        <label htmlFor="filled-in-box">Check to manually add a User Story</label>
+                                    </p>
+                                </div>
                                 }
-
-                                <p>
-                                <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
-                                    <label htmlFor="filled-in-box">Check to select a User Story</label>
-                                </p>
                                 <a 
                                     className="waves-effect waves-light btn-large"
                                     onClick={() => this.goToTasks(sprint.id)}
@@ -296,11 +323,11 @@ class SprintView extends Component {
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
-                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo} alt="logo"/></a>
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                             <li><a href="/">Projects</a></li>
                             <li><a href="/projects">Backlog</a></li>
-                            <li><a onClick={this.saveStoriesToStorage.bind(this)} href="/board">Tasks</a></li>
+                            <li><a onClick={this.saveStoriesToStorage.bind(this)} href="/list">Tasks</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
@@ -318,6 +345,9 @@ class SprintView extends Component {
                     <div className="col s8">
                         <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Sprints</h2>
                         {this.renderSprints()}
+                        <div className="row">
+                            { this.renderErrors() }
+                        </div>
                         <h2 style={{color: '#26a69a'}}>Add Sprints</h2>
                         <div className="row">
                             <Row>

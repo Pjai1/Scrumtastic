@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
+import { browserHistory } from 'react-router';
+import { Dropdown, Button, NavItem } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import Toast from './Toast';
 import axios from 'axios';
@@ -26,6 +25,7 @@ class ProjectView extends Component {
             'clickedStory': null,
             'featureEditingMode': false,
             'clickedFeature': null,
+            'error': []
         }
     }
 
@@ -55,7 +55,7 @@ class ProjectView extends Component {
                 this.getStories(projectFeatures);
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -77,7 +77,7 @@ class ProjectView extends Component {
                 }
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -101,7 +101,7 @@ class ProjectView extends Component {
                     this.setState({'stories': stateStories});
                 })
                 .catch((error) => {
-
+                    this.setState({error});
                 }) 
         })
     }
@@ -124,7 +124,7 @@ class ProjectView extends Component {
                 this.setState({'stories': stories});
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
     
@@ -139,7 +139,7 @@ class ProjectView extends Component {
                 this.searchAndDeleteStoryFromState(storyId, stories);
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -148,6 +148,15 @@ class ProjectView extends Component {
             if (array[i].id === keyName) {
                 delete array[i]
                 this.setState({'stories': array});
+            }
+        }    
+    }
+
+    searchAndDeleteFeatureFromState(keyName, array) {
+        for (var i=0; i < array.length; i++) {
+            if (array[i].id === keyName) {
+                delete array[i]
+                this.setState({'features': array});
             }
         }    
     }
@@ -179,7 +188,7 @@ class ProjectView extends Component {
                     }  
                 })
                 .catch((error) => {
-
+                    this.setState({error});
                 }) 
         } 
         else {
@@ -207,7 +216,7 @@ class ProjectView extends Component {
                 this.setState({'features': features});
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -220,6 +229,37 @@ class ProjectView extends Component {
         browserHistory.push('/sprints');
     }
 
+    renderErrors() {
+        let errors = [];
+        if(this.state.error.response && this.state.error.response.data.error)
+        {
+            let errorArray = this.state.error.response.data.error;
+            let i = 0;
+            for(var key in errorArray) {
+                if(errorArray.hasOwnProperty(key)) {
+                    errors.push(<p key={"error_" + i}>{errorArray[key][0]}</p>);
+                }
+                i++;
+            }
+        }
+
+        return <div className="center-align">{errors}</div>
+    }
+
+    deleteFeature(featureId) {
+        let features = this.state.features;
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.delete(`${BASE_URL}/features/${featureId}`)
+            .then((data) => {
+                this.searchAndDeleteFeatureFromState(featureId, features);
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
+    }
 
     renderFeatures() {
         const features = this.state.features;
@@ -230,7 +270,10 @@ class ProjectView extends Component {
                     features.map((feature) => {
                         return (
                             <ul key={feature.id} className="collection with-header">
-                                <li className="collection-header"><h4>Feature: {feature.name}</h4></li>
+                                <li className="collection-header"><h4>Feature: {feature.name}
+                                    <a onClick={() => {this.deleteFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
+                                    <a style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a></h4>
+                                </li>
                                 {
                                     stories.map((story) => {
                                         if(story.feature_id === feature.id) {
@@ -307,12 +350,15 @@ class ProjectView extends Component {
                         </h4></li>
                     </ul>
                 </div>
+                <div className="row">
+                    { this.renderErrors() }
+                </div>
                 <div className="row center-align">    
                     <a 
                         className="waves-effect waves-light btn-large"
                         onClick={() => this.addSprint()}
                     >
-                        Add Sprint
+                        Go To Sprint View
                     </a>
                 </div>
             </div>

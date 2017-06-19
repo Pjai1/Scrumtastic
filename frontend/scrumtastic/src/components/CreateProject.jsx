@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Link, browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
+import { browserHistory } from 'react-router';
+import { Dropdown, Button, NavItem } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -48,7 +48,7 @@ class CreateProject extends Component {
                 }
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -69,7 +69,7 @@ class CreateProject extends Component {
                 browserHistory.push('/projects');
             })
             .catch((error) => {
-
+                this.setState({error});
             }) 
     }
 
@@ -95,7 +95,7 @@ class CreateProject extends Component {
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
-                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo} alt="logo"/></a>
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                             <li><a href="/">Projects</a></li>
                         </ul>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, browserHistory } from 'react-router';
+import { browserHistory } from 'react-router';
 import { Dropdown, Button, NavItem, Col, Card } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
@@ -22,7 +22,8 @@ class App extends Component {
             'description': null,
             'newDesc': '',
             'showEditingMode': -1,
-            'clickedProject': null
+            'clickedProject': null,
+            'error': []
         }
     }
 
@@ -35,25 +36,38 @@ class App extends Component {
     }
 
     componentDidMount() {
-        console.log(this.state.token, this.state.userId)
         const token = 'Bearer ' + this.state.token
 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = token
         axios.get(BASE_URL + '/users/' + this.state.userId + '/projects')
             .then((data) => {
-                console.log(data.data);
-                console.log(data.data[0].projects);
                 let userProjects = [];
                 data.data[0].projects.forEach((project) => {
                     userProjects.push(project);
                 })
-                console.log('projects', userProjects);
                 this.setState({'projects': userProjects});
             })
             .catch((error) => {
-                console.log(error)
+                this.setState({error});
             }) 
+    }
+
+    renderErrors() {
+        let errors = [];
+        if(this.state.error.response && this.state.error.response.data.error)
+        {
+            let errorArray = this.state.error.response.data.error;
+            let i = 0;
+            for(var key in errorArray) {
+                if(errorArray.hasOwnProperty(key)) {
+                    errors.push(<p className="errorMessage" key={"error_" + i}>{errorArray[key][0]}</p>);
+                }
+                i++;
+            }
+        }
+
+        return <div className="center-align">{errors}</div>
     }
 
     logOut() {
@@ -65,7 +79,6 @@ class App extends Component {
             'email': this.state.email,
         })
             .then((data) => {
-                console.log(data)
                 if(data.status === 200) {
                     localStorage.removeItem('token')
                     localStorage.removeItem('email')
@@ -75,20 +88,18 @@ class App extends Component {
                 }
             })
             .catch((error) => {
-                console.log(error)
+                this.setState({error});
             }) 
     }
 
     renderProjects() {
         const projects = this.state.projects;
-        console.log('projects state', projects);
         return (
             <ul>
                 {
                     projects.map((project) => {
                         return (
                             <Col key={project.id} m={6} s={12}>
-                            {console.log('look at me', this.state.clickedProject, project.id)}
                                 {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
                                     {project.description}
                                     <a key="Delete Project" onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
@@ -132,7 +143,6 @@ class App extends Component {
     }
 
     editProject(projectId, projectName, projectDescription) {
-        console.log('projectje', projectId);
 
         if(this.state.editingMode === true) {
             const token = 'Bearer ' + this.state.token;
@@ -142,12 +152,10 @@ class App extends Component {
 
             if(this.state.name) {
                 newName = this.state.name
-                console.log('newName', newName)
             }
 
             if(this.state.description) {
                 newDesc = this.state.description
-                console.log('newDesc', newDesc)
             }
 
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -157,7 +165,6 @@ class App extends Component {
                 'description': newDesc
             })
                 .then((data) => {
-                    console.log('update proj', data)
                     for (var i=0; i < projects.length; i++) {
                         if (projects[i].id === projectId) {
                             projects[i].name = newName;
@@ -167,16 +174,14 @@ class App extends Component {
                     }  
                 })
                 .catch((error) => {
-                    console.log(error)
+                    this.setState({error});
                 }) 
         } 
         else {
             this.setState({'newName': projectName, 'newDesc': projectDescription});
-            console.log(projectName, projectDescription);
         }
 
         if(projectId) {
-            console.log('projectId changed', projectId);
             this.setState({'clickedProject': projectId});
         }
         this.setState({'editingMode': !this.state.editingMode});
@@ -189,16 +194,14 @@ class App extends Component {
         axios.defaults.headers.common['Authorization'] = token
         axios.delete(BASE_URL + '/projects/' + projectId)
             .then((data) => {
-                console.log(projects, projectId);
                 this.searchAndDeleteProjectFromState(projectId, projects);
             })
             .catch((error) => {
-                console.log(error)
+                this.setState({error});
             }) 
     }
 
     searchAndDeleteProjectFromState(keyName, array) {
-        console.log(keyName, array);
         for (var i=0; i < array.length; i++) {
             if (array[i].id === keyName) {
                 delete array[i]
@@ -222,7 +225,7 @@ class App extends Component {
             <div>
                 <nav className="teal lighten-3">
                     <div className="nav-wrapper">
-                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
+                    <a className="brand-logo" href="/"><img className="nav-logo" src={logo} alt="logo"/></a>
                         <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
                             <Dropdown trigger={
