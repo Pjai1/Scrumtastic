@@ -20,6 +20,7 @@ class App extends Component {
           'token': '',
           'projectId': '',
           'sprints': [],
+          'projectName': [],
           'data': {}
       }
     }
@@ -30,7 +31,7 @@ class App extends Component {
       let userId = localStorage.getItem('userId');
       let projectId = localStorage.getItem('projectId');
       let projectName = localStorage.getItem('projectName');
-      this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'email': email});
+      this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'email': email, 'projectName': projectName});
   }
 
   componentDidMount() {
@@ -43,30 +44,30 @@ class App extends Component {
         {
           "id": "PLANNED",
           "title": "Planned Tasks",
-          "label": "20/70",
+          "label": "23 storypoints",
           "cards": [
             {
               "id": "Milk",
               "title": "Buy milk",
-              "label": "15 mins",
+              "label": "5 storypoints",
               "description": "2 Gallons of milk at the Deli store"
             },
             {
               "id": "Plan2",
               "title": "Dispose Garbage",
-              "label": "10 mins",
+              "label": "10 storypoints",
               "description": "Sort out recyclable and waste as needed"
             },
             {
               "id": "Plan3",
               "title": "Write Blog",
-              "label": "30 mins",
+              "label": "3 storypoints",
               "description": "Can AI make memes?"
             },
             {
               "id": "Plan4",
               "title": "Pay Rent",
-              "label": "5 mins",
+              "label": "5 storypoints",
               "description": "Transfer to bank account"
             }
           ]
@@ -74,12 +75,12 @@ class App extends Component {
         {
           "id": "WIP",
           "title": "Work In Progress",
-          "label": "10/20",
+          "label": "3 storypoints",
           "cards": [
             {
               "id": "Wip1",
               "title": "Clean House",
-              "label": "30 mins",
+              "label": "3 storypoints",
               "description": "Soap wash and polish floor. Polish windows and doors. Scrap all broken glasses"
             }
           ]
@@ -87,24 +88,24 @@ class App extends Component {
         {
           "id": "BLOCKED",
           "title": "Blocked",
-          "label": "0/0",
+          "label": "/",
           "cards": []
         },
         {
           "id": "COMPLETED",
           "title": "Completed",
-          "label": "2/5",
+          "label": "30 storypoints",
           "cards": [
             {
               "id": "Completed1",
               "title": "Practice Meditation",
-              "label": "15 mins",
+              "label": "15 storypoints",
               "description": "Use Headspace app"
             },
             {
               "id": "Completed2",
               "title": "Maintain Daily Journal",
-              "label": "15 mins",
+              "label": "15 storypoints",
               "description": "Use Spreadsheet for now"
             }
           ]
@@ -235,7 +236,14 @@ class App extends Component {
                   </ul>
               </div>
           </nav>
-            <Board data={data} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
+          <div className="row">
+            <div className="col s2" />
+            <div className="col s8">
+              <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
+                <Board data={data} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
+            </div>
+            <div className="col s2" />
+          </div>
         </div>
     );
   }

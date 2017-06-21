@@ -79,7 +79,7 @@ class Card extends Component {
               <CardTitle>{title}</CardTitle>
               <CardRightContent>{label}</CardRightContent>
             </CardHeader>
-            <Detail onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>{description}<div>
+            <Detail onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>{description}<div className="center-align">
                                     &#x2715;
                                 </div></Detail>
             {tags && <Footer>

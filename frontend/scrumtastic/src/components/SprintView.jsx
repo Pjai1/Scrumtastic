@@ -290,6 +290,11 @@ class SprintView extends Component {
             })   
     }
 
+    sprintIdToStorage(sprintId) {
+        this.setState({sprintId: sprintId})
+        console.log(this.state.sprintId);
+    }
+
     renderSprints() {
         const sprints = this.state.sprints;
         const stories = this.state.stories;
@@ -301,7 +306,8 @@ class SprintView extends Component {
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={sprint.name} onClick={event => this.setState({'sprintId': sprint.id})} >
+                            <Tab key={sprint.id} title={sprint.name} onClick={this.sprintIdToStorage.bind(this, sprint.id)} >
+                                {console.log(this.state.sprintId)}
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
                                     stories.map((story, key) => {
@@ -413,7 +419,7 @@ class SprintView extends Component {
                         <h2 style={{color: '#26a69a'}}>Add Users</h2>
                         <div className="row">
                             {this.renderUsers()}
-                            <div className="input-field inline col s6">
+                            <div className="input-field inline col s4">
                                 <input 
                                     className="validate"
                                     id="user"

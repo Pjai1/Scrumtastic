@@ -101,11 +101,11 @@ class BoardContainer extends Component {
             {...otherProps}
             {...{tagStyle, draggable, handleDragStart, handleDragEnd, onCardClick, onLaneScroll, laneSortFunction}}
           >
-          </Lane>{(this.state.showFieldsForLane === id) ? <div><input type="text" placeholder="cardId" style={{display: 'block', margin: 'auto'}} onChange={this.updateField.bind(this, 'cardId')} />
-                 <input type="text" placeholder="title" style={{display: 'block', margin: 'auto'}} onChange={this.updateField.bind(this, 'title')} />
-                 <input type="text" placeholder="label" style={{display: 'block', margin: 'auto'}} onChange={this.updateField.bind(this, 'label')} />
-                 <input type="text" placeholder="description" style={{display: 'block', margin: 'auto'}} onChange={this.updateField.bind(this, 'description')} /></div> : null}
-                 <span onClick={this.addLaneCard.bind(this, id)}>Add Card</span></div>)
+          </Lane>{(this.state.showFieldsForLane === id) ? <div className="row"><input type="text" placeholder="cardId" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'cardId')} />
+                 <input type="text" placeholder="title" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'title')} />
+                 <input type="text" placeholder="label" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'label')} />
+                 <input type="text" placeholder="description" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'description')} /></div> : null}
+                 <div className="center-align" style={{color: 'white'}} onClick={this.addLaneCard.bind(this, id)}>Add Card</div></div>)
         })}
     </BoardDiv>
   }
