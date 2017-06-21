@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\ProjectUser;
 use App\Repositories\UserRepository;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Mail;
@@ -67,6 +68,24 @@ class UserController extends ApiController
         $email = $request->email;
 
         $user = $this->user->findUserByEmail($email);
+
+        return $this->showAll($user);
+    }
+
+    public function attachUserToProject(Request $request)
+    {
+        $email = $request->email;
+
+        $user = $this->user->findUserByEmail($email);
+
+        if(count($user) === 0) {
+            return $this->errorResponse('No user found by that email', 401);
+        }
+
+        $projectUser = new ProjectUser;
+        $projectUser->project_id = $request->project_id;
+        $projectUser->user_id = $user[0]->id;
+        $projectUser->save();
 
         return $this->showAll($user);
     }

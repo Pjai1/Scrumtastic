@@ -14,8 +14,10 @@ class SprintView extends Component {
         this.state = {
             'userId': '',
             'email': '',
+            'userEmail': '',
             'token': '',
             'projectId': '',
+            'users': [],
             'sprints': [],
             'features': [],
             'stories': [],
@@ -38,6 +40,17 @@ class SprintView extends Component {
        let projectName = localStorage.getItem('projectName');
        let stories = localStorage.getItem('stories');
        this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email, 'backlogStories': stories});
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
+        axios.get(`${BASE_URL}/projects/${projectId}/users`)
+            .then((data) => {
+                console.log('all users', data.data[0].users);
+                this.setState({'users': data.data[0].users})
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
     }
 
     componentDidMount() {
@@ -62,6 +75,21 @@ class SprintView extends Component {
 
     saveStoriesToStorage() {
         localStorage.setItem('stories', this.state.stories);
+    }
+
+    renderUsers() {
+
+        return (
+            <ul class="collection">
+            {
+            this.state.users.map(user => {
+                    return (
+                        <li key={user.id} class="collection-item"><b>User: </b>{user.email}</li>
+                    )  
+            })
+            }
+            </ul>
+        )
     }
 
     getStories(projectSprints) {
@@ -241,6 +269,27 @@ class SprintView extends Component {
         browserHistory.push('/list');
     }
 
+    addUser() {
+        const token = 'Bearer ' + this.state.token;
+        let users = this.state.users;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.post(`${BASE_URL}/attachuser`, {
+            'email': this.state.userEmail,
+            'project_id': this.state.projectId
+        })
+            .then((data) => {
+                users.push(data.data[0]);
+                this.setState({users: users})
+                let t = new Toast(this.state.userEmail + " added to project!", 2500)
+                t.Render(); 
+            })
+            .catch((error) => {
+                this.setState({error});
+            })   
+    }
+
     renderSprints() {
         const sprints = this.state.sprints;
         const stories = this.state.stories;
@@ -360,6 +409,25 @@ class SprintView extends Component {
                                     Add Sprint
                                 </a>
                             </Row>
+                        </div>
+                        <h2 style={{color: '#26a69a'}}>Add Users</h2>
+                        <div className="row">
+                            {this.renderUsers()}
+                            <div className="input-field inline col s6">
+                                <input 
+                                    className="validate"
+                                    id="user"
+                                    type="email"
+                                    defaultValue=""
+                                    onChange={event => this.setState({userEmail:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.addUser();
+                                        }
+                                    }}
+                                />
+                                <label htmlFor="user">Enter User Email</label>
+                            </div>
                         </div>
                     </div>
                     <div className="col s2" />
