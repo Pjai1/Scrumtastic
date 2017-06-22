@@ -264,6 +264,8 @@ class ProjectView extends Component {
     renderFeatures() {
         const features = this.state.features;
         const stories = this.state.stories;
+
+        localStorage.setItem('backlogStories', stories);
         return (
             <div className="row">
                 {
@@ -274,6 +276,7 @@ class ProjectView extends Component {
                                     <a onClick={() => {this.deleteFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                     <a style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a></h4>
                                 </li>
+                            
                                 {
                                     stories.map((story) => {
                                         if(story.feature_id === feature.id) {
@@ -333,11 +336,11 @@ class ProjectView extends Component {
                     <ul className="collection with-header">
                         <li className="collection-header"><h4>Feature: ...
                             <div className="row">
-                                <div className="input-field col s6">
+                                <div className="input-field inline col s6">
                                     <input 
                                         className="validate"
+                                        id="feature"
                                         type="text"
-                                        placeholder="Your feature name"
                                         onChange={event => this.setState({featureName:event.target.value})}
                                         onKeyPress={event => {
                                         if(event.key === "Enter") {
@@ -345,6 +348,7 @@ class ProjectView extends Component {
                                             }
                                         }}
                                     />
+                                    <label htmlFor="feature">Feature</label>
                                 </div>
                             </div>
                         </h4></li>

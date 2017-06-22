@@ -28,7 +28,8 @@ class SprintView extends Component {
             'userStoryCheck': false,
             'selectValue': '',
             'sprintId': '',
-            'error': []
+            'error': [],
+            'origStories': []
         }
     }
 
@@ -39,7 +40,8 @@ class SprintView extends Component {
        let projectId = localStorage.getItem('projectId');
        let projectName = localStorage.getItem('projectName');
        let stories = localStorage.getItem('stories');
-       this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email, 'backlogStories': stories});
+       let origStories = localStorage.getItem('backlogStories');
+       this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'projectName': projectName, 'email': email, 'backlogStories': stories, 'origStories': origStories});
 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
@@ -80,11 +82,11 @@ class SprintView extends Component {
     renderUsers() {
 
         return (
-            <ul class="collection">
+            <ul className="collection">
             {
             this.state.users.map(user => {
                     return (
-                        <li key={user.id} class="collection-item"><b>User: </b>{user.email}</li>
+                        <li key={user.id} className="collection-item"><b>User: </b>{user.email}</li>
                     )  
             })
             }
@@ -111,9 +113,7 @@ class SprintView extends Component {
                     })
                     this.setState({'stories': stateStories});
 
-                    if(this.state.backlogStories === null) {
                         this.getBacklogStories();
-                    }
                 })
                 .catch((error) => {
                     this.setState({error});
@@ -130,6 +130,7 @@ class SprintView extends Component {
 
         axios.get(`${BASE_URL}/projects/${projectId}/stories`)
             .then((data) => {
+                console.log('stories', data)
                 let projectStories = [];
                 data.data[0].stories.forEach((story) => {
                     projectStories.push(story);
@@ -213,10 +214,29 @@ class SprintView extends Component {
     }
 
     createStorySelect(stories, sprintId) {
-        
+        // const token = 'Bearer ' + this.state.token
+        // const projectId = this.state.projectId;
+
+        // axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        // axios.defaults.headers.common['Authorization'] = token
+
+        // axios.get(`${BASE_URL}/projects/${projectId}/stories`)
+        //     .then((data) => {
+        //         console.log('stories', data)
+        //         let projectStories = [];
+        //         data.data[0].stories.forEach((story) => {
+        //             projectStories.push(story);
+        //         })
+        //         this.setState({'backlogStories': projectStories});
+        //     })
+        //     .catch((error) => {
+        //         this.setState({error});
+        //     }) 
+
+        const backlogStories = this.state.backlogStories;
         let items = [];
-        for(let i = 0; i < stories.length; i++) {
-            items.push(<NavItem key={i} value={stories[i].description} onClick={this.handleChange.bind(this, stories[i].id, sprintId)}>{stories[i].description}</NavItem>);
+        for(let i = 0; i < backlogStories.length; i++) {
+            items.push(<NavItem key={i} value={backlogStories[i].description} onClick={this.handleChange.bind(this, backlogStories[i].id, sprintId)}>{backlogStories[i].description}</NavItem>);
         }
 
         return items;
@@ -307,7 +327,7 @@ class SprintView extends Component {
                     sprints.map(sprint => {
                         return (
                             <Tab key={sprint.id} title={sprint.name} onClick={this.sprintIdToStorage.bind(this, sprint.id)} >
-                                {console.log(this.state.sprintId)}
+
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
                                     stories.map((story, key) => {
@@ -349,7 +369,8 @@ class SprintView extends Component {
                                     <Dropdown trigger={
                                         <Button defaultValue={this.state.selectValue} onChange={this.handleChange}>Select User Story</Button>
                                         }>
-                                        {this.createStorySelect(stories, sprint.id)}
+                                        {/*{console.log(stories)}*/}
+                                        {this.createStorySelect(this.state.origStories, sprint.id)}
                                     </Dropdown>
                                     <p>
                                     <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
@@ -366,7 +387,6 @@ class SprintView extends Component {
                             </Tab>
                         )
                     })
-                    
                 }
                 </Tabs>
             </div>
