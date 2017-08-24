@@ -1,6 +1,7 @@
 const LaneHelper = {
-
+  
   initialiseLanes: (state, {lanes}) => {
+    console.log('what is up here', lanes);
     const updatedLanes = lanes.map((lane) => {
       lane.currentPage = 1
       return lane

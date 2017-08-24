@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
 import logo from '../images/scrumtastic_logo_black_inverse.png';
+import { Icon } from 'react-materialize';
 import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
 import Toast from './Toast'
@@ -85,11 +86,22 @@ class SignIn extends Component {
         return (
             <div className="container">
                 <div className="Align">
-                <div><img className="logo-login" src={logo} alt="logo" /></div>
+                <div className="row">
+                    <div className="col s3" />
+                    <div className="col s6" >
+                        <img className="logo-login" src={logo} alt="logo" />
+                    </div>
+                    <div className="col s3" />
+                </div>
                 <div className="row">
                     <form className="col s12">
                         <div className="row">
-                            <div className="col s2"></div>
+                            <div className="col s3" />
+                            <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                            <Icon small>
+                            email    
+                            </Icon>
+                            </div>
                             <div className="input-field inline col s4">
                                 <input 
                                     className="validate"
@@ -103,6 +115,15 @@ class SignIn extends Component {
                                     }}
                                 />
                                 <label htmlFor="email">Your Email</label>
+                            </div>
+                            <div className="col s4" />
+                        </div>
+                            <div className="row">
+                            <div className="col s3" />
+                            <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                                <Icon small>
+                                    vpn_key   
+                                </Icon>
                             </div>
                             <div className="input-field inline col s4">
                                 <input 
@@ -118,8 +139,9 @@ class SignIn extends Component {
                                 />
                                 <label htmlFor="password">Your Password</label>
                             </div>
+                            <div className="col s4" />
                         </div>
-                        <div className="col s2"></div>
+                    
                     </form>
                 </div>
                 <div className="row">

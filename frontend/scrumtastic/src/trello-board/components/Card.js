@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {CardWrapper, CardHeader, CardTitle, CardRightContent, Detail, Footer} from '../styles/Base'
 import {DragType} from '../helpers/DragType'
 import {DragSource, DropTarget} from 'react-dnd'
+import { Icon } from 'react-materialize';
 var flow = require('lodash.flow')
 
 
@@ -79,8 +80,8 @@ class Card extends Component {
               <CardTitle>{title}</CardTitle>
               <CardRightContent>{label}</CardRightContent>
             </CardHeader>
-            <Detail onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>{description}<div className="center-align">
-                                    &#x2715;
+            <Detail>{description}<div className="center-align">
+                                    <span onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}><Icon>delete</Icon></span>
                                 </div></Detail>
             {tags && <Footer>
               {tags.map((tag) => <Tag key={tag.title} {...tag} tagStyle={this.props.tagStyle} />)}

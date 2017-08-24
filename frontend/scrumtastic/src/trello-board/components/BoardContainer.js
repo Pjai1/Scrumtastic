@@ -95,7 +95,7 @@ class BoardContainer extends Component {
         data.lanes.map((lane) => {
           const {id, ...otherProps} = lane
           const {tagStyle, draggable, handleDragStart, handleDragEnd, onCardClick, onLaneScroll, laneSortFunction} = this.props
-
+          console.log('lane', lane);
           return (<div key={`${id}`}><Lane key={`${id}`}
             id={id}
             {...otherProps}

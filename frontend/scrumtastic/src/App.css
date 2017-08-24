@@ -34,7 +34,8 @@
 }
 
 .logo-login {
-  height: 350px;
+    width: 100%;
+    padding-right: 15%;
 }
 
 .nav-logo {

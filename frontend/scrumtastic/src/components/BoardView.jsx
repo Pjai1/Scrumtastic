@@ -7,7 +7,7 @@ import { BASE_URL } from '../constants';
 import '../App.css';
 import {Board} from '../trello-board'
 
-const data = require('../data.json')
+const jsonData = require('../data.json')
 
 
 class App extends Component {
@@ -21,7 +21,8 @@ class App extends Component {
           'projectId': '',
           'sprints': [],
           'projectName': [],
-          'data': {}
+          'boardData': null,
+          'counter': 5
       }
     }
 
@@ -32,12 +33,86 @@ class App extends Component {
       let projectId = localStorage.getItem('projectId');
       let projectName = localStorage.getItem('projectName');
       this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'email': email, 'projectName': projectName});
+
+      axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+      axios.defaults.headers.common['Authorization'] = token
+
+      let dataCopy = null;
+  
+      axios.get(`${BASE_URL}/statuses/`)
+          .then((data) => {
+              dataCopy = {
+                "lanes": [
+                  {
+                    "id": data.data[0].name,
+                    "title": data.data[0].name + " Tasks",
+                    "label": "4",
+                    "cards": [
+                      {
+                        "id": "Completed1",
+                        "title": "Practice Meditation",
+                        "label": "15 storypoints",
+                        "description": "Use Headspace app"
+                      }
+                    ],
+                    "currentPage": 1
+                  },
+                  {
+                    "id": data.data[1].name,
+                    "title": data.data[1].name + " Tasks",
+                    "label": "4",
+                    "cards": [
+                      {
+                        "id": "Completed2",
+                        "title": "Practice Meditation",
+                        "label": "15 storypoints",
+                        "description": "Use Headspace app"
+                      }
+                    ],
+                    "currentPage": 1
+                  },
+                  {
+                    "id": data.data[2].name,
+                    "title": data.data[2].name + " Tasks",
+                    "label": "4",
+                    "cards": [
+                      {
+                        "id": "Completed3",
+                        "title": "Practice Meditation",
+                        "label": "15 storypoints",
+                        "description": "Use Headspace app"
+                      }
+                    ],
+                    "currentPage": 1
+                  },
+                  {
+                    "id": data.data[3].name,
+                    "title": data.data[3].name + " Tasks",
+                    "label": "4",
+                    "cards": [
+                      {
+                        "id": "Completed4",
+                        "title": "Practice Meditation",
+                        "label": "15 storypoints",
+                        "description": "Use Headspace app"
+                      }
+                    ],
+                    "currentPage": 1
+                  }
+                ]
+              }
+              this.setState({boardData: dataCopy});
+              console.log('is board data set', this.state.boardData)
+          })
+          .catch((error) => {
+  
+          }) 
   }
 
   componentDidMount() {
     const token = 'Bearer ' + this.state.token
     const projectId = this.state.projectId;
-    let data = this.state.data;
+    let data = null;
 
     data = {
       "lanes": [
@@ -115,35 +190,7 @@ class App extends Component {
 
     let dataCopy = {};
 
-    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-    axios.defaults.headers.common['Authorization'] = token
-
-    axios.get(`${BASE_URL}/statuses/`)
-        .then((data) => {
-            dataCopy = {
-              "lanes": [
-                {
-                  "id": data.data[0].name,
-                  "title": data.data[0].name + " Tasks"
-                },
-                {
-                  "id": data.data[1].name,
-                  "title": data.data[1].name + " Tasks"
-                },
-                {
-                  "id": data.data[2].name,
-                  "title": data.data[2].name + " Tasks"
-                },
-                {
-                  "id": data.data[3].name,
-                  "title": data.data[3].name + " Tasks"
-                }
-              ]
-            }
-        })
-        .catch((error) => {
-
-        }) 
+  
     }
 
     getTasks() {
@@ -188,31 +235,49 @@ class App extends Component {
     console.log(nextData)
   }
 
+  renderBoard() {
+    const dataState = this.state.boardData;
+    let eventBus = undefined
+    
+    let setEventBus = (handle) => {
+      eventBus = handle
+    }
+
+    const handleDragStart = (cardId, laneId) => {
+      console.log('drag started')
+      console.log(`cardId: ${cardId}`)
+      console.log(`laneId: ${laneId}`)
+    }
+
+    const handleDragEnd = (cardId, sourceLaneId, targetLaneId) => {
+      console.log('drag ended')
+      console.log(`cardId: ${cardId}`)
+      console.log(`sourceLaneId: ${sourceLaneId}`)
+      console.log(`targetLaneId: ${targetLaneId}`)
+    }
+
+    const shouldReceiveNewData = (nextData) => {
+      console.log('data has changed')
+      console.log(nextData)
+    }
+
+    console.log('does data exist', dataState)
+    console.log('jsondata', jsonData)
+    if(dataState) {
+      return (
+        <div className="row">
+        <div className="col s2">
+            Story
+        </div>
+          <div className="col s10">
+              <Board data={dataState} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
+          </div>
+        </div>
+      )
+    }
+  }
+
   render() {
-
-      let eventBus = undefined
-
-      let setEventBus = (handle) => {
-        eventBus = handle
-      }
-
-      const handleDragStart = (cardId, laneId) => {
-        console.log('drag started')
-        console.log(`cardId: ${cardId}`)
-        console.log(`laneId: ${laneId}`)
-      }
-
-      const handleDragEnd = (cardId, sourceLaneId, targetLaneId) => {
-        console.log('drag ended')
-        console.log(`cardId: ${cardId}`)
-        console.log(`sourceLaneId: ${sourceLaneId}`)
-        console.log(`targetLaneId: ${targetLaneId}`)
-      }
-
-      const shouldReceiveNewData = (nextData) => {
-        console.log('data has changed')
-        console.log(nextData)
-      }
     return (
       <div>
           <nav className="teal lighten-3">
@@ -238,12 +303,12 @@ class App extends Component {
           </nav>
           <div className="row">
             <div className="col s2" />
-            <div className="col s8">
-              <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
-                <Board data={data} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
-            </div>
-            <div className="col s2" />
+          <div className="col s8">
+            <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
+              </div>
+          <div className="col s2" />
           </div>
+          {this.renderBoard()}
         </div>
     );
   }
