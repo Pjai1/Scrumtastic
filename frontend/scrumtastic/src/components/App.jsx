@@ -100,35 +100,33 @@ class App extends Component {
                     projects.map((project) => {
                         return (
                             <Col key={project.id} m={6} s={12}>
-                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#b64d87'}} textClassName='white-text' title={project.name} actions={[<a key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
-                                    {project.description}
+                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" title={project.name} actions={[<a key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
+                                    <p>{project.description}</p>
                                     <a key="Delete Project" onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                     <a key="Edit Project" onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
                                 </Card> : 
-                                <Card key={project.id} style={{backgroundColor: '#b64d87', height: '220px'}} textClassName='white-text'>
+                                <Card key={project.id} style={{backgroundColor: '#fff', height: '220px'}} textClassName="grey-text text-darken-4">
                                     <form className="col s8">
                                         <div className="row">
                                             <div className="input-field col s12">
                                                 <input 
-                                                    style={{color: 'white'}}
                                                     className="validate"
                                                     id="name"
                                                     type="text"
                                                     onChange={event => this.setState({name:event.target.value})}
                                                 />
-                                                <label htmlFor="name" style={{color: 'white'}}>Name: {project.name}</label>
+                                                <label htmlFor="name">Name: {project.name}</label>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="input-field col s12">
                                                 <input 
-                                                    style={{color: 'white'}}
                                                     className="validate"
                                                     id="description"
                                                     type="text"
                                                     onChange={event => this.setState({description:event.target.value})}
                                                 />
-                                                <label htmlFor="description" style={{color: 'white'}}>Description: {project.description}</label>
+                                                <label htmlFor="description" style={{whiteSpace: 'nowrap'}}>Description: {project.description}</label>
                                             </div>
                                         </div>
                                     </form>
@@ -245,7 +243,7 @@ class App extends Component {
                             this.renderProjects()
                         }
                         <Col m={6} s={12}>
-                            <Card key="New Project" style={{backgroundColor: '#b64d87'}} textClassName='white-text' actions={[<a key="New Project" style={{cursor: 'pointer'}} onClick={this.newProject}>+ Make new project</a>]}>
+                            <Card key="New Project" style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" actions={[<a key="New Project" style={{cursor: 'pointer'}} onClick={this.newProject}>+ Make new project</a>]}>
                                 <div key="New Project" style={{fontSize: '20px'}}>[Your new project will appear here]</div>
                             </Card>
                         </Col>  

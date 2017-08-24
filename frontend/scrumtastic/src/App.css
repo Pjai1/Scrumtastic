@@ -1,3 +1,7 @@
+body {
+    background-color: #efefef;
+}
+
 .Align {
     position: absolute;
     margin: auto;
@@ -31,6 +35,11 @@
 
 .App-intro {
   font-size: large;
+}
+
+.card-action {
+    background-color: #26a69a !important;
+    margin-top: 20px !important;
 }
 
 .logo-login {
