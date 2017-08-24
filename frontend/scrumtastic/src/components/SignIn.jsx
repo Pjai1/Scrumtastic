@@ -118,7 +118,7 @@ class SignIn extends Component {
                             </div>
                             <div className="col s4" />
                         </div>
-                            <div className="row">
+                        <div className="row">
                             <div className="col s3" />
                             <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
                                 <Icon small>
@@ -141,7 +141,6 @@ class SignIn extends Component {
                             </div>
                             <div className="col s4" />
                         </div>
-                    
                     </form>
                 </div>
                 <div className="row">
