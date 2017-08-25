@@ -74,18 +74,17 @@ class SignUp extends Component {
 
     renderErrors() {
         let errors = [];
-        if(this.state.error.response && this.state.error.response.data.error)
-        {
-            let errorArray = this.state.error.response.data.error;
-            let i = 0;
-            for(var key in errorArray) {
-                if(errorArray.hasOwnProperty(key)) {
-                    errors.push(<p className="errorMessage" key={"error_" + i}>{errorArray[key][0]}</p>);
+        console.log(this.state.error.response);
+        if(this.state.error.response && this.state.error.response.data) {
+            const errorResp = this.state.error.response.data.error;
+            if (typeof errorResp === "string") {
+                errors.push(<p className="errorMessage" key={"error_" + 1}>{errorResp}</p>)
+            } else {
+                for (let key in errorResp) {
+                    errors.push(<p className="errorMessage" key={"error_" + key}>{errorResp[key]}</p>)
                 }
-                i++;
             }
         }
-
         return <div className="center-align">{errors}</div>
     }
 

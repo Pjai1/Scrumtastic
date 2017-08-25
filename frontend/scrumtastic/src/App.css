@@ -1,5 +1,5 @@
 body {
-    background-color: #efefef;
+    background-color: #f5f5f5;
 }
 
 .Align {
@@ -35,6 +35,26 @@ body {
 
 .App-intro {
   font-size: large;
+}
+
+.card-content .card-title {
+    display: inline-block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+.card-content p {
+    display:inline-block;
+    width:100%;
+    white-space: nowrap;
+    overflow:hidden !important;
+    text-overflow: ellipsis;
+}
+
+.with-header {
+    background-color: #fff !important;
 }
 
 .card-action {

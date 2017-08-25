@@ -23,7 +23,8 @@ class App extends Component {
             'newDesc': '',
             'showEditingMode': -1,
             'clickedProject': null,
-            'error': []
+            'error': [],
+            'newProjectBool': false
         }
     }
 
@@ -105,7 +106,7 @@ class App extends Component {
                                     <a key="Delete Project" onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                     <a key="Edit Project" onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
                                 </Card> : 
-                                <Card key={project.id} style={{backgroundColor: '#fff', height: '220px'}} textClassName="grey-text text-darken-4">
+                                <Card key={project.id} style={{backgroundColor: '#fff', height: '280px'}} textClassName="grey-text text-darken-4">
                                     <form className="col s8">
                                         <div className="row">
                                             <div className="input-field col s12">
@@ -115,18 +116,18 @@ class App extends Component {
                                                     type="text"
                                                     onChange={event => this.setState({name:event.target.value})}
                                                 />
-                                                <label htmlFor="name">Name: {project.name}</label>
+                                                <label htmlFor="name"><b>Name:</b> {project.name}</label>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="input-field col s12">
-                                                <input 
-                                                    className="validate"
+                                                <textarea 
+                                                    className="materialize-textarea"
                                                     id="description"
                                                     type="text"
                                                     onChange={event => this.setState({description:event.target.value})}
                                                 />
-                                                <label htmlFor="description" style={{whiteSpace: 'nowrap'}}>Description: {project.description}</label>
+                                                <label htmlFor="description"><b>Description:</b> {project.description}</label>
                                             </div>
                                         </div>
                                     </form>
@@ -215,7 +216,69 @@ class App extends Component {
     }
 
     newProject() {
-        browserHistory.push('/newproject');
+        const token = 'Bearer ' + this.state.token
+        let projects = this.state.projects;
+        
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.post(`${BASE_URL}/projects`, {
+            'name': this.state.name,
+            'description': this.state.description,
+            'user_id': this.state.userId
+        })
+            .then((data) => {
+                projects.push(data.data);
+                this.setState({projects: projects});
+                this.setState({newProjectBool: false});
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
+    }
+
+    setNewProjectBool() {
+        this.setState({newProjectBool: true})
+        console.log('setbool',this.state.newProjectBool)
+    }
+
+    renderNewProject() {
+        console.log(this.state.newProjectBool)
+        return (
+            <Col m={6} s={12}>
+                { (!this.state.newProjectBool) ?
+                <Card key="New Project" style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" actions={[<a key="New Project" style={{cursor: 'pointer'}} onClick={() => this.setNewProjectBool()}>+ Make new project</a>]}>
+                    <div key="New Project" style={{fontSize: '20px'}}>[Your new project will appear here]</div>
+                </Card> :
+                <Card key="New Project" style={{backgroundColor: '#fff', height: '280px'}} textClassName="grey-text text-darken-4">
+                <form className="col s8">
+                    <div className="row">
+                        <div className="input-field col s12">
+                            <input 
+                                className="validate"
+                                id="name"
+                                type="text"
+                                onChange={event => this.setState({name:event.target.value})}
+                            />
+                            <label htmlFor="name"><b>Project Name</b></label>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="input-field col s12">
+                            <textarea 
+                                className="materialize-textarea"
+                                id="description"
+                                type="text"
+                                onChange={event => this.setState({description:event.target.value})}
+                            />
+                            <label htmlFor="description"><b>Project Description</b></label>
+                        </div>
+                    </div>
+                </form>
+                <a onClick={() => {this.newProject()}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>add_box</i></a>
+                </Card>
+                }
+            </Col>  
+        )
     }
 
     render() {
@@ -242,11 +305,7 @@ class App extends Component {
                         {
                             this.renderProjects()
                         }
-                        <Col m={6} s={12}>
-                            <Card key="New Project" style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" actions={[<a key="New Project" style={{cursor: 'pointer'}} onClick={this.newProject}>+ Make new project</a>]}>
-                                <div key="New Project" style={{fontSize: '20px'}}>[Your new project will appear here]</div>
-                            </Card>
-                        </Col>  
+                        {this.renderNewProject()}
                     </div>
                     <div className="col s2"/>
                 </div>

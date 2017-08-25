@@ -41,6 +41,7 @@ class SignIn extends Component {
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
                     this.setState({token: data.data.access_token});
+                    console.log(this.state.token)
                     let t = new Toast("Succesfully logged in!", 2500)
                     t.Render(); 
                     this.getUserId();
@@ -67,18 +68,16 @@ class SignIn extends Component {
 
     renderErrors() {
         let errors = [];
-        if(this.state.error.response && this.state.error.response.data.error)
-        {
-            let errorArray = this.state.error.response.data.error;
-            let i = 0;
-            for(var key in errorArray) {
-                if(errorArray.hasOwnProperty(key)) {
-                    errors.push(<p key={"error_" + i}>{errorArray[key][0]}</p>);
+        if(this.state.error.response && this.state.error.response.data) {
+            const errorResp = this.state.error.response.data.error;
+            if (typeof errorResp === "string") {
+                errors.push(<p className="errorMessage" key={"error_" + 1}>{errorResp}</p>)
+            } else {
+                for (let key in errorResp) {
+                    errors.push(<p className="errorMessage" key={"error_" + key}>{errorResp[key]}</p>)
                 }
-                i++;
             }
         }
-
         return <div className="center-align">{errors}</div>
     }
 

@@ -46,7 +46,6 @@ class SprintController extends ApiController
      */
     public function store(Request $request)
     {
-        $sprintCounter = Sprint::count();
         $rules = [
             'project_id' => 'required|exists:projects,id',
             'start_date' => 'required|date',
@@ -54,6 +53,8 @@ class SprintController extends ApiController
         ];
 
         $this->validate($request, $rules);
+
+        $sprintCounter = Sprint::where('project_id', '=', $request->project_id)->count();
 
         $data = $request->all();
         $data['name'] = 'Sprint '.($sprintCounter+1);

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem } from 'react-materialize';
+import { Dropdown, Button, NavItem, Icon } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import Toast from './Toast';
 import axios from 'axios';
@@ -231,18 +231,16 @@ class ProjectView extends Component {
 
     renderErrors() {
         let errors = [];
-        if(this.state.error.response && this.state.error.response.data.error)
-        {
-            let errorArray = this.state.error.response.data.error;
-            let i = 0;
-            for(var key in errorArray) {
-                if(errorArray.hasOwnProperty(key)) {
-                    errors.push(<p key={"error_" + i}>{errorArray[key][0]}</p>);
+        if(this.state.error.response && this.state.error.response.data) {
+            const errorResp = this.state.error.response.data.error;
+            if (typeof errorResp === "string") {
+                errors.push(<p className="errorMessage" key={"error_" + 1}>{errorResp}</p>)
+            } else {
+                for (let key in errorResp) {
+                    errors.push(<p className="errorMessage" key={"error_" + key}>{errorResp[key]}</p>)
                 }
-                i++;
             }
         }
-
         return <div className="center-align">{errors}</div>
     }
 
@@ -272,7 +270,7 @@ class ProjectView extends Component {
                     features.map((feature) => {
                         return (
                             <ul key={feature.id} className="collection with-header">
-                                <li className="collection-header"><h4>Feature: {feature.name}
+                                <li className="collection-header"><h4><span><Icon small>featured_play_list</Icon></span>Feature: {feature.name}
                                     <a onClick={() => {this.deleteFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                     <a style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a></h4>
                                 </li>
@@ -285,7 +283,7 @@ class ProjectView extends Component {
                                                 {
                                                     (!this.state.storyEditingMode && (this.state.clickedStory === null)) || (!this.state.storyEditingMode && (this.state.clickedStory === story.id)) || (!this.state.storyEditingMode && (this.state.clickedStory !== story.id)) || (this.state.storyEditingMode && (this.state.clickedStory !== story.id)) ?
                                                     <div>
-                                                        User Story: {story.description}
+                                                        <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>label_outline</Icon></div><b>User Story:</b> {story.description}
                                                         <a onClick={() => {this.deleteStory(story.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                                         <a onClick={() => {this.editStory(story.id, story.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
                                                     </div> : 
@@ -334,9 +332,9 @@ class ProjectView extends Component {
                 }
                 <div className="row">
                     <ul className="collection with-header">
-                        <li className="collection-header"><h4>Feature: ...
+                        <li className="collection-header"><h4><span><Icon small>featured_play_list</Icon></span>Feature: ...
                             <div className="row">
-                                <div className="input-field inline col s6">
+                                <div className="input-field inline col s6" style={{marginTop: '2rem'}}>
                                     <input 
                                         className="validate"
                                         id="feature"
@@ -348,7 +346,7 @@ class ProjectView extends Component {
                                             }
                                         }}
                                     />
-                                    <label htmlFor="feature">Feature</label>
+                                    <label htmlFor="feature">Add Feature</label>
                                 </div>
                             </div>
                         </h4></li>
@@ -378,7 +376,7 @@ class ProjectView extends Component {
                     <a className="brand-logo" href="/"><img className="nav-logo" src={logo}/></a>
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                             <li><a href="/">Projects</a></li>
-                            <li><a href="/sprints">Sprints</a></li>
+                            <li><a onClick={() => this.addSprint()}>Sprints</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>

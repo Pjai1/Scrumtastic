@@ -90,10 +90,16 @@ class StoryController extends ApiController
 
         $this->validate($request, $rules);   
 
-        $story = Story::find($request->story_id);
-        $story->sprints()->attach($request->sprint_id);
+        $storyExists = DB::table('sprint_story')->where('sprint_id', '=', $request->sprint_id)->where('story_id', '=', $request->story_id);
+        
+        if(!$storyExists) {
+            $story = Story::find($request->story_id);
+            $story->sprints()->attach($request->sprint_id);
 
-        return $this->showOne($story, 201);
+            return $this->showOne($story, 201);
+        } else {
+            return $this->errorResponse('Story already exists in this sprint.', 409);
+        }
     }
 
     /**

@@ -82,12 +82,21 @@ class UserController extends ApiController
             return $this->errorResponse('No user found by that email', 401);
         }
 
-        $projectUser = new ProjectUser;
-        $projectUser->project_id = $request->project_id;
-        $projectUser->user_id = $user[0]->id;
-        $projectUser->save();
+        $userId = $user[0]->id;
+        $userExists = ProjectUser::where('user_id', '=', $userId)->where('project_id', '=', $request->project_id);
+        
+        if(!$userExists) {
+        
+            $projectUser = new ProjectUser;
+            $projectUser->project_id = $request->project_id;
+            $projectUser->user_id = $user[0]->id;
+            $projectUser->save();
 
-        return $this->showAll($user);
+            return $this->showAll($user);
+        }
+        else {
+            return $this->errorResponse('User already attached to this project', 409);
+        }
     }
 
     /**

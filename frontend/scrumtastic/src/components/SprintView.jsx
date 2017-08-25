@@ -213,27 +213,8 @@ class SprintView extends Component {
         this.setState({'userStoryCheck': !this.state.userStoryCheck});
     }
 
-    createStorySelect(stories, sprintId) {
-        // const token = 'Bearer ' + this.state.token
-        // const projectId = this.state.projectId;
-
-        // axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-        // axios.defaults.headers.common['Authorization'] = token
-
-        // axios.get(`${BASE_URL}/projects/${projectId}/stories`)
-        //     .then((data) => {
-        //         console.log('stories', data)
-        //         let projectStories = [];
-        //         data.data[0].stories.forEach((story) => {
-        //             projectStories.push(story);
-        //         })
-        //         this.setState({'backlogStories': projectStories});
-        //     })
-        //     .catch((error) => {
-        //         this.setState({error});
-        //     }) 
-
-        const backlogStories = this.state.backlogStories;
+    createStorySelect(sprintId) {
+        const backlogStories = this.state.stories;
         let items = [];
         for(let i = 0; i < backlogStories.length; i++) {
             items.push(<NavItem key={i} value={backlogStories[i].description} onClick={this.handleChange.bind(this, backlogStories[i].id, sprintId)}>{backlogStories[i].description}</NavItem>);
@@ -265,18 +246,17 @@ class SprintView extends Component {
 
     renderErrors() {
         let errors = [];
-        if(this.state.error.response && this.state.error.response.data.error)
-        {
-            let errorArray = this.state.error.response.data.error;
-            let i = 0;
-            for(var key in errorArray) {
-                if(errorArray.hasOwnProperty(key)) {
-                    errors.push(<p key={"error_" + i}>{errorArray[key][0]}</p>);
+        console.log(this.state.error.response);
+        if(this.state.error.response && this.state.error.response.data) {
+            const errorResp = this.state.error.response.data.error;
+            if (typeof errorResp === "string") {
+                errors.push(<p className="errorMessage" key={"error_" + 1}>{errorResp}</p>)
+            } else {
+                for (let key in errorResp) {
+                    errors.push(<p className="errorMessage" key={"error_" + key}>{errorResp[key]}</p>)
                 }
-                i++;
             }
         }
-
         return <div className="center-align">{errors}</div>
     }
 
@@ -360,8 +340,8 @@ class SprintView extends Component {
                                         }}
                                     />
                                     <p>
-                                        <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
-                                            <label htmlFor="filled-in-box">Check to select a User Story</label>
+                                        <input type="checkbox" className="filled-in" id={sprint.id} onClick={this.handleCheck.bind(this)} />
+                                            <label htmlFor={sprint.id}>Check to select a User Story</label>
                                     </p>
                                 </div>
                                  :
@@ -369,12 +349,11 @@ class SprintView extends Component {
                                     <Dropdown trigger={
                                         <Button defaultValue={this.state.selectValue} onChange={this.handleChange}>Select User Story</Button>
                                         }>
-                                        {/*{console.log(stories)}*/}
-                                        {this.createStorySelect(this.state.origStories, sprint.id)}
+                                        {this.createStorySelect(sprint.id)}
                                     </Dropdown>
                                     <p>
-                                    <input type="checkbox" className="filled-in" id="filled-in-box" onClick={this.handleCheck.bind(this)} />
-                                        <label htmlFor="filled-in-box">Check to manually add a User Story</label>
+                                    <input type="checkbox" className="filled-in" id={sprint.id} onClick={this.handleCheck.bind(this)} />
+                                        <label htmlFor={sprint.id}>Check to manually add a User Story</label>
                                     </p>
                                 </div>
                                 }
