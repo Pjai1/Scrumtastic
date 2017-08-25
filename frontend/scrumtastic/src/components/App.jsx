@@ -101,7 +101,7 @@ class App extends Component {
                     projects.map((project) => {
                         return (
                             <Col key={project.id} m={6} s={12}>
-                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" title={project.name} actions={[<a key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
+                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" title={project.name} actions={[<a style={{color: 'white', fontWeight: 'bold'}} key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
                                     <p>{project.description}</p>
                                     <a key="Delete Project" onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
                                     <a key="Edit Project" onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
@@ -246,7 +246,7 @@ class App extends Component {
         return (
             <Col m={6} s={12}>
                 { (!this.state.newProjectBool) ?
-                <Card key="New Project" style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" actions={[<a key="New Project" style={{cursor: 'pointer'}} onClick={() => this.setNewProjectBool()}>+ Make new project</a>]}>
+                <Card key="New Project" style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" actions={[<a key="New Project" style={{cursor: 'pointer', color: 'white', fontWeight: 'bold'}} onClick={() => this.setNewProjectBool()}>+ Make new project</a>]}>
                     <div key="New Project" style={{fontSize: '20px'}}>[Your new project will appear here]</div>
                 </Card> :
                 <Card key="New Project" style={{backgroundColor: '#fff', height: '280px'}} textClassName="grey-text text-darken-4">

@@ -43,6 +43,7 @@ body {
     white-space: nowrap;
     overflow: hidden !important;
     text-overflow: ellipsis;
+    font-weight: bold;
 }
 
 .card-content p {

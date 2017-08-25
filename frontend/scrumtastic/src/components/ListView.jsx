@@ -128,26 +128,27 @@ class ListView extends Component {
                     }
 
                     tasks.forEach((task, i) => {
+                        let nextObj = JSON.parse(JSON.stringify(taskObject))
                         promises.push(new Promise(function(resolve, reject) {
                             Promise.all([
                                 self.getUsersForTask(task.id).then((users) => {
                                     if(users.length > 0) {
-                                        taskObject.users = users;
+                                        nextObj.users = users;
                                     }
                                     resolve()
                                 }),
                                 self.getTaskStatus(task.status_id).then((status) => {
                                     if(status) {
-                                        taskObject.status = status;
+                                        nextObj.status = status;
                                     }
                                     resolve()
                                 })                                 
                             ]).then(function() {
-                                taskObject.id = task.id;
-                                taskObject.name = task.name;
-                                taskObject.total_storypoints = task.total_storypoints;
-                                taskObject.remaining_storypoints = task.remaining_storypoints;
-                                tasksForStory.tasks.push(taskObject)
+                                nextObj.id = task.id;
+                                nextObj.name = task.name;
+                                nextObj.total_storypoints = task.total_storypoints;
+                                nextObj.remaining_storypoints = task.remaining_storypoints;
+                                tasksForStory.tasks.push(nextObj)
                                 resolve()
                             })
                         }))
