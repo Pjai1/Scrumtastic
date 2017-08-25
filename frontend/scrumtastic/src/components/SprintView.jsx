@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Tabs, Tab, Row, Input } from 'react-materialize';
+import { Dropdown, Button, NavItem, Tabs, Tab, Row, Input, Modal, Icon } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -52,7 +52,7 @@ class SprintView extends Component {
             })
             .catch((error) => {
                 this.setState({error});
-            }) 
+            })  
     }
 
     componentDidMount() {
@@ -180,6 +180,12 @@ class SprintView extends Component {
             .then((data) => {
                 sprints.push(data.data)
                 this.setState({sprints: sprints});
+                let sprintModal = document.getElementById('sprintModal');
+                let sprintModalOverlay = document.getElementById('materialize-modal-overlay-1');
+                sprintModal.style.display = 'none';
+                sprintModalOverlay.style.display = 'none';
+                let t = new Toast("New sprint added to project!", 2500)
+                t.Render(); 
             })
             .catch((error) => {
                 this.setState({error});
@@ -282,6 +288,10 @@ class SprintView extends Component {
             .then((data) => {
                 users.push(data.data[0]);
                 this.setState({users: users})
+                let userModal = document.getElementById('userModal');
+                let userModalOverlay = document.getElementById('materialize-modal-overlay-1');
+                userModal.style.display = 'none';
+                userModalOverlay.style.display = 'none';
                 let t = new Toast(this.state.userEmail + " added to project!", 2500)
                 t.Render(); 
             })
@@ -292,6 +302,7 @@ class SprintView extends Component {
 
     sprintIdToStorage(sprintId) {
         this.setState({sprintId: sprintId})
+        console.log('sprintId', sprintId);
         console.log(this.state.sprintId);
     }
 
@@ -301,12 +312,12 @@ class SprintView extends Component {
 
         return (
             <div className="row">
-                {this.state.sprints.length === 0 ? <p style={{marginLeft: '10px'}} className="toast-message waves-effect waves-light teal lighten-2">Seems like you need to add some sprints</p> : null }
+                {this.state.sprints.length === 0 ? <p style={{marginLeft: '10px'}} className="sprint-message waves-effect waves-light teal lighten-2">Seems like you need to add some sprints</p> : null }
                 <Tabs className='tab-demo z-depth-1'>
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={sprint.name} onClick={this.sprintIdToStorage.bind(this, sprint.id)} >
+                            <Tab key={sprint.id} title={sprint.name} onChange={() => this.sprintIdToStorage(sprint.id)} >
 
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
@@ -398,27 +409,58 @@ class SprintView extends Component {
                     <div className="col s2" />
                     <div className="col s8">
                         <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Sprints</h2>
-                        {this.renderSprints()}
+                        <Modal id="sprintModal" trigger={<Button style={{float: 'right', position: 'relative', top: '-70px'}}><Icon small>
+                                playlist_add
+                            </Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Sprint</span></Button>}>
                         <div className="row">
-                            { this.renderErrors() }
+                            <div className="col s2" />
+                            <div className="col s7">
+                                <h3 style={{paddingLeft: '89px'}}>Add Sprint</h3>
+                            </div>
+                            <div className="col s3" />
                         </div>
-                        <h2 style={{color: '#26a69a'}}>Add Sprints</h2>
                         <div className="row">
+                            <div className="col s3" />
+                            <div className="col s6">
                             <Row>
                                 <Input style={{width: '175px'}} name='on' type='date' placeholder="Start Date" onChange={event => this.setState({sprintStartDate:event.target.value})} />
                                 <Input style={{width: '175px'}} name='on' type='date' placeholder="End Date" onChange={event => this.setState({sprintEndDate:event.target.value})} />
-                                <a 
-                                    className="btn-floating btn-large waves-effect waves-light"
+                                <Button
                                     onClick={() => this.addSprint()}
                                 >
                                     Add Sprint
-                                </a>
+                                </Button>
                             </Row>
+                            </div>
+                            <div className="col s3" />
                         </div>
-                        <h2 style={{color: '#26a69a'}}>Add Users</h2>
                         <div className="row">
-                            {this.renderUsers()}
-                            <div className="input-field inline col s4">
+                            <div className="col s3" />
+                            <div className="col s6">
+                                {this.renderErrors()}
+                            </div>
+                            <div className="col s3" />
+                        </div>
+                        </Modal>
+                        <Modal id="userModal" trigger={<Button style={{float: 'right', position: 'relative', top: '-70px', marginRight: '15px'}}>
+                            <Icon small>
+                                account_box
+                            </Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add User</span></Button>}>
+                        <div className="row">
+                            <div className="col s2" />
+                            <div className="col s7">
+                                <h3 style={{paddingLeft: '25px'}}>Add User</h3>
+                            </div>
+                            <div className="col s3" />
+                        </div>
+                        <div className="row">
+                            <div className="col s2" />
+                            <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                                <Icon small>
+                                email    
+                                </Icon>
+                            </div>
+                            <div className="input-field inline col s6">
                                 <input 
                                     className="validate"
                                     id="user"
@@ -433,6 +475,23 @@ class SprintView extends Component {
                                 />
                                 <label htmlFor="user">Enter User Email</label>
                             </div>
+                            <div className="col s3" />
+                        </div>
+                        <div className="row">
+                            <div className="col s3" />
+                            <div className="col s6">
+                                {this.renderErrors()}
+                            </div>
+                            <div className="col s3" />
+                        </div>
+                        </Modal>
+                        {this.renderSprints()}
+                        <div className="row">
+                            { this.renderErrors() }
+                        </div>
+                        <h2 style={{color: '#26a69a'}}>Contributors</h2>
+                        <div className="row">
+                            {this.renderUsers()}
                         </div>
                     </div>
                     <div className="col s2" />

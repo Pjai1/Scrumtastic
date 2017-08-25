@@ -83,8 +83,8 @@ class UserController extends ApiController
         }
 
         $userId = $user[0]->id;
-        $userExists = ProjectUser::where('user_id', '=', $userId)->where('project_id', '=', $request->project_id);
-        
+        $userExists = ProjectUser::where('project_id', '=', $request->project_id)->where('user_id', '=', $userId)->first();
+
         if(!$userExists) {
         
             $projectUser = new ProjectUser;
