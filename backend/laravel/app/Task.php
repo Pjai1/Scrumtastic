@@ -20,7 +20,8 @@ class Task extends Model
         'remaining_storypoints',
         'total_storypoints',
         'story_id',
-        'status_id'
+        'status_id',
+        'description'
     ];
 
     protected $dates = ['deleted_at'];

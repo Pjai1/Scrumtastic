@@ -12,6 +12,7 @@ class ListView extends Component {
         super(props);
         this.state = {
             'userId': '',
+            'statusId': '',
             'email': '',
             'token': '',
             'name': '',
@@ -23,10 +24,12 @@ class ListView extends Component {
             'tasks': [],
             'stories': [],
             'statuses': [],
-            'listViewArray': [],
             'renderArray': [],
             'maxStorypoints': '',
-            'dailyStorypoints': ''
+            'dailyStorypoints': '',
+            'taskName': '',
+            'selectedStatus': ''
+
         }
     }
 
@@ -58,7 +61,7 @@ class ListView extends Component {
 
             axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
                 .then((data) => {
-                    this.setState({stories: data.data[0].stories, listViewArray: data.data[0].stories})
+                    this.setState({stories: data.data[0].stories})
                     resolve()
                 })
                 .catch((error) => {
@@ -222,6 +225,60 @@ class ListView extends Component {
             }.bind(this))
     }
 
+    createTask(storyId) {
+        const token = 'Bearer ' + this.state.token;
+        console.log('story',storyId)
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token;
+        let selectValue = null;
+
+        if(this.state.selectedStatus == "Unassigned") {
+            selectValue = 1;
+        }
+
+        if(this.state.selectedStatus == "To Do") {
+            selectValue = 2;
+        }
+
+        if(this.state.selectedStatus == "In Progress") {
+            selectValue = 3;
+        }
+
+        if(this.state.selectedStatus == "Completed") {
+            selectValue = 4;
+        }
+        console.log(this.state.statusId)
+        axios.post(`${BASE_URL}/tasks`, {
+            'sprint_id': this.state.sprintId,
+            'status_id': selectValue,
+            'name': this.state.taskName,
+            'total_storypoints': this.state.maxStorypoints,
+            'story_id': storyId
+        })
+            .then((data) => {
+                console.log(this.state.renderArray)
+                let t = new Toast("Task Added!", 2500)
+                t.Render(); 
+            })
+            .catch((error) => {
+
+            }) 
+    }
+
+    statusSelect() {
+        const statuses = this.state.statuses;
+        let items = [];
+        for(let i = 0; i < statuses.length; i++) {
+            items.push(<NavItem key={i} value={statuses[i].name} onClick={this.handleChange.bind(this, statuses[i].name)}>{statuses[i].name}</NavItem>);
+        }
+
+        return items;
+    }
+
+    handleChange(selectedValue) {
+        this.setState({selectedStatus: selectedValue})
+    }
+
     logOut() {
         const token = 'Bearer ' + this.state.token;
 
@@ -257,7 +314,40 @@ class ListView extends Component {
                                 </td>
                                 <td> 
                                     {   
-                                        story.tasks.length === 0 ? "/" : story.tasks.map((task, key) => {
+                                        story.tasks.length === 0 ? 
+                                        <div className="col s9">
+                                            <div className="input-field inline col s6">
+                                                <input 
+                                                    className="validate"
+                                                    id="task"
+                                                    type="text"
+                                                    defaultValue=""
+                                                    onChange={event => this.setState({taskName:event.target.value})}
+                                                    onKeyPress={event => {
+                                                    if(event.key === "Enter") {
+                                                            this.createTask(story.story.id);
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor="task">Task</label> 
+                                            </div>
+                                            <div className="input-field inline col s3">
+                                                <input 
+                                                    className="validate"
+                                                    id="storypoints"
+                                                    type="text"
+                                                    defaultValue=""
+                                                    onChange={event => this.setState({maxStorypoints:event.target.value})}
+                                                    onKeyPress={event => {
+                                                    if(event.key === "Enter") {
+                                                            this.createTask(story.story.id);
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor="storypoints">Storypoints</label> 
+                                            </div>
+                                        </div>
+                                        : story.tasks.map((task, key) => {
                                             return (
                                                 <div style={{marginBottom: '30px'}} key={key}><b>{task.name}:</b> {task.users.map((user, key) => {
                                                         return (
@@ -270,7 +360,14 @@ class ListView extends Component {
                                 </td>
                                 <td>
                                     {   
-                                        story.tasks.length === 0 ? "/" : story.tasks.map((task, key) => {
+                                        story.tasks.length === 0 ? 
+                                        <div>
+                                        <Dropdown trigger={<Button>Select Status</Button>}>
+                                            {this.statusSelect()}
+                                        </Dropdown>
+                                        <br /><b style={{textAlign: 'center', paddingTop: '5px'}}>{this.state.selectedStatus}</b>
+                                        </div>
+                                         : story.tasks.map((task, key) => {
                                             return (
                                                 <div className="task-status" key={key}>{task.status}</div>
                                             )
@@ -315,8 +412,7 @@ class ListView extends Component {
                     </div>
                 </nav>
                 <div className="row">
-                    <div className="col s2"/>
-                    <div className="col s8"> 
+                    <div className="col s12"> 
                         <h2 style={{color: '#26a69a'}}>{this.state.projectName}: List View</h2><a 
                                     className="waves-effect waves-light btn-large"
                                     onClick={() => this.goToChart()}
@@ -334,7 +430,6 @@ class ListView extends Component {
                                 {this.renderStories()}
                         </Table>
                     </div>
-                    <div className="col s2" />
                 </div>
             </div>
         )

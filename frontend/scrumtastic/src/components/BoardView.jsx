@@ -15,14 +15,23 @@ class App extends Component {
   constructor(props) {
       super(props);
       this.state = {
+          'error': [],
           'userId': '',
           'email': '',
           'token': '',
           'projectId': '',
           'sprints': [],
+          'tasks': [],
+          'stories': [],
+          'statuses': [],
           'projectName': [],
           'boardData': null,
-          'counter': 5
+          'counter': 5,
+          'renderArray': [],
+          'unassignedArray': [],
+          'toDoArray': [],
+          'inProgressArray': [],
+          'completedArray': []
       }
     }
 
@@ -32,81 +41,358 @@ class App extends Component {
       let userId = localStorage.getItem('userId');
       let projectId = localStorage.getItem('projectId');
       let projectName = localStorage.getItem('projectName');
-      this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'email': email, 'projectName': projectName});
+      let sprintId = localStorage.getItem('sprintId');
+      this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'email': email, 'projectName': projectName, 'sprintId': sprintId});
 
-      axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-      axios.defaults.headers.common['Authorization'] = token
+      this.getStatuses().then(() => {
+        this.getUserStoriesForSprint().then(() => {
+             this.getStoryTasks().then((tasks) => {
+                 this.setState({renderArray: tasks})
+                 let renderArray = this.state.renderArray;
+                 let toDoArray = [];
+                 let unassignedArray = [];
+                 let inProgressArray = [];
+                 let completedArray = [];
+                 
+                 renderArray.forEach((task) => {
+                    task.tasks.forEach((taskStatus) => {
+                      
+                      if (taskStatus.status === "To Do") {
+                        toDoArray.push(taskStatus)
+                      }
 
-      let dataCopy = null;
-  
-      axios.get(`${BASE_URL}/statuses/`)
-          .then((data) => {
-              dataCopy = {
-                "lanes": [
-                  {
-                    "id": data.data[0].name,
-                    "title": data.data[0].name + " Tasks",
-                    "label": "4",
-                    "cards": [
-                      {
-                        "id": "Completed1",
-                        "title": "Practice Meditation",
-                        "label": "15 storypoints",
-                        "description": "Use Headspace app"
+                      if (taskStatus.status === "Unassigned") {
+                        unassignedArray.push(taskStatus)
                       }
-                    ],
-                    "currentPage": 1
-                  },
-                  {
-                    "id": data.data[1].name,
-                    "title": data.data[1].name + " Tasks",
-                    "label": "4",
-                    "cards": [
-                      {
-                        "id": "Completed2",
-                        "title": "Practice Meditation",
-                        "label": "15 storypoints",
-                        "description": "Use Headspace app"
+
+                      if (taskStatus.status === "In Progress") {
+                        inProgressArray.push(taskStatus)
                       }
-                    ],
-                    "currentPage": 1
-                  },
-                  {
-                    "id": data.data[2].name,
-                    "title": data.data[2].name + " Tasks",
-                    "label": "4",
-                    "cards": [
-                      {
-                        "id": "Completed3",
-                        "title": "Practice Meditation",
-                        "label": "15 storypoints",
-                        "description": "Use Headspace app"
+
+                      if (taskStatus.status === "Completed") {
+                        completedArray.push(taskStatus)
                       }
-                    ],
-                    "currentPage": 1
-                  },
-                  {
-                    "id": data.data[3].name,
-                    "title": data.data[3].name + " Tasks",
-                    "label": "4",
-                    "cards": [
-                      {
-                        "id": "Completed4",
-                        "title": "Practice Meditation",
-                        "label": "15 storypoints",
-                        "description": "Use Headspace app"
+                    })
+                 })
+
+                 this.setState({'completedArray': completedArray, toDoArray: toDoArray, unassignedArray: unassignedArray, inProgressArray: inProgressArray})
+                
+                 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+                 axios.defaults.headers.common['Authorization'] = token
+           
+                 let dataCopy = null;
+             
+                 axios.get(`${BASE_URL}/statuses/`)
+                     .then((data) => {
+                         dataCopy = {
+                           "lanes": [
+                             {
+                               "id": data.data[0].name,
+                               "title": data.data[0].name + " Tasks",
+                               "label": "4",
+                               "cards": [
+
+                               ],
+                               "currentPage": 1
+                             },
+                             {
+                               "id": data.data[1].name,
+                               "title": data.data[1].name + " Tasks",
+                               "label": "4",
+                               "cards": [
+
+                               ],
+                               "currentPage": 1
+                             },
+                             {
+                               "id": data.data[2].name,
+                               "title": data.data[2].name + " Tasks",
+                               "label": "4",
+                               "cards": [
+
+                               ],
+                               "currentPage": 1
+                             },
+                             {
+                               "id": data.data[3].name,
+                               "title": data.data[3].name + " Tasks",
+                               "label": "4",
+                               "cards": [
+
+                               ],
+                               "currentPage": 1
+                             }
+                           ]
+                         }
+                         this.setState({boardData: dataCopy})
+                         
+                         let boardData = this.state.boardData;
+                         let toDoArray = this.state.toDoArray;
+                         let completedArray = this.state.completedArray;
+                         let unassignedArray = this.state.unassignedArray;
+                         let inProgressArray = this.state.inProgressArray;
+
+                         toDoArray.forEach((toDo, i) => {
+                          let obj = {
+                            "id": toDo.id,
+                            "title": toDo.name,
+                            "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                            "description": toDo.description,
+                            "story_id": toDo.story_id,
+                            "status_id": toDo.status_id
+                          }
+                          boardData.lanes[1].cards.push(obj)
+                        })
+
+                        completedArray.forEach((toDo, i) => {
+                          let obj = {
+                            "id": toDo.id,
+                            "title": toDo.name,
+                            "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                            "description": toDo.description,
+                            "story_id": toDo.story_id,
+                            "status_id": toDo.status_id
+                          }
+
+                           boardData.lanes[3].cards.push(obj)
+                        })
+
+                        unassignedArray.forEach((toDo, i) => {
+                          let obj = {
+                            "id": toDo.id,
+                            "title": toDo.name,
+                            "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                            "description": toDo.description,
+                            "story_id": toDo.story_id,
+                            "status_id": toDo.status_id
+                          }
+
+                           boardData.lanes[0].cards.push(obj)
+                        })
+
+                         inProgressArray.forEach((toDo, i) => {
+                           let obj = {
+                             "id": toDo.id,
+                             "title": toDo.name,
+                             "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                             "description": toDo.description,
+                             "story_id": toDo.story_id,
+                             "status_id": toDo.status_id
+                           }
+
+                            boardData.lanes[2].cards.push(obj)
+                         })
+                         this.setState({boardData: boardData})
+                     })
+                     .catch((error) => {
+                        this.setState({error: error});
+                     }) 
+             })
+        })
+    })
+
+
+  }
+
+  getUserStoriesForSprint() {
+      return new Promise(function(resolve, reject) {
+          const token = 'Bearer ' + this.state.token;
+          const sprintId = this.state.sprintId;
+          axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+          axios.defaults.headers.common['Authorization'] = token;
+
+          axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
+              .then((data) => {
+                  this.setState({stories: data.data[0].stories})
+                  resolve()
+              })
+              .catch((error) => {
+                  reject(error)
+              }) 
+      }.bind(this))
+  }
+
+  getStoryTasks() {
+      return new Promise(function(resolve, reject) {
+          let stories = JSON.parse(JSON.stringify(this.state.stories))
+          let tasks = []
+
+          let promises = []
+
+          stories.forEach((story, i) => {
+              promises.push(
+                  this.getTasksForStory(story, i).then(function(taskArray) {
+                    console.log('ALL TASKS', taskArray)
+                      if(taskArray) {
+                          tasks.push(taskArray)
                       }
-                    ],
-                    "currentPage": 1
-                  }
-                ]
-              }
-              this.setState({boardData: dataCopy});
-              console.log('is board data set', this.state.boardData)
+                  })                    
+              )
           })
-          .catch((error) => {
+
+          Promise.all(promises).then(function() {
+              resolve(tasks)
+          })
+      }.bind(this))
+  }
+
+  getTasksForStory(story, i) {
+      const token = 'Bearer ' + this.state.token;
+
+      return new Promise(function(resolve, reject) {
+          axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+          axios.defaults.headers.common['Authorization'] = token;
+
+          // let tasksForStory = 
+          //     {
+          //         "story": story,
+          //         "tasks": []
+          //     }
+
+          // let taskObject = {
+          //             "id": null,
+          //             "name": null,
+          //             "description": null,
+          //             "total_storypoints": null,
+          //             "remaining_storypoints": null,
+          //             "story_id": null,
+          //             "status_id": null,
+          //             "users": [
+          //             ],
+          //             "status": null
+          //         }
+
+          var self = this
+
+          axios.get(`${BASE_URL}/stories/${story.id}/tasks`)
+              .then((data) => {
+                let tasksForStory = 
+                {
+                    "story": story,
+                    "tasks": []
+                }
   
-          }) 
+            let taskObject = {
+                        "id": null,
+                        "name": null,
+                        "description": null,
+                        "total_storypoints": null,
+                        "remaining_storypoints": null,
+                        "story_id": null,
+                        "status_id": null,
+                        "users": [
+                        ],
+                        "status": null
+                    }
+                  let tasks = data.data[0].tasks
+                  let promises = []
+
+                  if(tasks.length === 0) {
+                      resolve({ tasks: [], status: null, story: story }) 
+                  }
+
+                  tasks.forEach((task, i) => {
+                      let nextObj = JSON.parse(JSON.stringify(taskObject))
+                      promises.push(new Promise(function(resolve, reject) {
+                          Promise.all([
+                              self.getUsersForTask(task.id).then((users) => {
+                                  if(users.length > 0) {
+                                    nextObj.users = users;
+                                  }
+                                  resolve()
+                              }),
+                              self.getTaskStatus(task.status_id).then((status) => {
+                                  if(status) {
+                                    nextObj.status = status;
+                                  }
+                                  resolve()
+                              })                                 
+                          ]).then(function() {
+                             nextObj.id = task.id;
+                             nextObj.name = task.name;
+                             nextObj.description = task.description;
+                             nextObj.total_storypoints = task.total_storypoints;
+                             nextObj.remaining_storypoints = task.remaining_storypoints;
+                             nextObj.story_id = task.story_id;
+                             nextObj.status_id = task.status_id;
+                              console.log('TASK OBJECT', nextObj)
+                              tasksForStory.tasks.push(nextObj)
+                              console.log('tasks for story', tasksForStory)
+                              resolve()
+                          })
+                      }))
+                  })
+
+                  Promise.all(promises).then(function() {
+                      resolve(tasksForStory)
+                  })
+              })
+              .catch((error) => {
+                  reject(error)
+              }) 
+      }.bind(this))
+  }
+
+  getUsersForTask(taskId) {
+      const token = 'Bearer ' + this.state.token;
+
+      return new Promise(function(resolve, reject) {
+          if(!taskId) {
+              reject()
+          }
+
+          axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+          axios.defaults.headers.common['Authorization'] = token;
+
+          axios.get(`${BASE_URL}/tasks/${taskId}/users`)
+              .then((data) => {
+                resolve(data.data[0].users)
+              })
+              .catch((error) => {
+                  reject(error)
+              }) 
+      }.bind(this))
+  }
+
+  getTaskStatus(statusId) {
+      return new Promise(function(resolve, reject) {
+          if(!statusId) {
+              reject()
+          }
+
+          const token = 'Bearer ' + this.state.token;
+
+          axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+          axios.defaults.headers.common['Authorization'] = token;
+
+          axios.get(`${BASE_URL}/statuses/${statusId}}`)
+              .then((data) => {
+                  return resolve(data.data.name)
+              })
+              .catch((error) => {
+                  reject(error)
+              }) 
+          
+          
+      }.bind(this))
+  }
+
+  getStatuses() {
+      const token = 'Bearer ' + this.state.token;
+
+      return new Promise(function(resolve, reject) {
+          axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+          axios.defaults.headers.common['Authorization'] = token;
+
+          axios.get(`${BASE_URL}/statuses`)
+              .then((data) => {
+                  this.setState({statuses: data.data})
+                  resolve()
+              })
+              .catch((error) => {
+                  reject(error)
+              }) 
+          }.bind(this))
   }
 
   componentDidMount() {
@@ -261,15 +547,10 @@ class App extends Component {
       console.log(nextData)
     }
 
-    console.log('does data exist', dataState)
-    console.log('jsondata', jsonData)
     if(dataState) {
       return (
         <div className="row">
-        <div className="col s2">
-            Story
-        </div>
-          <div className="col s10">
+          <div className="col s12">
               <Board data={dataState} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
           </div>
         </div>
@@ -302,11 +583,10 @@ class App extends Component {
               </div>
           </nav>
           <div className="row">
-            <div className="col s2" />
           <div className="col s8">
             <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
               </div>
-          <div className="col s2" />
+          <div className="col s4" />
           </div>
           {this.renderBoard()}
         </div>

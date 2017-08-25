@@ -6,6 +6,8 @@ import {connect} from 'react-redux'
 import {DragDropContext} from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import Lane from './Lane'
+import axios from 'axios';
+import { BASE_URL } from '../../constants';
 
 const boardActions = require('../actions/BoardActions')
 const laneActions = require('../actions/LaneActions')
@@ -18,7 +20,11 @@ class BoardContainer extends Component {
             title: null,
             label: null,
             description: null,
-            showFieldsForLane: -1
+            storyId: null,
+            statusId: null,
+            sprintId: null,
+            showFieldsForLane: -1,
+            token: ''
           }
 
   wireEventBus = () => {
@@ -41,11 +47,13 @@ class BoardContainer extends Component {
 
   componentWillMount () {
     console.log(this.props)
+    let token = localStorage.getItem('token');
+    let sprintId = localStorage.getItem('sprintId');
     this.props.actions.loadBoard(this.props.data)
     if (this.props.eventBusHandle) {
       this.wireEventBus()
     }
-    this.setState({'id': this.state.id, 'title': this.state.title, 'description': this.state.description, 'label': this.state.label})
+    this.setState({'id': this.state.id, 'title': this.state.title, 'description': this.state.description, 'label': this.state.label, 'token': token, 'sprintId': sprintId})
   }
 
   componentWillReceiveProps (nextProps) {
@@ -64,10 +72,30 @@ class BoardContainer extends Component {
 
   addLaneCard(id) {
     
-    const { cardId, title, label, description } = this.state;
+    const { title, label, description, sprintId } = this.state;
+    const token = 'Bearer ' + this.state.token;
+    let cardId = 99;
     console.log("Adding card: ", this.state)
     if(this.cardIsSet()) {
-      this.props.actions.addCard({ laneId:id, card: {id: cardId, title: title, label: label, description: description} })
+      axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+      axios.defaults.headers.common['Authorization'] = token;
+
+      axios.post(`${BASE_URL}/tasks`, {
+            'name': title,
+            'total_storypoints': label,
+            'description': description,
+            'sprint_id': sprintId,
+            'status_id': 1,
+            'story_id': 5
+        })
+            .then((data) => {
+                cardId = data.data.id;
+            })
+            .catch((error) => {
+                return error
+            }) 
+
+      this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: title, label: label, description: description} })
       this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null})
     } else {
       this.setState({'showFieldsForLane': id});
@@ -76,7 +104,7 @@ class BoardContainer extends Component {
   }
 
   cardIsSet() {
-    return this.state.cardId && this.state.title && this.state.label && this.state.description
+    return this.state.title && this.state.label && this.state.description
   }
   
 
@@ -101,9 +129,9 @@ class BoardContainer extends Component {
             {...otherProps}
             {...{tagStyle, draggable, handleDragStart, handleDragEnd, onCardClick, onLaneScroll, laneSortFunction}}
           >
-          </Lane>{(this.state.showFieldsForLane === id) ? <div className="row"><input type="text" placeholder="cardId" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'cardId')} />
-                 <input type="text" placeholder="title" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'title')} />
-                 <input type="text" placeholder="label" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'label')} />
+          </Lane>{(this.state.showFieldsForLane === id) ? <div className="row">
+                 <input type="text" placeholder="name" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'title')} />
+                 <input type="text" placeholder="storypoints" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'label')} />
                  <input type="text" placeholder="description" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'description')} /></div> : null}
                  <div className="center-align" style={{color: 'white'}} onClick={this.addLaneCard.bind(this, id)}>Add Card</div></div>)
         })}

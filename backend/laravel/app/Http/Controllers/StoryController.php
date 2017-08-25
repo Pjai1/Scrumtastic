@@ -90,7 +90,7 @@ class StoryController extends ApiController
 
         $this->validate($request, $rules);   
 
-        $storyExists = DB::table('sprint_story')->where('sprint_id', '=', $request->sprint_id)->where('story_id', '=', $request->story_id);
+        $storyExists = DB::table('sprint_story')->where('sprint_id', '=', $request->sprint_id)->where('story_id', '=', $request->story_id)->first();
         
         if(!$storyExists) {
             $story = Story::find($request->story_id);

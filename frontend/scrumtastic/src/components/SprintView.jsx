@@ -193,6 +193,7 @@ class SprintView extends Component {
     }
 
     createStory(sprintId) {
+        console.log('lmao',sprintId)
         let stories = this.state.stories;
 
         const token = 'Bearer ' + this.state.token;
@@ -317,7 +318,7 @@ class SprintView extends Component {
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={sprint.name} onChange={() => this.sprintIdToStorage(sprint.id)} >
+                            <Tab key={sprint.id} title={sprint.name}>
 
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
