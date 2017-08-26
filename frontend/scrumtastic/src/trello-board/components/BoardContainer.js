@@ -8,7 +8,7 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import Lane from './Lane'
 import axios from 'axios';
 import { BASE_URL } from '../../constants';
-import { Modal, Button, Dropdown, NavItem } from 'react-materialize';
+import { Modal, Button, Dropdown, NavItem, Icon } from 'react-materialize';
 import Toast from '../../components/Toast';
 
 const boardActions = require('../actions/BoardActions')
@@ -187,7 +187,7 @@ class BoardContainer extends Component {
                  <input type="text" placeholder="storypoints" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'label')} />
                  <input type="text" placeholder="description" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'description')} /></div>
                   : null}
-                  <Modal id="taskModal" trigger={<Button style={{marginLeft: '5px'}} onClick={this.addLaneCard.bind(this, id)}>Add Task</Button>}>
+                  <Modal id="taskModal" trigger={<div style={{margin: '5px'}}><Button style={{width: '100%', borderSizing: 'border-box'}} onClick={this.addLaneCard.bind(this, id)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button></div>}>
                   <div className="row">
                         <div className="col s2" />
                         <div className="col s7">

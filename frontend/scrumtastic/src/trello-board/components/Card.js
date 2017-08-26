@@ -11,11 +11,6 @@ var flow = require('lodash.flow')
 
 class Card extends Component {
 
-  // updateCard() {
-  //     console.log(this.props)
-  //     this.props.updateCards([{ id: this.props.id, title: "fuck you", label : "piece of shit"}])
-  // }
-
   constructor(props) {
       super(props)
 
@@ -80,8 +75,11 @@ class Card extends Component {
               <CardTitle>{title}</CardTitle>
               <CardRightContent>{label}</CardRightContent>
             </CardHeader>
-            <Detail>{description}<div className="center-align">
-                                    <span onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}><Icon>delete</Icon></span>
+            <Detail>{description}<div style={{marginTop: '10px'}} className="center-align">
+                                    <span onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>
+                                      <i className="material-icons small" style={{color: '#2633a6'}}>mode_edit</i>
+                                      <i className="material-icons small" style={{color: '#a6262c'}}>delete_forever</i>
+                                    </span>
                                 </div></Detail>
             {tags && <Footer>
               {tags.map((tag) => <Tag key={tag.title} {...tag} tagStyle={this.props.tagStyle} />)}

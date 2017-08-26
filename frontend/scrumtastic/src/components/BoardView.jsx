@@ -16,15 +16,16 @@ class App extends Component {
       super(props);
       this.state = {
           'error': [],
-          'userId': '',
-          'email': '',
-          'token': '',
-          'projectId': '',
+          'userId': localStorage.getItem('userId') || '',
+          'email': localStorage.getItem('email') || '',
+          'token': localStorage.getItem('token') || '',
+          'projectId': localStorage.getItem('projectId') || '',
+          'sprintId': localStorage.getItem('sprintId') || '',
           'sprints': [],
           'tasks': [],
           'stories': [],
           'statuses': [],
-          'projectName': [],
+          'projectName': localStorage.getItem('projectName') || '',
           'boardData': null,
           'counter': 5,
           'renderArray': [],
@@ -36,42 +37,27 @@ class App extends Component {
     }
 
   componentWillMount() {
-      let email = localStorage.getItem('email');
-      let token = localStorage.getItem('token');
-      let userId = localStorage.getItem('userId');
-      let projectId = localStorage.getItem('projectId');
-      let projectName = localStorage.getItem('projectName');
-      let sprintId = localStorage.getItem('sprintId');
-      this.setState({'token': token, 'userId': userId, 'projectId': projectId, 'email': email, 'projectName': projectName, 'sprintId': sprintId});
-
-      this.getStatuses().then(() => {
-        this.getUserStoriesForSprint().then(() => {
-             this.getStoryTasks().then((tasks) => {
-                this.setState({renderArray: tasks})
-                setTimeout(() => {
-                  this.renderTasks()
-                }, 2000)  
+      this.getStatuses().then((statuses) => {
+        this.getUserStoriesForSprint().then((stories) => {
+             this.getStoryTasks(stories).then((tasks) => {
+                  this.renderTasks(tasks, stories, statuses)
              })
         })
     })
   }
 
-  renderTasks() {
-    if(this.state.renderArray) {
+  renderTasks(tasks, stories, statuses) {
+    if(tasks) {
       let toDoArray = [];
       let unassignedArray = [];
       let inProgressArray = [];
       let completedArray = [];
-      const stories = this.state.renderArray
+      const stories = tasks
       console.log('woola', stories)
       stories.forEach((story) => {
     
         console.log('is something here', story.tasks.length)
         
-        // for (let key in task.tasks) {
-        //   console.log('forloop', task.tasks[0])
-        // }
-
         story.tasks.forEach((task) => {
           if (task.status === "To Do") {
             toDoArray.push(task)
@@ -94,8 +80,11 @@ class App extends Component {
     }
   }
 
-  fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray) {
-    console.log('arrays', unassignedArray)
+  fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray, stories, statuses) {
+    console.log('UNASSIGNED: ', unassignedArray)
+    console.log("TO DO: ", toDoArray)
+    console.log("IN PROG: ", inProgressArray)
+    console.log("COMPLETED: ", completedArray)
     const token = 'Bearer ' + this.state.token;
 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -190,7 +179,7 @@ class App extends Component {
                   dataCopy.lanes[2].cards.push(obj)
                 })
                 console.log('expected board data', dataCopy)
-                this.setState({boardData: dataCopy})
+                this.setState({boardData: dataCopy, stories: stories, statuses: statuses})
             })
             .catch((error) => {
               this.setState({error: error});
@@ -206,8 +195,7 @@ class App extends Component {
 
           axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
               .then((data) => {
-                  this.setState({stories: data.data[0].stories})
-                  resolve()
+                  resolve(data.data[0].stories)
               })
               .catch((error) => {
                   reject(error)
@@ -215,9 +203,8 @@ class App extends Component {
       }.bind(this))
   }
 
-  getStoryTasks() {
+  getStoryTasks(stories) {
       return new Promise(function(resolve, reject) {
-          let stories = JSON.parse(JSON.stringify(this.state.stories))
           let tasks = []
 
           let promises = []
@@ -371,8 +358,7 @@ class App extends Component {
 
           axios.get(`${BASE_URL}/statuses`)
               .then((data) => {
-                  this.setState({statuses: data.data})
-                  resolve()
+                  resolve(data.data)
               })
               .catch((error) => {
                   reject(error)
@@ -454,6 +440,10 @@ class App extends Component {
               <Board data={dataState} draggable={true} eventBusHandle={setEventBus} onDataChange={shouldReceiveNewData} handleDragStart={handleDragStart} handleDragEnd={handleDragEnd} />
           </div>
         </div>
+      )
+    } else {
+      return (
+        <p>sup OLOX</p>
       )
     }
   }
