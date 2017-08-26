@@ -8,6 +8,8 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import Lane from './Lane'
 import axios from 'axios';
 import { BASE_URL } from '../../constants';
+import { Modal, Button, Dropdown, NavItem } from 'react-materialize';
+import Toast from '../../components/Toast';
 
 const boardActions = require('../actions/BoardActions')
 const laneActions = require('../actions/LaneActions')
@@ -20,11 +22,14 @@ class BoardContainer extends Component {
             title: null,
             label: null,
             description: null,
+            storyDesc: null,
             storyId: null,
             statusId: null,
             sprintId: null,
             showFieldsForLane: -1,
-            token: ''
+            token: '',
+            error: [],
+            stories: null
           }
 
   wireEventBus = () => {
@@ -57,6 +62,10 @@ class BoardContainer extends Component {
     this.setState({'id': this.state.id, 'title': this.state.title, 'description': this.state.description, 'label': this.state.label, 'token': token, 'sprintId': sprintId})
   }
 
+  componentDidMount() {
+    this.createStorySelect();
+  }
+
   componentWillReceiveProps (nextProps) {
     if (nextProps.data.lanes) {
       const dataToUpdate = this.state.data
@@ -66,18 +75,13 @@ class BoardContainer extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-      console.log("Next state is: ", nextState)
-      return true
-  }
-
-  addLaneCard(id) {
+  addLaneCard() {
     
-    const { title, label, description, sprintId } = this.state;
+    const { title, label, description, sprintId, storyId } = this.state;
     const token = 'Bearer ' + this.state.token;
     let cardId = 99;
     console.log("Adding card: ", this.state)
-    if(this.cardIsSet()) {
+    // if(this.cardIsSet()) {
       axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
       axios.defaults.headers.common['Authorization'] = token;
 
@@ -87,20 +91,18 @@ class BoardContainer extends Component {
             'description': description,
             'sprint_id': sprintId,
             'status_id': 1,
-            'story_id': 5
+            'story_id': storyId
         })
             .then((data) => {
                 cardId = data.data.id;
+                let t = new Toast("Task added successfully!", 2500)
+                t.Render(); 
+                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: title, label: label, description: description} })
+                this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null})
             })
             .catch((error) => {
-                return error
+                this.setState({error: error})
             }) 
-
-      this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: title, label: label, description: description} })
-      this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null})
-    } else {
-      this.setState({'showFieldsForLane': id});
-    }
     
   }
 
@@ -116,6 +118,56 @@ class BoardContainer extends Component {
       console.log("Object is: ", obj)
       this.setState(obj)
   }
+
+  createStorySelect() {
+    const token = 'Bearer ' + this.state.token;
+    const sprintId = this.state.sprintId;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.headers.common['Authorization'] = token;
+
+    axios.get(`${BASE_URL}/sprints/${sprintId}/stories`)
+        .then((data) => {
+            this.setState({stories: data.data[0].stories})
+        })
+        .catch((error) => {
+            this.setState({error: error})
+        }) 
+    }
+
+    loadStories() {
+      const stories = this.state.stories;
+      console.log('storyqdqdzq', stories)
+      let items = [];
+      if(stories) {
+        for(let i = 0; i < stories.length; i++) {
+            items.push(<NavItem key={i} value={stories[i].description} onClick={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</NavItem>);
+        }
+      }
+
+      return items;
+    }
+
+    handleChange(storyId, storyDesc) {
+      this.setState({storyId: storyId})
+      this.setState({storyDesc: storyDesc})
+    }
+
+  renderErrors() {
+        let errors = [];
+        console.log(this.state.error.response);
+        if(this.state.error.response && this.state.error.response.data) {
+            const errorResp = this.state.error.response.data.error;
+            if (typeof errorResp === "string") {
+                errors.push(<p className="errorMessage" key={"error_" + 1}>{errorResp}</p>)
+            } else {
+                for (let key in errorResp) {
+                    errors.push(<p className="errorMessage" key={"error_" + key}>{errorResp[key]}</p>)
+                }
+            }
+        }
+        return <div className="center-align">{errors}</div>
+    }
 
   render () {
     const {data} = this.state
@@ -133,8 +185,101 @@ class BoardContainer extends Component {
           </Lane>{(this.state.showFieldsForLane === id) ? <div className="row">
                  <input type="text" placeholder="name" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'title')} />
                  <input type="text" placeholder="storypoints" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'label')} />
-                 <input type="text" placeholder="description" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'description')} /></div> : null}
-                 <div className="center-align" style={{color: 'white'}} onClick={this.addLaneCard.bind(this, id)}>Add Card</div></div>)
+                 <input type="text" placeholder="description" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'description')} /></div>
+                  : null}
+                  <Modal id="taskModal" trigger={<Button style={{marginLeft: '5px'}} onClick={this.addLaneCard.bind(this, id)}>Add Task</Button>}>
+                  <div className="row">
+                        <div className="col s2" />
+                        <div className="col s7">
+                            <h3 style={{paddingLeft: '89px'}}>Add Task</h3>
+                        </div>
+                        <div className="col s3" />
+                    </div>
+                    <div className="row">
+                        <div className="col s3" />
+                        <div className="col s6">
+                          <div className="input-field inline col s12">
+                                <input 
+                                    className="validate"
+                                    id="name"
+                                    type="text"
+                                    defaultValue=""
+                                    onChange={event => this.setState({title:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.addLaneCard.bind(this);
+                                        }
+                                    }}
+                                />
+                                <label htmlFor="name">Enter Task Name</label>
+                            </div>
+                        </div>
+                        <div className="col s3" />
+                    </div>
+                    <div className="row">
+                        <div className="col s3" />
+                        <div className="col s6">
+                          <div className="input-field inline col s12">
+                                <input 
+                                    className="validate"
+                                    id="description"
+                                    type="text"
+                                    defaultValue=""
+                                    onChange={event => this.setState({description:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.addLaneCard.bind(this);
+                                        }
+                                    }}
+                                />
+                                <label htmlFor="description">Enter Task Description</label>
+                            </div>
+                        </div>
+                        <div className="col s3" />
+                    </div>
+                    <div className="row">
+                        <div className="col s3" />
+                        <div className="col s6">
+                          <div className="input-field inline col s12">
+                                <input 
+                                    className="validate"
+                                    id="storypoints"
+                                    type="text"
+                                    defaultValue=""
+                                    onChange={event => this.setState({label:event.target.value})}
+                                    onKeyPress={event => {
+                                    if(event.key === "Enter") {
+                                            this.addLaneCard.bind(this);
+                                        }
+                                    }}
+                                />
+                                <label htmlFor="storypoints">Enter Task Storypoints</label>
+                            </div>
+                        </div>
+                        <div className="col s3" />
+                    </div>
+                    <div className="row">
+                        <div className="col s3" />
+                        <div className="col s6">
+                        <Dropdown trigger={
+                            <Button>Select User Story</Button>
+                            }>
+                            {this.loadStories()}
+                        </Dropdown>
+                        <p>Selected Story: {this.state.storyDesc}</p>
+                        <Button onClick={this.addLaneCard.bind(this)}>Add Task</Button>
+                        </div>
+                        <div className="col s3" />
+                    </div>
+                    <div className="row">
+                        <div className="col s3" />
+                        <div className="col s6">
+                            {this.renderErrors()}
+                        </div>
+                        <div className="col s3" />
+                    </div>
+                  </Modal>
+                  </div>)
         })}
     </BoardDiv>
   }

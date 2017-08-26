@@ -14,7 +14,7 @@ body {
 }
 
 .errorMessage {
-    color: #E57373;
+    color: white;
 }
 
 .App {
@@ -35,6 +35,17 @@ body {
 
 .App-intro {
   font-size: large;
+}
+
+.center-align-error {
+    background-color: #ee6e73;
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.react-confirm-alert-button-group button:nth-child(2) {
+    background: #ee6e73;
 }
 
 .dMcBAq > div {

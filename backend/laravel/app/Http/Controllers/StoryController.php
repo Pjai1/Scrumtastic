@@ -145,7 +145,7 @@ class StoryController extends ApiController
         $story = $this->story->findBy($story);
 
         $rules = [
-            'feature_id' => 'required|exists:features,id',
+            'feature_id' => 'exists:features,id',
             'description' => 'required'
         ];
 

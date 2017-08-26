@@ -21,6 +21,8 @@ class ProjectView extends Component {
             'stories': [],
             'storyDesc': '',
             'newStoryDesc': '',
+            'featureName': '',
+            'newFeatureName': '',
             'storyEditingMode': false,
             'clickedStory': null,
             'featureEditingMode': false,
@@ -201,6 +203,47 @@ class ProjectView extends Component {
         this.setState({'storyEditingMode': !this.state.storyEditingMode});
     }
 
+    editFeature(featureId, featureName) {
+        const projectId = this.state.projectId;
+
+        if(this.state.featureEditingMode === true) {
+            const token = 'Bearer ' + this.state.token;
+            let newFeatureName = this.state.newFeatureName;
+            let features = this.state.features;
+
+            if(this.state.featureName) {
+                newFeatureName = this.state.featureName
+            }
+
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token
+            axios.put(`${BASE_URL}/features/${featureId}`, {
+                'name': newFeatureName,
+                'project_id': projectId
+            })
+                .then((data) => {
+                    for (var i=0; i < features.length; i++) {
+                        if (features[i].id === featureId) {
+                            features[i].name = newFeatureName;
+                            this.setState({'featureName': ''});
+                            this.setState({'features': features});
+                        }
+                    }  
+                })
+                .catch((error) => {
+                    this.setState({error});
+                }) 
+        } 
+        else {
+            this.setState({'newFeatureName': featureName});
+        }
+
+        if(featureId) {
+            this.setState({'clickedFeature': featureId});
+        }
+        this.setState({'featureEditingMode': !this.state.featureEditingMode});
+    }
+
     createFeature() {
         let features = this.state.features;
         const token = 'Bearer ' + this.state.token;
@@ -241,7 +284,7 @@ class ProjectView extends Component {
                 }
             }
         }
-        return <div className="center-align">{errors}</div>
+        return <div className="center-align-error">{errors}</div>
     }
 
     deleteFeature(featureId) {
@@ -270,11 +313,31 @@ class ProjectView extends Component {
                     features.map((feature) => {
                         return (
                             <ul key={feature.id} className="collection with-header">
+                                {
+                                (!this.state.featureEditingMode && (this.state.clickedFeature === null)) || (!this.state.featureEditingMode && (this.state.clickedFeature === feature.id)) || (!this.state.featureEditingMode && (this.state.clickedFeature !== feature.id)) || (this.state.featureEditingMode && (this.state.clickedFeature !== feature.id)) ?
                                 <li className="collection-header"><h4><span><Icon small>featured_play_list</Icon></span>Feature: {feature.name}
-                                    <a onClick={() => {this.deleteFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
-                                    <a style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a></h4>
+                                    <a onClick={() => {this.deleteFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                    <a onClick={() => {this.editFeature(feature.id, feature.name)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a></h4>
                                 </li>
-                            
+                                    : 
+                                <li className="collection-header">
+                                    <div className="row">
+                                        <div className="input-field col s8">
+                                            <input 
+                                                type="text"
+                                                placeholder={feature.name}
+                                                onChange={event => this.setState({featureName:event.target.value})}
+                                                onKeyPress={event => {
+                                                if(event.key === "Enter") {
+                                                        this.editFeature(feature.id, null);
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <a onClick={() => {this.editFeature(feature.id, null)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
+                                    </div>
+                                </li>
+                                }
                                 {
                                     stories.map((story) => {
                                         if(story.feature_id === feature.id) {
@@ -284,8 +347,8 @@ class ProjectView extends Component {
                                                     (!this.state.storyEditingMode && (this.state.clickedStory === null)) || (!this.state.storyEditingMode && (this.state.clickedStory === story.id)) || (!this.state.storyEditingMode && (this.state.clickedStory !== story.id)) || (this.state.storyEditingMode && (this.state.clickedStory !== story.id)) ?
                                                     <div>
                                                         <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>label_outline</Icon></div><b>User Story:</b> {story.description}
-                                                        <a onClick={() => {this.deleteStory(story.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
-                                                        <a onClick={() => {this.editStory(story.id, story.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                                        <a onClick={() => {this.deleteStory(story.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                                        <a onClick={() => {this.editStory(story.id, story.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
                                                     </div> : 
                                                     <div className="row">
                                                         <div className="input-field col s8">
@@ -300,7 +363,7 @@ class ProjectView extends Component {
                                                                 }}
                                                             />
                                                         </div>
-                                                        <a onClick={() => {this.editStory(story.id, null, feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                                        <a onClick={() => {this.editStory(story.id, null, feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
                                                     </div>
                                                 }
                                                 </li>

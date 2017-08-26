@@ -35,10 +35,6 @@ class App extends Component {
       }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-      return this.state.boardData !== nextState.boardData || this.state !== nextState
-}
-
   componentWillMount() {
       let email = localStorage.getItem('email');
       let token = localStorage.getItem('token');
@@ -51,136 +47,154 @@ class App extends Component {
       this.getStatuses().then(() => {
         this.getUserStoriesForSprint().then(() => {
              this.getStoryTasks().then((tasks) => {
-
-                 let toDoArray = [];
-                 let unassignedArray = [];
-                 let inProgressArray = [];
-                 let completedArray = [];
-                 
-                 tasks.forEach((task) => {
-                    task.tasks.forEach((taskStatus) => {
-                      
-                      if (taskStatus.status === "To Do") {
-                        toDoArray.push(taskStatus)
-                      }
-
-                      if (taskStatus.status === "Unassigned") {
-                        unassignedArray.push(taskStatus)
-                      }
-
-                      if (taskStatus.status === "In Progress") {
-                        inProgressArray.push(taskStatus)
-                      }
-
-                      if (taskStatus.status === "Completed") {
-                        completedArray.push(taskStatus)
-                      }
-                    })
-                 })
-                 
-                     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-                     axios.defaults.headers.common['Authorization'] = token
-                 
-                     let dataCopy = null;
-                 
-                     axios.get(`${BASE_URL}/statuses/`)
-                         .then((data) => {
-                             dataCopy = {
-                               "lanes": [
-                                 {
-                                   "id": data.data[0].name,
-                                   "title": data.data[0].name + " Tasks",
-                                   "label": "4",
-                                   "cards": [
-                 
-                                   ]
-                                 },
-                                 {
-                                   "id": data.data[1].name,
-                                   "title": data.data[1].name + " Tasks",
-                                   "label": "4",
-                                   "cards": [
-                 
-                                   ]
-                                 },
-                                 {
-                                   "id": data.data[2].name,
-                                   "title": data.data[2].name + " Tasks",
-                                   "label": "4",
-                                   "cards": [
-                 
-                                   ]
-                                 },
-                                 {
-                                   "id": data.data[3].name,
-                                   "title": data.data[3].name + " Tasks",
-                                   "label": "4",
-                                   "cards": [
-                 
-                                   ]
-                                 }
-                               ]
-                             }
-                 
-                             toDoArray.forEach((toDo, i) => {
-                              let obj = {
-                                "id": toDo.id,
-                                "title": toDo.name,
-                                "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                                "description": toDo.description,
-                                "story_id": toDo.story_id,
-                                "status_id": toDo.status_id
-                              }
-                              dataCopy.lanes[1].cards.push(obj)
-                            })
-                 
-                            completedArray.forEach((toDo, i) => {
-                              let obj = {
-                                "id": toDo.id,
-                                "title": toDo.name,
-                                "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                                "description": toDo.description,
-                                "story_id": toDo.story_id,
-                                "status_id": toDo.status_id
-                              }
-                               dataCopy.lanes[3].cards.push(obj)
-                            })
-                 
-                            unassignedArray.forEach((toDo, i) => {
-                              let obj = {
-                                "id": toDo.id,
-                                "title": toDo.name,
-                                "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                                "description": toDo.description,
-                                "story_id": toDo.story_id,
-                                "status_id": toDo.status_id
-                              }
-                               dataCopy.lanes[0].cards.push(obj)
-                            })
-                 
-                             inProgressArray.forEach((toDo, i) => {
-                               let obj = {
-                                 "id": toDo.id,
-                                 "title": toDo.name,
-                                 "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                                 "description": toDo.description,
-                                 "story_id": toDo.story_id,
-                                 "status_id": toDo.status_id
-                               }
-                                dataCopy.lanes[2].cards.push(obj)
-                             })
-                             console.log('expected board data', dataCopy)
-                             this.setState({boardData: dataCopy})
-                         })
-                         .catch((error) => {
-                            this.setState({error: error});
-                         })
-          
+                this.setState({renderArray: tasks})
+                setTimeout(() => {
+                  this.renderTasks()
+                }, 2000)  
              })
         })
     })
+  }
 
+  renderTasks() {
+    if(this.state.renderArray) {
+      let toDoArray = [];
+      let unassignedArray = [];
+      let inProgressArray = [];
+      let completedArray = [];
+      const stories = this.state.renderArray
+      console.log('woola', stories)
+      stories.forEach((story) => {
+    
+        console.log('is something here', story.tasks.length)
+        
+        // for (let key in task.tasks) {
+        //   console.log('forloop', task.tasks[0])
+        // }
 
+        story.tasks.forEach((task) => {
+          if (task.status === "To Do") {
+            toDoArray.push(task)
+          }
+
+          else if (task.status === "Unassigned") {
+            unassignedArray.push(task)
+          }
+
+          else if (task.status === "In Progress") {
+            inProgressArray.push(task)
+          }
+
+          else {
+            completedArray.push(task)
+          }
+        })
+      })
+      this.fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray)
+    }
+  }
+
+  fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray) {
+    console.log('arrays', unassignedArray)
+    const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+    
+        let dataCopy = null;
+    
+        axios.get(`${BASE_URL}/statuses/`)
+            .then((data) => {
+                dataCopy = {
+                  "lanes": [
+                    {
+                      "id": data.data[0].name,
+                      "title": data.data[0].name + " Tasks",
+                      "label": "4",
+                      "cards": [
+    
+                      ]
+                    },
+                    {
+                      "id": data.data[1].name,
+                      "title": data.data[1].name + " Tasks",
+                      "label": "4",
+                      "cards": [
+    
+                      ]
+                    },
+                    {
+                      "id": data.data[2].name,
+                      "title": data.data[2].name + " Tasks",
+                      "label": "4",
+                      "cards": [
+    
+                      ]
+                    },
+                    {
+                      "id": data.data[3].name,
+                      "title": data.data[3].name + " Tasks",
+                      "label": "4",
+                      "cards": [
+    
+                      ]
+                    }
+                  ]
+                }
+    
+                toDoArray.forEach((toDo, i) => {
+                let obj = {
+                  "id": toDo.id,
+                  "title": toDo.name,
+                  "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                  "description": toDo.description,
+                  "story_id": toDo.story_id,
+                  "status_id": toDo.status_id
+                }
+                dataCopy.lanes[1].cards.push(obj)
+              })
+    
+              completedArray.forEach((toDo, i) => {
+                let obj = {
+                  "id": toDo.id,
+                  "title": toDo.name,
+                  "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                  "description": toDo.description,
+                  "story_id": toDo.story_id,
+                  "status_id": toDo.status_id
+                }
+                  dataCopy.lanes[3].cards.push(obj)
+              })
+    
+              unassignedArray.forEach((toDo, i) => {
+                let obj = {
+                  "id": toDo.id,
+                  "title": toDo.name,
+                  "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                  "description": toDo.description,
+                  "story_id": toDo.story_id,
+                  "status_id": toDo.status_id
+                }
+                  dataCopy.lanes[0].cards.push(obj)
+              })
+    
+                inProgressArray.forEach((toDo, i) => {
+                  let obj = {
+                    "id": toDo.id,
+                    "title": toDo.name,
+                    "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                    "description": toDo.description,
+                    "story_id": toDo.story_id,
+                    "status_id": toDo.status_id
+                  }
+                  dataCopy.lanes[2].cards.push(obj)
+                })
+                console.log('expected board data', dataCopy)
+                this.setState({boardData: dataCopy})
+            })
+            .catch((error) => {
+              this.setState({error: error});
+            })
   }
 
   getUserStoriesForSprint() {
@@ -220,6 +234,7 @@ class App extends Component {
           })
 
           Promise.all(promises).then(function() {
+              console.log('all promises', tasks)
               resolve(tasks)
           })
       }.bind(this))
@@ -470,7 +485,7 @@ class App extends Component {
           <div className="row">
           <div className="col s8">
             <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
-              </div>
+          </div>
           <div className="col s4" />
           </div>
           {this.renderBoard()}

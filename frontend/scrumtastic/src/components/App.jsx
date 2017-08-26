@@ -6,6 +6,8 @@ import axios from 'axios';
 import { BASE_URL } from '../constants';
 import Toast from './Toast'
 import '../App.css';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 class App extends Component {
     constructor(props) {
@@ -68,7 +70,7 @@ class App extends Component {
             }
         }
 
-        return <div className="center-align">{errors}</div>
+        return <div className="center-align-error">{errors}</div>
     }
 
     logOut() {
@@ -101,10 +103,10 @@ class App extends Component {
                     projects.map((project) => {
                         return (
                             <Col key={project.id} m={6} s={12}>
-                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" title={project.name} actions={[<a style={{color: 'white', fontWeight: 'bold'}} key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>Details</a>]}>
+                                {(!this.state.editingMode && (this.state.clickedProject === null)) || (!this.state.editingMode && (this.state.clickedProject === project.id)) || (!this.state.editingMode && (this.state.clickedProject !== project.id)) || (this.state.editingMode && (this.state.clickedProject !== project.id)) ? <Card key={project.id} style={{backgroundColor: '#fff'}} textClassName="grey-text text-darken-4" title={project.name} actions={[<a style={{color: 'white', fontWeight: 'bold', cursor: 'pointer'}} key="Details Project" onClick={() => {this.projectView(project.id, project.name)}}>View Backlog</a>]}>
                                     <p>{project.description}</p>
-                                    <a key="Delete Project" onClick={() => {this.deleteProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>delete_forever</i></a>
-                                    <a key="Edit Project" onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                    <a key="Delete Project" onClick={() => {this.confirm(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                    <a key="Edit Project" onClick={() => {this.editProject(project.id, project.name, project.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
                                 </Card> : 
                                 <Card key={project.id} style={{backgroundColor: '#fff', height: '280px'}} textClassName="grey-text text-darken-4">
                                     <form className="col s8">
@@ -131,7 +133,7 @@ class App extends Component {
                                             </div>
                                         </div>
                                     </form>
-                                    <a onClick={() => {this.editProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>mode_edit</i></a>
+                                    <a onClick={() => {this.editProject(project.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
                                 </Card>}
                             </Col>     
                         )
@@ -186,7 +188,17 @@ class App extends Component {
         this.setState({'editingMode': !this.state.editingMode});
     }
 
+    confirm(projectId) {
+        confirmAlert({                   
+            message: 'Are you sure you want to delete this project?',              
+            confirmLabel: 'Delete',                        
+            cancelLabel: 'Cancel',                           
+            onConfirm: () => this.deleteProject(projectId)
+          })
+    }
+
     deleteProject(projectId) {
+
         const token = 'Bearer ' + this.state.token
         let projects = this.state.projects;
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -274,7 +286,7 @@ class App extends Component {
                         </div>
                     </div>
                 </form>
-                <a onClick={() => {this.newProject()}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: 'black', float: 'right'}}>add_box</i></a>
+                <a onClick={() => {this.newProject()}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2ca626', float: 'right'}}>add_box</i></a>
                 </Card>
                 }
             </Col>  
@@ -308,6 +320,13 @@ class App extends Component {
                         {this.renderNewProject()}
                     </div>
                     <div className="col s2"/>
+                </div>
+                <div className="row">
+                    <div className="col s2" />
+                    <div className="col s8">
+                        {this.renderErrors()}
+                    </div>
+                    <div className="col s2" />
                 </div>
             </div>    
         )

@@ -25,6 +25,9 @@ class SprintView extends Component {
             'sprintStartDate': '',
             'sprintEndDate': '',
             'storyDesc': '',
+            'newStoryDesc': '',
+            'clickedStory': '',
+            'storyEditingMode': false,
             'userStoryCheck': false,
             'selectValue': '',
             'sprintId': '',
@@ -47,7 +50,6 @@ class SprintView extends Component {
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
         axios.get(`${BASE_URL}/projects/${projectId}/users`)
             .then((data) => {
-                console.log('all users', data.data[0].users);
                 this.setState({'users': data.data[0].users})
             })
             .catch((error) => {
@@ -77,6 +79,7 @@ class SprintView extends Component {
 
     saveStoriesToStorage() {
         localStorage.setItem('stories', this.state.stories);
+        localStorage.setItem('sprintId', this.state.sprintId);
     }
 
     renderUsers() {
@@ -86,7 +89,7 @@ class SprintView extends Component {
             {
             this.state.users.map(user => {
                     return (
-                        <li key={user.id} className="collection-item"><b>User: </b>{user.email}</li>
+                        <li key={user.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>account_box</Icon></div>{user.email}</li>
                     )  
             })
             }
@@ -130,7 +133,6 @@ class SprintView extends Component {
 
         axios.get(`${BASE_URL}/projects/${projectId}/stories`)
             .then((data) => {
-                console.log('stories', data)
                 let projectStories = [];
                 data.data[0].stories.forEach((story) => {
                     projectStories.push(story);
@@ -193,7 +195,6 @@ class SprintView extends Component {
     }
 
     createStory(sprintId) {
-        console.log('lmao',sprintId)
         let stories = this.state.stories;
 
         const token = 'Bearer ' + this.state.token;
@@ -222,12 +223,14 @@ class SprintView extends Component {
 
     createStorySelect(sprintId) {
         const backlogStories = this.state.stories;
-        let items = [];
-        for(let i = 0; i < backlogStories.length; i++) {
-            items.push(<NavItem key={i} value={backlogStories[i].description} onClick={this.handleChange.bind(this, backlogStories[i].id, sprintId)}>{backlogStories[i].description}</NavItem>);
-        }
+        if (backlogStories) {
+            let items = [];
+            for(let i = 0; i < backlogStories.length; i++) {
+                items.push(<NavItem key={i} value={backlogStories[i].description} onClick={this.handleChange.bind(this, backlogStories[i].id, sprintId)}>{backlogStories[i].description}</NavItem>);
+            }
 
-        return items;
+            return items;
+        }
     }
     
     addStoryToSprint(storyId, sprintId) {
@@ -253,7 +256,6 @@ class SprintView extends Component {
 
     renderErrors() {
         let errors = [];
-        console.log(this.state.error.response);
         if(this.state.error.response && this.state.error.response.data) {
             const errorResp = this.state.error.response.data.error;
             if (typeof errorResp === "string") {
@@ -303,8 +305,69 @@ class SprintView extends Component {
 
     sprintIdToStorage(sprintId) {
         this.setState({sprintId: sprintId})
-        console.log('sprintId', sprintId);
-        console.log(this.state.sprintId);
+    }
+
+    editStory(storyId, storyDescription) {
+
+        if(this.state.storyEditingMode === true) {
+            const token = 'Bearer ' + this.state.token;
+            let newStoryDesc = this.state.newStoryDesc;
+            let stories = this.state.stories;
+
+            if(this.state.storyDesc) {
+                newStoryDesc = this.state.storyDesc
+            }
+
+            axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            axios.defaults.headers.common['Authorization'] = token
+            axios.put(`${BASE_URL}/stories/${storyId}`, {
+                'description': newStoryDesc
+            })
+                .then((data) => {
+                    for (var i=0; i < stories.length; i++) {
+                        if (stories[i].id === storyId) {
+                            stories[i].description = newStoryDesc;
+                            this.setState({'storyDesc': ''});
+                            this.setState({'stories': stories});
+                        }
+                    }  
+                })
+                .catch((error) => {
+                    this.setState({error});
+                }) 
+        } 
+        else {
+            this.setState({'newStoryDesc': storyDescription});
+        }
+
+        if(storyId) {
+            this.setState({'clickedStory': storyId});
+        }
+        this.setState({'storyEditingMode': !this.state.storyEditingMode});
+    }
+
+    deleteStory(storyId) {
+        let stories = this.state.stories;
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.delete(`${BASE_URL}/stories/${storyId}`)
+            .then((data) => {
+                this.searchAndDeleteStoryFromState(storyId, stories);
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
+    }
+
+    searchAndDeleteStoryFromState(keyName, array) {
+        for (var i=0; i < array.length; i++) {
+            if (array[i].id === keyName) {
+                delete array[i]
+                this.setState({'stories': array});
+            }
+        }    
     }
 
     renderSprints() {
@@ -318,7 +381,7 @@ class SprintView extends Component {
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={sprint.name}>
+                            <Tab key={sprint.id} title={<a onClick={this.sprintIdToStorage.bind(this, sprint.id)}>{sprint.name}</a>}>
 
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
@@ -328,7 +391,30 @@ class SprintView extends Component {
                                                 <ul key={key} className="collection with-header">
                                                 {
                                                     <li key={key+1} className="collection-item">
-                                                        <b>User Story:</b> {story.description}
+                                                    {
+                                                        (!this.state.storyEditingMode && (this.state.clickedStory === null)) || (!this.state.storyEditingMode && (this.state.clickedStory === story.id)) || (!this.state.storyEditingMode && (this.state.clickedStory !== story.id)) || (this.state.storyEditingMode && (this.state.clickedStory !== story.id)) ?
+                                                        <div>
+                                                            <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>label_outline</Icon></div> {story.description}
+                                                            <a onClick={this.deleteStory.bind(this, story.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                                            <a onClick={this.editStory.bind(this, story.id, story.description)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
+                                                        </div>
+                                                        :
+                                                        <div className="row">
+                                                            <div className="input-field col s8">
+                                                                <input 
+                                                                    type="text"
+                                                                    placeholder={story.description}
+                                                                    onChange={event => this.setState({storyDesc:event.target.value})}
+                                                                    onKeyPress={event => {
+                                                                    if(event.key === "Enter") {
+                                                                            this.editStory(story.id, null);
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <a onClick={() => {this.editStory(story.id, null)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
+                                                        </div>
+                                                    }
                                                     </li>
                                                 }
                                                 </ul>
@@ -356,8 +442,8 @@ class SprintView extends Component {
                                             <label htmlFor={sprint.id}>Check to select a User Story</label>
                                     </p>
                                 </div>
-                                 :
-                                 <div>
+                                :
+                                <div>
                                     <Dropdown trigger={
                                         <Button defaultValue={this.state.selectValue} onChange={this.handleChange}>Select User Story</Button>
                                         }>
