@@ -52,6 +52,10 @@ body {
     height: 100%;
 }
 
+.kjauoa {
+    overflow-x: hidden;
+}
+
 .card-content .card-title {
     display: inline-block;
     width: 100%;

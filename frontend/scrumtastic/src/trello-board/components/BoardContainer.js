@@ -38,7 +38,6 @@ class BoardContainer extends Component {
         switch (event.type) {
           case 'ADD_CARD':
             return this.props.actions.addCard({laneId: event.laneId, card: event.card})
-
           case 'REFRESH_BOARD':
             return this.props.actions.loadBoard(event.data)
           case 'PAGINATE_LANE':
@@ -59,7 +58,7 @@ class BoardContainer extends Component {
     if (this.props.eventBusHandle) {
       this.wireEventBus()
     }
-    this.setState({'id': this.state.id, 'title': this.state.title, 'description': this.state.description, 'label': this.state.label, 'token': token, 'sprintId': sprintId})
+    this.setState({'id': this.state.id, 'title': this.state.title, 'description': this.state.description, 'label': this.state.label, 'token': token, 'sprintId': sprintId, 'storyId': this.state.storyId})
   }
 
   componentDidMount() {
@@ -97,8 +96,8 @@ class BoardContainer extends Component {
                 cardId = data.data.id;
                 let t = new Toast("Task added successfully!", 2500)
                 t.Render(); 
-                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: title, label: label, description: description} })
-                this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null})
+                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: title, label: label, description: description, storyId: storyId} })
+                this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null, storyId: null})
             })
             .catch((error) => {
                 this.setState({error: error})
@@ -171,6 +170,7 @@ class BoardContainer extends Component {
 
   render () {
     const {data} = this.state
+    console.log('data', data)
     return <BoardDiv>
       {
         data.lanes.map((lane) => {

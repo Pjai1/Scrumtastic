@@ -5,7 +5,9 @@ import PropTypes from 'prop-types';
 import {CardWrapper, CardHeader, CardTitle, CardRightContent, Detail, Footer} from '../styles/Base'
 import {DragType} from '../helpers/DragType'
 import {DragSource, DropTarget} from 'react-dnd'
-import { Icon } from 'react-materialize';
+import { Icon, Modal, Button } from 'react-materialize';
+import axios from 'axios';
+import { BASE_URL } from '../../constants';
 var flow = require('lodash.flow')
 
 
@@ -18,12 +20,19 @@ class Card extends Component {
           description: this.props.description,
           label: this.props.label,
           title: this.props.title,
+          storyId: this.props.storyId,
           editing: false
       }
   }
 
-  componentDidUpdate() {
-      console.log("SET TITLE TO: ", this.state.title)
+  componentWillMount() {
+    axios.get(BASE_URL + '/stories/' + this.state.storyId)
+      .then((data) => {
+          console.log('stories', data)
+      })
+      .catch((error) => {
+          console.log(error)
+      }) 
   }
 
   updateCard() {
@@ -64,22 +73,47 @@ class Card extends Component {
       this.setState({ editing: !this.state.editing })
   }
 
+  showTaskInfo() {
+    console.log('heyyey')
+    return <Modal
+	header='Modal Header'
+	trigger={<Button>MODAL</Button>}>
+	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+</Modal>
+  }
+
   renderDisplayMode() {
-    const {id, title, description, label, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
+    const {id, title, description, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
     const opacity = isDragging ? 0 : 1
     const background = isDragging ? '#CCC' : '#E3E3E3'
     return (
-      <div style={{background: background}} onClick={this.toggleEditMode.bind(this)}>
+      <div style={{background: background}}>
           <CardWrapper key={id} data-id={id} {...otherProps} style={{opacity: opacity}}>
             <CardHeader>
               <CardTitle>{title}</CardTitle>
               <CardRightContent>{label}</CardRightContent>
             </CardHeader>
-            <Detail>{description}<div style={{marginTop: '10px'}} className="center-align">
-                                    <span onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>
+            <Detail>{description}<div style={{marginTop: '10px', position: 'relative', left: '70px'}} className="center-align">
+                                    <span onClick={this.toggleEditMode.bind(this)}>
                                       <i className="material-icons small" style={{color: '#2633a6'}}>mode_edit</i>
+                                    </span>
+                                    <span onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>
                                       <i className="material-icons small" style={{color: '#a6262c'}}>delete_forever</i>
                                     </span>
+                                    <Modal
+                                      header='Task Info'
+                                      trigger={<span>
+                                      <i className="material-icons small">info_outline</i>
+                                    </span>}>
+                                        <div className="row">
+                                          <div className="col s12">
+                                          {this.props.title}
+                                          {this.props.description}
+                                          {this.props.label}
+                                          {this.props.storyId}
+                                          </div>
+                                        </div>
+                                    </Modal>
                                 </div></Detail>
             {tags && <Footer>
               {tags.map((tag) => <Tag key={tag.title} {...tag} tagStyle={this.props.tagStyle} />)}
@@ -176,6 +210,7 @@ Card.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
   label: PropTypes.string,
+  storyId: PropTypes.string,
   onClick: PropTypes.func,
   metadata: PropTypes.object,
   connectDragSource: PropTypes.func.isRequired,

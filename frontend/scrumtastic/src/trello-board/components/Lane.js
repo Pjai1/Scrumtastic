@@ -148,6 +148,7 @@ class Lane extends Component {
         updateCard={this.updateCard}
         label={card.label}
         description={card.description}
+        storyId={card.story_id}
         onClick={() => onCardClick && onCardClick(card.id, card.metadata)} />
     ))
 

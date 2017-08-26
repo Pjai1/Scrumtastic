@@ -6,6 +6,7 @@ import axios from 'axios';
 import { BASE_URL } from '../constants';
 import '../App.css';
 import {Board} from '../trello-board'
+import Spinner from 'react-spinkit';
 
 const jsonData = require('../data.json')
 
@@ -443,7 +444,11 @@ class App extends Component {
       )
     } else {
       return (
-        <p>sup OLOX</p>
+        <div className="row">
+          <div className="col s12">
+            <Spinner style={{marginLeft: '40px', marginTop: '20px'}} name="ball-spin-fade-loader" />
+          </div>
+        </div>
       )
     }
   }
