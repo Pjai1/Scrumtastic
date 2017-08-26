@@ -37,6 +37,11 @@ body {
   font-size: large;
 }
 
+.dMcBAq > div {
+    overflow: auto;
+    height: 100%;
+}
+
 .card-content .card-title {
     display: inline-block;
     width: 100%;

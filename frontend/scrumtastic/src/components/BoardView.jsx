@@ -35,6 +35,10 @@ class App extends Component {
       }
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+      return this.state.boardData !== nextState.boardData || this.state !== nextState
+}
+
   componentWillMount() {
       let email = localStorage.getItem('email');
       let token = localStorage.getItem('token');
@@ -47,14 +51,13 @@ class App extends Component {
       this.getStatuses().then(() => {
         this.getUserStoriesForSprint().then(() => {
              this.getStoryTasks().then((tasks) => {
-                 this.setState({renderArray: tasks})
-                 let renderArray = this.state.renderArray;
+
                  let toDoArray = [];
                  let unassignedArray = [];
                  let inProgressArray = [];
                  let completedArray = [];
                  
-                 renderArray.forEach((task) => {
+                 tasks.forEach((task) => {
                     task.tasks.forEach((taskStatus) => {
                       
                       if (taskStatus.status === "To Do") {
@@ -74,119 +77,105 @@ class App extends Component {
                       }
                     })
                  })
-
-                 this.setState({'completedArray': completedArray, toDoArray: toDoArray, unassignedArray: unassignedArray, inProgressArray: inProgressArray})
-                
-                 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-                 axios.defaults.headers.common['Authorization'] = token
-           
-                 let dataCopy = null;
-             
-                 axios.get(`${BASE_URL}/statuses/`)
-                     .then((data) => {
-                         dataCopy = {
-                           "lanes": [
-                             {
-                               "id": data.data[0].name,
-                               "title": data.data[0].name + " Tasks",
-                               "label": "4",
-                               "cards": [
-
-                               ],
-                               "currentPage": 1
-                             },
-                             {
-                               "id": data.data[1].name,
-                               "title": data.data[1].name + " Tasks",
-                               "label": "4",
-                               "cards": [
-
-                               ],
-                               "currentPage": 1
-                             },
-                             {
-                               "id": data.data[2].name,
-                               "title": data.data[2].name + " Tasks",
-                               "label": "4",
-                               "cards": [
-
-                               ],
-                               "currentPage": 1
-                             },
-                             {
-                               "id": data.data[3].name,
-                               "title": data.data[3].name + " Tasks",
-                               "label": "4",
-                               "cards": [
-
-                               ],
-                               "currentPage": 1
+                 
+                     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+                     axios.defaults.headers.common['Authorization'] = token
+                 
+                     let dataCopy = null;
+                 
+                     axios.get(`${BASE_URL}/statuses/`)
+                         .then((data) => {
+                             dataCopy = {
+                               "lanes": [
+                                 {
+                                   "id": data.data[0].name,
+                                   "title": data.data[0].name + " Tasks",
+                                   "label": "4",
+                                   "cards": [
+                 
+                                   ]
+                                 },
+                                 {
+                                   "id": data.data[1].name,
+                                   "title": data.data[1].name + " Tasks",
+                                   "label": "4",
+                                   "cards": [
+                 
+                                   ]
+                                 },
+                                 {
+                                   "id": data.data[2].name,
+                                   "title": data.data[2].name + " Tasks",
+                                   "label": "4",
+                                   "cards": [
+                 
+                                   ]
+                                 },
+                                 {
+                                   "id": data.data[3].name,
+                                   "title": data.data[3].name + " Tasks",
+                                   "label": "4",
+                                   "cards": [
+                 
+                                   ]
+                                 }
+                               ]
                              }
-                           ]
-                         }
-                         this.setState({boardData: dataCopy})
-                         
-                         let boardData = this.state.boardData;
-                         let toDoArray = this.state.toDoArray;
-                         let completedArray = this.state.completedArray;
-                         let unassignedArray = this.state.unassignedArray;
-                         let inProgressArray = this.state.inProgressArray;
-
-                         toDoArray.forEach((toDo, i) => {
-                          let obj = {
-                            "id": toDo.id,
-                            "title": toDo.name,
-                            "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                            "description": toDo.description,
-                            "story_id": toDo.story_id,
-                            "status_id": toDo.status_id
-                          }
-                          boardData.lanes[1].cards.push(obj)
-                        })
-
-                        completedArray.forEach((toDo, i) => {
-                          let obj = {
-                            "id": toDo.id,
-                            "title": toDo.name,
-                            "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                            "description": toDo.description,
-                            "story_id": toDo.story_id,
-                            "status_id": toDo.status_id
-                          }
-
-                           boardData.lanes[3].cards.push(obj)
-                        })
-
-                        unassignedArray.forEach((toDo, i) => {
-                          let obj = {
-                            "id": toDo.id,
-                            "title": toDo.name,
-                            "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                            "description": toDo.description,
-                            "story_id": toDo.story_id,
-                            "status_id": toDo.status_id
-                          }
-
-                           boardData.lanes[0].cards.push(obj)
-                        })
-
-                         inProgressArray.forEach((toDo, i) => {
-                           let obj = {
-                             "id": toDo.id,
-                             "title": toDo.name,
-                             "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                             "description": toDo.description,
-                             "story_id": toDo.story_id,
-                             "status_id": toDo.status_id
-                           }
-
-                            boardData.lanes[2].cards.push(obj)
+                 
+                             toDoArray.forEach((toDo, i) => {
+                              let obj = {
+                                "id": toDo.id,
+                                "title": toDo.name,
+                                "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                                "description": toDo.description,
+                                "story_id": toDo.story_id,
+                                "status_id": toDo.status_id
+                              }
+                              dataCopy.lanes[1].cards.push(obj)
+                            })
+                 
+                            completedArray.forEach((toDo, i) => {
+                              let obj = {
+                                "id": toDo.id,
+                                "title": toDo.name,
+                                "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                                "description": toDo.description,
+                                "story_id": toDo.story_id,
+                                "status_id": toDo.status_id
+                              }
+                               dataCopy.lanes[3].cards.push(obj)
+                            })
+                 
+                            unassignedArray.forEach((toDo, i) => {
+                              let obj = {
+                                "id": toDo.id,
+                                "title": toDo.name,
+                                "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                                "description": toDo.description,
+                                "story_id": toDo.story_id,
+                                "status_id": toDo.status_id
+                              }
+                               dataCopy.lanes[0].cards.push(obj)
+                            })
+                 
+                             inProgressArray.forEach((toDo, i) => {
+                               let obj = {
+                                 "id": toDo.id,
+                                 "title": toDo.name,
+                                 "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                                 "description": toDo.description,
+                                 "story_id": toDo.story_id,
+                                 "status_id": toDo.status_id
+                               }
+                                dataCopy.lanes[2].cards.push(obj)
+                             })
+                             console.log('expected board data', dataCopy)
+                             this.setState({boardData: dataCopy})
                          })
-                         this.setState({boardData: boardData})
-                     })
-                     .catch((error) => {
-                        this.setState({error: error});
-                     }) 
+                         .catch((error) => {
+                            this.setState({error: error});
+                         })
+          
              })
         })
     })
@@ -242,25 +231,6 @@ class App extends Component {
       return new Promise(function(resolve, reject) {
           axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
           axios.defaults.headers.common['Authorization'] = token;
-
-          // let tasksForStory = 
-          //     {
-          //         "story": story,
-          //         "tasks": []
-          //     }
-
-          // let taskObject = {
-          //             "id": null,
-          //             "name": null,
-          //             "description": null,
-          //             "total_storypoints": null,
-          //             "remaining_storypoints": null,
-          //             "story_id": null,
-          //             "status_id": null,
-          //             "users": [
-          //             ],
-          //             "status": null
-          //         }
 
           var self = this
 
@@ -396,91 +366,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const token = 'Bearer ' + this.state.token
-    const projectId = this.state.projectId;
-    let data = null;
-
-    data = {
-      "lanes": [
-        {
-          "id": "PLANNED",
-          "title": "Planned Tasks",
-          "label": "23 storypoints",
-          "cards": [
-            {
-              "id": "Milk",
-              "title": "Buy milk",
-              "label": "5 storypoints",
-              "description": "2 Gallons of milk at the Deli store"
-            },
-            {
-              "id": "Plan2",
-              "title": "Dispose Garbage",
-              "label": "10 storypoints",
-              "description": "Sort out recyclable and waste as needed"
-            },
-            {
-              "id": "Plan3",
-              "title": "Write Blog",
-              "label": "3 storypoints",
-              "description": "Can AI make memes?"
-            },
-            {
-              "id": "Plan4",
-              "title": "Pay Rent",
-              "label": "5 storypoints",
-              "description": "Transfer to bank account"
-            }
-          ]
-        },
-        {
-          "id": "WIP",
-          "title": "Work In Progress",
-          "label": "3 storypoints",
-          "cards": [
-            {
-              "id": "Wip1",
-              "title": "Clean House",
-              "label": "3 storypoints",
-              "description": "Soap wash and polish floor. Polish windows and doors. Scrap all broken glasses"
-            }
-          ]
-        },
-        {
-          "id": "BLOCKED",
-          "title": "Blocked",
-          "label": "/",
-          "cards": []
-        },
-        {
-          "id": "COMPLETED",
-          "title": "Completed",
-          "label": "30 storypoints",
-          "cards": [
-            {
-              "id": "Completed1",
-              "title": "Practice Meditation",
-              "label": "15 storypoints",
-              "description": "Use Headspace app"
-            },
-            {
-              "id": "Completed2",
-              "title": "Maintain Daily Journal",
-              "label": "15 storypoints",
-              "description": "Use Spreadsheet for now"
-            }
-          ]
-        }
-      ]
-    }
-
-    let dataCopy = {};
-
-  
-    }
-
-    getTasks() {
-
     }
 
 

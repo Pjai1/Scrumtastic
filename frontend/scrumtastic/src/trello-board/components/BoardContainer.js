@@ -33,10 +33,11 @@ class BoardContainer extends Component {
         switch (event.type) {
           case 'ADD_CARD':
             return this.props.actions.addCard({laneId: event.laneId, card: event.card})
-          case 'REMOVE_CARD':
-            return this.props.actions.removeCard({laneId: event.laneId, cardId: event.cardId})
+
           case 'REFRESH_BOARD':
             return this.props.actions.loadBoard(event.data)
+          case 'PAGINATE_LANE':
+            return this.props.actions.paginateLane({laneId: event.laneId, card: event.cardId})
           default:
             return  
         }

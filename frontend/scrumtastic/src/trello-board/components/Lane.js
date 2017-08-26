@@ -9,6 +9,8 @@ import {DropTarget} from 'react-dnd'
 import update from 'react/lib/update'
 import {DragType} from '../helpers/DragType'
 import { findDOMNode } from 'react-dom'
+import axios from 'axios';
+import { BASE_URL } from '../../constants';
 
 const laneActions = require('../actions/LaneActions')
 
@@ -22,7 +24,14 @@ class Lane extends Component {
     loading: false,
     currentPage: this.props.currentPage,
     cards: this.props.cards,
-    placeholderIndex: -1
+    placeholderIndex: -1,
+    token: '',
+    error: []
+  }
+
+  componentWillMount() {
+    let token = localStorage.getItem('token');
+    this.setState({token: token});
   }
 
   handleScroll = (evt) => {
@@ -88,6 +97,18 @@ class Lane extends Component {
   }
 
   removeCard = (listId, cardId) => {
+    const token = 'Bearer ' + this.state.token;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.headers.common['Authorization'] = token
+    axios.delete(`${BASE_URL}/tasks/${cardId}`)
+        .then((data) => {
+            console.log(data)
+        })
+        .catch((error) => {
+            this.setState({error});
+        }) 
+
     this.props.actions.removeCard({laneId: listId, cardId: cardId})
   }
 
