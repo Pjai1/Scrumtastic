@@ -93,7 +93,10 @@ class SprintView extends Component {
                     projectStories.push(story);
                 })
                 this.setState({'stories': projectStories});
+<<<<<<< HEAD
                 console.log('stories')
+=======
+>>>>>>> c93ce3d... omit console.log
             })
             .catch((error) => {
                 this.setState({error});
