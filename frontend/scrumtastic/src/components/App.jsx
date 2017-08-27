@@ -217,6 +217,8 @@ class App extends Component {
             if (array[i].id === keyName) {
                 delete array[i]
                 this.setState({'projects': array});
+                let t = new Toast("Succesfully deleted project!", 2500)
+                t.Render(); 
             }
         }    
     }

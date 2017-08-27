@@ -133,3 +133,4 @@ Route::post('attachuser', 'UserController@attachUserToProject');
 Route::post('attachtask', 'TaskController@attachUserToTask');
 Route::post('oauth/token', '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken');
 Route::post('logout', 'UserController@logout');
+Route::delete('deleteprojectuser', 'ProjectController@deleteProjectUser');

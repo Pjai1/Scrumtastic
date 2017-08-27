@@ -6,6 +6,7 @@ import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
 import Toast from './Toast'
 import '../App.css';
+import Spinner from 'react-spinkit';
 
 
 class SignIn extends Component {
@@ -18,6 +19,7 @@ class SignIn extends Component {
             password: '',
             error: [],
             token: '',
+            loggedIn: false,
         }
     }
 
@@ -40,7 +42,7 @@ class SignIn extends Component {
                 if(data.data.access_token) {
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
-                    this.setState({token: data.data.access_token});
+                    this.setState({token: data.data.access_token, loggedIn: true});
                     console.log(this.state.token)
                     let t = new Toast("Succesfully logged in!", 2500)
                     t.Render(); 
@@ -64,6 +66,12 @@ class SignIn extends Component {
             .catch((error) => {
                 this.setState({error});
             }) 
+    }
+
+    loginSpinner() {
+        console.log('spin')
+
+        return <Spinner style={{marginLeft: '150px'}} name="ball-clip-rotate-multiple" />
     }
 
     renderErrors() {
@@ -141,6 +149,13 @@ class SignIn extends Component {
                             <div className="col s4" />
                         </div>
                     </form>
+                </div>
+                <div className="row">
+                    <div className="col s4" />
+                    <div className="col s4">
+                        {(this.state.loggedIn) ? this.loginSpinner() : null}
+                    </div>
+                    <div className="col s4" />
                 </div>
                 <div className="row">
                     <div className="col s4"></div>  

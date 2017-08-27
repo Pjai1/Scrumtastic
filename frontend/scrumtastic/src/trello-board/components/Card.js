@@ -9,6 +9,8 @@ import { Icon, Modal, Button } from 'react-materialize';
 import axios from 'axios';
 import { BASE_URL } from '../../constants';
 import Toast from '../../components/Toast';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 var flow = require('lodash.flow')
 
 
@@ -203,6 +205,16 @@ class Card extends Component {
         })   
   }
 
+  confirmUser(listId, taskId) {
+    const {id, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
+    confirmAlert({                   
+        message: 'Are you sure you want to delete this task from the project?',              
+        confirmLabel: 'Delete',                        
+        cancelLabel: 'Cancel',                           
+        onConfirm: () => this.props.removeCard(listId, taskId)
+      })
+  }
+
   renderDisplayMode() {
     const {id, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
     const opacity = isDragging ? 0 : 1
@@ -219,7 +231,7 @@ class Card extends Component {
                                     <span onClick={this.toggleEditMode.bind(this)}>
                                       <i className="material-icons small" style={{color: '#2633a6'}}>mode_edit</i>
                                     </span>
-                                    <span onClick={this.props.removeCard.bind(this, this.props.listId, this.props.id)}>
+                                    <span onClick={this.confirmUser.bind(this, this.props.listId, this.props.id)}>
                                       <i className="material-icons small" style={{color: '#a6262c'}}>delete_forever</i>
                                     </span>
                                     <Modal

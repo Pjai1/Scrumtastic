@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { BASE_URL } from '../../constants';
+import Toast from '../../components/Toast';
 
 const LaneHelper = {
   
@@ -44,6 +45,8 @@ const LaneHelper = {
       }
       return lane
     })
+    let t = new Toast("Succesfully deleted user!", 2500)
+    t.Render(); 
     return {...state, ...lanes}
   },
 

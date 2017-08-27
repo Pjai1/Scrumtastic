@@ -6,6 +6,8 @@ import Toast from './Toast';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
 import '../App.css';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 class ProjectView extends Component {
     constructor(props) {
@@ -83,6 +85,25 @@ class ProjectView extends Component {
             }) 
     }
 
+    confirmFeature(featureId) {
+        confirmAlert({                   
+            message: 'Are you sure you want to delete this feature?',              
+            confirmLabel: 'Delete',                        
+            cancelLabel: 'Cancel',                           
+            onConfirm: () => this.deleteFeature(featureId)
+          })
+    }
+
+    confirmStory(storyId) {
+        confirmAlert({                   
+            message: 'Are you sure you want to delete this story?',              
+            confirmLabel: 'Delete',                        
+            cancelLabel: 'Cancel',                           
+            onConfirm: () => this.deleteStory(storyId)
+          })
+    }
+
+
     getStories(projectFeatures) {
         const token = 'Bearer ' + this.state.token;
         let stateStories = this.state.stories;
@@ -150,6 +171,8 @@ class ProjectView extends Component {
             if (array[i].id === keyName) {
                 delete array[i]
                 this.setState({'stories': array});
+                let t = new Toast("Succesfully deleted story!", 2500)
+                t.Render(); 
             }
         }    
     }
@@ -159,6 +182,8 @@ class ProjectView extends Component {
             if (array[i].id === keyName) {
                 delete array[i]
                 this.setState({'features': array});
+                let t = new Toast("Succesfully deleted feature!", 2500)
+                t.Render(); 
             }
         }    
     }
@@ -316,7 +341,7 @@ class ProjectView extends Component {
                                 {
                                 (!this.state.featureEditingMode && (this.state.clickedFeature === null)) || (!this.state.featureEditingMode && (this.state.clickedFeature === feature.id)) || (!this.state.featureEditingMode && (this.state.clickedFeature !== feature.id)) || (this.state.featureEditingMode && (this.state.clickedFeature !== feature.id)) ?
                                 <li className="collection-header"><h4><span><Icon small>featured_play_list</Icon></span>Feature: {feature.name}
-                                    <a onClick={() => {this.deleteFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                    <a onClick={() => {this.confirmFeature(feature.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
                                     <a onClick={() => {this.editFeature(feature.id, feature.name)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a></h4>
                                 </li>
                                     : 
@@ -347,7 +372,7 @@ class ProjectView extends Component {
                                                     (!this.state.storyEditingMode && (this.state.clickedStory === null)) || (!this.state.storyEditingMode && (this.state.clickedStory === story.id)) || (!this.state.storyEditingMode && (this.state.clickedStory !== story.id)) || (this.state.storyEditingMode && (this.state.clickedStory !== story.id)) ?
                                                     <div>
                                                         <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>label_outline</Icon></div><b>User Story:</b> {story.description}
-                                                        <a onClick={() => {this.deleteStory(story.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                                        <a onClick={() => {this.confirmStory(story.id)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
                                                         <a onClick={() => {this.editStory(story.id, story.description)}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
                                                     </div> : 
                                                     <div className="row">
@@ -423,7 +448,7 @@ class ProjectView extends Component {
                         className="waves-effect waves-light btn-large"
                         onClick={() => this.addSprint()}
                     >
-                        Go To Sprint View
+                        Sprint View
                     </a>
                 </div>
             </div>

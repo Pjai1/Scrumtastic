@@ -3,21 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\User;
 use App\Project;
 use App\ProjectUser;
 use App\Repositories\ProjectRepository;
+use App\Repositories\UserRepository;
 use App\Http\Controllers\ApiController;
 
 class ProjectController extends ApiController
 {
     private $project;
+    private $user;
 
-    public function __construct(ProjectRepository $project) 
+    public function __construct(ProjectRepository $project, UserRepository $user) 
     {
         $this->middleware('auth:api');
         $this->middleware('user.admin', ['only' => ['index']]);
-        $this->middleware('project.resources', ['except' => ['index', 'store']]);
-    	$this->project = $project;
+        $this->middleware('project.resources', ['except' => ['index', 'store', 'deleteProjectUser']]);
+        $this->project = $project;
+        $this->user = $user;
     }
     /**
      * Display a listing of the resource.
@@ -172,5 +176,14 @@ class ProjectController extends ApiController
         $project->delete();
 
         return $this->showOne($project);
+    }
+
+    public function deleteProjectUser(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+
+        $user->projects()->detach($request->project_id);
+
+        return $this->showOne($user);
     }
 }

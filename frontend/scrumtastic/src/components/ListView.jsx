@@ -6,6 +6,9 @@ import axios from 'axios';
 import { BASE_URL } from '../constants';
 import Toast from './Toast';
 import '../App.css';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import Spinner from 'react-spinkit';
 
 class ListView extends Component {
     constructor(props) {
@@ -24,7 +27,7 @@ class ListView extends Component {
             'tasks': [],
             'stories': [],
             'statuses': [],
-            'renderArray': [],
+            'renderArray': null,
             'maxStorypoints': '',
             'dailyStorypoints': '',
             'taskName': '',
@@ -304,83 +307,94 @@ class ListView extends Component {
 
     renderStories() {
         const renderArray = this.state.renderArray;
-        return (
-            <tbody>
-                {
-                    renderArray.map((story, key) => {
-                        return (
-                            <tr key={key}>
-                                <td className="story-description">
-                                    {story.story.description}
-                                </td>
-                                <td> 
-                                    {   
-                                        story.tasks.length === 0 ? 
-                                        <div className="col s9">
-                                            <div className="input-field inline col s6">
-                                                <input 
-                                                    className="validate"
-                                                    id="task"
-                                                    type="text"
-                                                    defaultValue=""
-                                                    onChange={event => this.setState({taskName:event.target.value})}
-                                                    onKeyPress={event => {
-                                                    if(event.key === "Enter") {
-                                                            this.createTask(story.story.id);
-                                                        }
-                                                    }}
-                                                />
-                                                <label htmlFor="task">Task</label> 
+
+        if(renderArray) {
+            return (
+                <tbody>
+                    {
+                        renderArray.map((story, key) => {
+                            return (
+                                <tr key={key}>
+                                    <td className="story-description">
+                                        {story.story.description}
+                                    </td>
+                                    <td> 
+                                        {   
+                                            story.tasks.length === 0 ? 
+                                            <div className="col s9">
+                                                <div className="input-field inline col s6">
+                                                    <input 
+                                                        className="validate"
+                                                        id="task"
+                                                        type="text"
+                                                        defaultValue=""
+                                                        onChange={event => this.setState({taskName:event.target.value})}
+                                                        onKeyPress={event => {
+                                                        if(event.key === "Enter") {
+                                                                this.createTask(story.story.id);
+                                                            }
+                                                        }}
+                                                    />
+                                                    <label htmlFor="task">Task</label> 
+                                                </div>
+                                                <div className="input-field inline col s3">
+                                                    <input 
+                                                        className="validate"
+                                                        id="storypoints"
+                                                        type="text"
+                                                        defaultValue=""
+                                                        onChange={event => this.setState({maxStorypoints:event.target.value})}
+                                                        onKeyPress={event => {
+                                                        if(event.key === "Enter") {
+                                                                this.createTask(story.story.id);
+                                                            }
+                                                        }}
+                                                    />
+                                                    <label htmlFor="storypoints">Storypoints</label> 
+                                                </div>
                                             </div>
-                                            <div className="input-field inline col s3">
-                                                <input 
-                                                    className="validate"
-                                                    id="storypoints"
-                                                    type="text"
-                                                    defaultValue=""
-                                                    onChange={event => this.setState({maxStorypoints:event.target.value})}
-                                                    onKeyPress={event => {
-                                                    if(event.key === "Enter") {
-                                                            this.createTask(story.story.id);
-                                                        }
-                                                    }}
-                                                />
-                                                <label htmlFor="storypoints">Storypoints</label> 
+                                            : story.tasks.map((task, key) => {
+                                                return (
+                                                    <div style={{marginBottom: '30px'}} key={key}><b>{task.name}:</b> {task.users.map((user, key) => {
+                                                            return (
+                                                                <p key={key}><em>{user.name}</em></p>
+                                                            )
+                                                        })}</div>
+                                                )
+                                            })
+                                        }
+                                    </td>
+                                    <td>
+                                        {   
+                                            story.tasks.length === 0 ? 
+                                            <div>
+                                            <Dropdown trigger={<Button>Select Status</Button>}>
+                                                {this.statusSelect()}
+                                            </Dropdown>
+                                            <br /><b style={{textAlign: 'center', paddingTop: '5px'}}>{this.state.selectedStatus}</b>
                                             </div>
-                                        </div>
-                                        : story.tasks.map((task, key) => {
-                                            return (
-                                                <div style={{marginBottom: '30px'}} key={key}><b>{task.name}:</b> {task.users.map((user, key) => {
-                                                        return (
-                                                            <p key={key}><em>{user.name}</em></p>
-                                                        )
-                                                    })}</div>
-                                            )
-                                        })
-                                    }
-                                </td>
-                                <td>
-                                    {   
-                                        story.tasks.length === 0 ? 
-                                        <div>
-                                        <Dropdown trigger={<Button>Select Status</Button>}>
-                                            {this.statusSelect()}
-                                        </Dropdown>
-                                        <br /><b style={{textAlign: 'center', paddingTop: '5px'}}>{this.state.selectedStatus}</b>
-                                        </div>
-                                         : story.tasks.map((task, key) => {
-                                            return (
-                                                <div className="task-status" key={key}>{task.status}</div>
-                                            )
-                                        })
-                                    }
-                                </td>
-                            </tr>
-                        )
-                    })
-                }
-            </tbody>
-        )
+                                            : story.tasks.map((task, key) => {
+                                                return (
+                                                    <div className="task-status" key={key}>{task.status}</div>
+                                                )
+                                            })
+                                        }
+                                    </td>
+                                </tr>
+                            )
+                        })
+                    }
+                </tbody>
+            )
+        } else {
+                return (
+                <div className="row">
+                <div className="col s12">
+                    <Spinner style={{marginLeft: '40px', marginTop: '40px'}} name="ball-spin-fade-loader" /><br /><p>Molding data ...</p>
+                </div>
+                </div>
+            )
+        }
     }
 
     goToChart() {

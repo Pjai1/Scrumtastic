@@ -8,8 +8,6 @@ import '../App.css';
 import {Board} from '../trello-board'
 import Spinner from 'react-spinkit';
 
-const jsonData = require('../data.json')
-
 
 class App extends Component {
 
@@ -43,7 +41,10 @@ class App extends Component {
       this.getStatuses().then((statuses) => {
         this.getUserStoriesForSprint().then((stories) => {
              this.getStoryTasks(stories).then((tasks) => {
-                  this.renderTasks(tasks, stories, statuses)
+                 //making sure all the state is cached, this seems to be an error with a hot reload dev server, not sure how to workaround yet
+                 setTimeout(() => {
+                    this.renderTasks(tasks, stories, statuses)
+                 }, 1000)
              })
         })
     })
