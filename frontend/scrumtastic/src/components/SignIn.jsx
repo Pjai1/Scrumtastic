@@ -43,7 +43,6 @@ class SignIn extends Component {
                     localStorage.setItem('token', data.data.access_token);
                     localStorage.setItem('email', this.state.email);
                     this.setState({token: data.data.access_token, loggedIn: true});
-                    console.log(this.state.token)
                     let t = new Toast("Succesfully logged in!", 2500)
                     t.Render(); 
                     this.getUserId();
@@ -69,8 +68,6 @@ class SignIn extends Component {
     }
 
     loginSpinner() {
-        console.log('spin')
-
         return <Spinner style={{marginLeft: '150px'}} name="ball-clip-rotate-multiple" />
     }
 

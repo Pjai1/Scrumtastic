@@ -8,7 +8,7 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import Lane from './Lane'
 import axios from 'axios';
 import { BASE_URL } from '../../constants';
-import { Modal, Button, Dropdown, NavItem, Icon } from 'react-materialize';
+import { Modal, Button, Dropdown, NavItem, Icon, Row, Input } from 'react-materialize';
 import Toast from '../../components/Toast';
 
 const boardActions = require('../actions/BoardActions')
@@ -148,6 +148,19 @@ class BoardContainer extends Component {
       return items;
     }
 
+    loadSomeStories() {
+        const stories = this.state.stories;
+        console.log('storyqdqdzq', stories)
+        let items = [];
+        if(stories) {
+          for(let i = 0; i < stories.length; i++) {
+              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
+          }
+        }
+  
+        return items;
+    }
+
     handleChange(storyId, storyDesc) {
       this.setState({storyId: storyId})
       this.setState({storyDesc: storyDesc})
@@ -177,7 +190,6 @@ class BoardContainer extends Component {
         data.lanes.map((lane) => {
           const {id, ...otherProps} = lane
           const {tagStyle, draggable, handleDragStart, handleDragEnd, onCardClick, onLaneScroll, laneSortFunction} = this.props
-          console.log('lane', lane);
           return (<div key={`${id}`}><Lane key={`${id}`}
             id={id}
             {...otherProps}
@@ -282,6 +294,11 @@ class BoardContainer extends Component {
                             }>
                             {this.loadStories()}
                         </Dropdown>
+                        {/* <Row>
+                            <Input s={12} type='select' label="Story Select" defaultValue='' onChange={this.wow()}>
+                                {this.loadSomeStories()}
+                            </Input>
+                        </Row> */}
                         <p><b>Selected Story:</b> {this.state.storyDesc}</p>
                         <Button onClick={this.addLaneCard.bind(this)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button>
                         </div>

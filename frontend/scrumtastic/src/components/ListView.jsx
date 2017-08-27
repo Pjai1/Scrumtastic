@@ -231,7 +231,7 @@ class ListView extends Component {
 
     createTask(storyId) {
         const token = 'Bearer ' + this.state.token;
-        console.log('story',storyId)
+
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = token;
         let selectValue = null;
@@ -251,7 +251,6 @@ class ListView extends Component {
         if(this.state.selectedStatus == "Completed") {
             selectValue = 4;
         }
-        console.log(this.state.statusId)
         axios.post(`${BASE_URL}/tasks`, {
             'sprint_id': this.state.sprintId,
             'status_id': selectValue,
@@ -260,7 +259,7 @@ class ListView extends Component {
             'story_id': storyId
         })
             .then((data) => {
-                console.log(this.state.renderArray)
+
                 let t = new Toast("Task Added!", 2500)
                 t.Render(); 
             })

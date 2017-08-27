@@ -252,11 +252,9 @@ class App extends Component {
 
     setNewProjectBool() {
         this.setState({newProjectBool: true})
-        console.log('setbool',this.state.newProjectBool)
     }
 
     renderNewProject() {
-        console.log(this.state.newProjectBool)
         return (
             <Col m={6} s={12}>
                 { (!this.state.newProjectBool) ?

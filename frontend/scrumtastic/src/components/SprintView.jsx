@@ -56,6 +56,7 @@ class SprintView extends Component {
             })
             .catch((error) => {
                 this.setState({error});
+                this.loadStories()
             })  
     }
 
@@ -73,6 +74,25 @@ class SprintView extends Component {
                 })
                 this.setState({'sprints': projectSprints});
                 this.getStories(projectSprints);
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
+    }
+
+    loadStories() {
+        const token = 'Bearer ' + this.state.token
+        const projectId = this.state.projectId;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.get(`${BASE_URL}/projects/${projectId}/stories`)
+            .then((data) => {
+                let projectStories = [];
+                data.data[0].stories.forEach((story) => {
+                    projectStories.push(story);
+                })
+                this.setState({'stories': projectStories});
             })
             .catch((error) => {
                 this.setState({error});
@@ -106,7 +126,7 @@ class SprintView extends Component {
         let users = this.state.users;
         let projectId = this.state.projectId;
         const token = 'Bearer ' + this.state.token;
-        console.log('dqdzz',userId, projectId)
+
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = token
         axios.delete(`${BASE_URL}/deleteprojectuser`, {
@@ -265,7 +285,7 @@ class SprintView extends Component {
     }
 
     createStorySelect(sprintId) {
-        const backlogStories = this.state.stories;
+        const backlogStories = this.state.backlogStories;
         if (backlogStories) {
             let items = [];
             for(let i = 0; i < backlogStories.length; i++) {
@@ -318,7 +338,7 @@ class SprintView extends Component {
 
     goToTasks(sprintId) {
         localStorage.setItem('sprintId', sprintId);
-        browserHistory.push('/list');
+        browserHistory.push('/board');
     }
 
     addUser() {

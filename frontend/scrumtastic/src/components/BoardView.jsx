@@ -60,7 +60,6 @@ class App extends Component {
     axios.get(`${BASE_URL}/projects/${projectId}/users`)
         .then((data) => {
             this.setState({'users': data.data[0].users})
-            console.log('USERS',this.state.users)
         })
         .catch((error) => {
             this.setState({error});
@@ -74,10 +73,8 @@ class App extends Component {
       let inProgressArray = [];
       let completedArray = [];
       const stories = tasks
-      console.log('woola', stories)
+
       stories.forEach((story) => {
-    
-        console.log('is something here', story.tasks.length)
         
         story.tasks.forEach((task) => {
           if (task.status === "To Do") {
@@ -102,10 +99,6 @@ class App extends Component {
   }
 
   fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray, stories, statuses) {
-    console.log('UNASSIGNED: ', unassignedArray)
-    console.log("TO DO: ", toDoArray)
-    console.log("IN PROG: ", inProgressArray)
-    console.log("COMPLETED: ", completedArray)
     const token = 'Bearer ' + this.state.token;
 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -152,6 +145,7 @@ class App extends Component {
                   ]
                 }
     
+
                 toDoArray.forEach((toDo, i) => {
                 let obj = {
                   "id": toDo.id,
@@ -211,7 +205,6 @@ class App extends Component {
                   }
                   dataCopy.lanes[2].cards.push(obj)
                 })
-                console.log('expected board data', dataCopy)
                 this.setState({boardData: dataCopy, stories: stories, statuses: statuses})
             })
             .catch((error) => {
@@ -245,7 +238,6 @@ class App extends Component {
           stories.forEach((story, i) => {
               promises.push(
                   this.getTasksForStory(story, i).then(function(taskArray) {
-                    console.log('ALL TASKS', taskArray)
                       if(taskArray) {
                           tasks.push(taskArray)
                       }
@@ -254,7 +246,6 @@ class App extends Component {
           })
 
           Promise.all(promises).then(function() {
-              console.log('all promises', tasks)
               resolve(tasks)
           })
       }.bind(this))
@@ -320,9 +311,7 @@ class App extends Component {
                              nextObj.remaining_storypoints = task.remaining_storypoints;
                              nextObj.story_id = task.story_id;
                              nextObj.status_id = task.status_id;
-                              console.log('TASK OBJECT', nextObj)
                               tasksForStory.tasks.push(nextObj)
-                              console.log('tasks for story', tasksForStory)
                               resolve()
                           })
                       }))
@@ -424,21 +413,15 @@ class App extends Component {
     }
 
   handleDragStart = (cardId, laneId) => {
-    console.log('drag started')
-    console.log(`cardId: ${cardId}`)
-    console.log(`laneId: ${laneId}`)
+
   }
 
   handleDragEnd = (cardId, sourceLaneId, targetLaneId) => {
-    console.log('drag ended')
-    console.log(`cardId: ${cardId}`)
-    console.log(`sourceLaneId: ${sourceLaneId}`)
-    console.log(`targetLaneId: ${targetLaneId}`)
+
   }
 
   shouldReceiveNewData = (nextData) => {
-    console.log('data has changed')
-    console.log(nextData)
+
   }
 
   renderBoard() {
@@ -450,21 +433,15 @@ class App extends Component {
     }
 
     const handleDragStart = (cardId, laneId) => {
-      console.log('drag started')
-      console.log(`cardId: ${cardId}`)
-      console.log(`laneId: ${laneId}`)
+
     }
 
     const handleDragEnd = (cardId, sourceLaneId, targetLaneId) => {
-      console.log('drag ended')
-      console.log(`cardId: ${cardId}`)
-      console.log(`sourceLaneId: ${sourceLaneId}`)
-      console.log(`targetLaneId: ${targetLaneId}`)
+
     }
 
     const shouldReceiveNewData = (nextData) => {
-      console.log('data has changed')
-      console.log(nextData)
+
     }
 
     if(dataState) {

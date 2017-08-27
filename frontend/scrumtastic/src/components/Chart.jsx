@@ -12,6 +12,7 @@ class SprintChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
+        sprintlogs: null,
         error: [],
         sprintId: '',
         sprintName: '',
@@ -67,7 +68,7 @@ class SprintChart extends Component {
     axios.defaults.headers.common['Authorization'] = token
     axios.get(`${BASE_URL}/sprintlog/${sprintId}`)
         .then((data) => {
-            console.log(data)
+            this.setState({sprintlogs: data.data})
         })
         .catch((error) => {
             this.setState({error: error})

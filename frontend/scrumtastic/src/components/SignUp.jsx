@@ -74,7 +74,6 @@ class SignUp extends Component {
 
     renderErrors() {
         let errors = [];
-        console.log(this.state.error.response);
         if(this.state.error.response && this.state.error.response.data) {
             const errorResp = this.state.error.response.data.error;
             if (typeof errorResp === "string") {
@@ -85,7 +84,7 @@ class SignUp extends Component {
                 }
             }
         }
-        return <div className="center-align">{errors}</div>
+        return <div className="center-align-error">{errors}</div>
     }
 
     render() {
