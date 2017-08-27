@@ -79,8 +79,7 @@ class BoardContainer extends Component {
     const { title, label, description, sprintId, storyId } = this.state;
     const token = 'Bearer ' + this.state.token;
     let cardId = 99;
-    console.log("Adding card: ", this.state)
-    // if(this.cardIsSet()) {
+
       axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
       axios.defaults.headers.common['Authorization'] = token;
 
@@ -94,9 +93,11 @@ class BoardContainer extends Component {
         })
             .then((data) => {
                 cardId = data.data.id;
+                let newLabel = data.data.remaining_storypoints+"/"+data.data.total_storypoints+" SP";
                 let t = new Toast("Task added successfully!", 2500)
                 t.Render(); 
-                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: title, label: label, description: description, storyId: storyId} })
+                console.log('CHECK', cardId, data.data.name, data.data.remaining_storypoints+"/"+data.data.total_storypoints+" SP", data.data.description, storyId)
+                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: data.data.name, label: newLabel, description: data.data.description, storyId: storyId} })
                 this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null, storyId: null})
             })
             .catch((error) => {
@@ -165,7 +166,7 @@ class BoardContainer extends Component {
                 }
             }
         }
-        return <div className="center-align">{errors}</div>
+        return <div className="center-align-error">{errors}</div>
     }
 
   render () {
@@ -187,7 +188,7 @@ class BoardContainer extends Component {
                  <input type="text" placeholder="storypoints" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'label')} />
                  <input type="text" placeholder="description" style={{display: 'block', margin: 'auto', color:'white'}} onChange={this.updateField.bind(this, 'description')} /></div>
                   : null}
-                  <Modal id="taskModal" trigger={<div style={{margin: '5px'}}><Button style={{width: '100%', borderSizing: 'border-box'}} onClick={this.addLaneCard.bind(this, id)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button></div>}>
+                  <Modal id="taskModal" trigger={<div style={{margin: '5px'}}><Button style={{width: '100%', borderSizing: 'border-box'}}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button></div>}>
                   <div className="row">
                         <div className="col s2" />
                         <div className="col s7">
@@ -196,7 +197,12 @@ class BoardContainer extends Component {
                         <div className="col s3" />
                     </div>
                     <div className="row">
-                        <div className="col s3" />
+                        <div className="col s2" />
+                        <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                            <Icon small>
+                                title
+                            </Icon>
+                        </div>
                         <div className="col s6">
                           <div className="input-field inline col s12">
                                 <input 
@@ -217,7 +223,12 @@ class BoardContainer extends Component {
                         <div className="col s3" />
                     </div>
                     <div className="row">
-                        <div className="col s3" />
+                        <div className="col s2" />
+                        <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                            <Icon small>
+                                description 
+                            </Icon>
+                        </div>
                         <div className="col s6">
                           <div className="input-field inline col s12">
                                 <input 
@@ -238,13 +249,18 @@ class BoardContainer extends Component {
                         <div className="col s3" />
                     </div>
                     <div className="row">
-                        <div className="col s3" />
+                        <div className="col s2" />
+                        <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                            <Icon small>
+                                timelapse  
+                            </Icon>
+                        </div>
                         <div className="col s6">
                           <div className="input-field inline col s12">
                                 <input 
                                     className="validate"
                                     id="storypoints"
-                                    type="text"
+                                    type="number"
                                     defaultValue=""
                                     onChange={event => this.setState({label:event.target.value})}
                                     onKeyPress={event => {
@@ -262,19 +278,19 @@ class BoardContainer extends Component {
                         <div className="col s3" />
                         <div className="col s6">
                         <Dropdown trigger={
-                            <Button>Select User Story</Button>
+                            <Button><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Select User Story</span><Icon small>arrow_drop_down</Icon></Button>
                             }>
                             {this.loadStories()}
                         </Dropdown>
-                        <p>Selected Story: {this.state.storyDesc}</p>
-                        <Button onClick={this.addLaneCard.bind(this)}>Add Task</Button>
+                        <p><b>Selected Story:</b> {this.state.storyDesc}</p>
+                        <Button onClick={this.addLaneCard.bind(this)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button>
                         </div>
                         <div className="col s3" />
                     </div>
                     <div className="row">
                         <div className="col s3" />
                         <div className="col s6">
-                            {this.renderErrors()}
+                            {this.renderErrors.bind(this)}
                         </div>
                         <div className="col s3" />
                     </div>

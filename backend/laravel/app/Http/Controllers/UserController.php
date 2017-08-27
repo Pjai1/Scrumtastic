@@ -74,6 +74,12 @@ class UserController extends ApiController
 
     public function attachUserToProject(Request $request)
     {
+        $rules = [
+            'email' => 'required|email|exists:users,email'
+        ];
+
+        $this->validate($request, $rules);
+
         $email = $request->email;
 
         $user = $this->user->findUserByEmail($email);

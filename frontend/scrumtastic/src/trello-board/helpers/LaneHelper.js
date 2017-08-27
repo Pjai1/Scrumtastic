@@ -32,6 +32,7 @@ const LaneHelper = {
   },
 
   appendCardToLane: (state, {laneId, card, index}) => {
+    console.log('is this executed', laneId, card, index)
     const updatedLanes = LaneHelper.appendCardsToLane(state, {laneId: laneId, newCards: [card], index})
     return {...state, ...updatedLanes}
   },

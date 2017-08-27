@@ -5,20 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Task;
 use App\Sprint;
+use App\TaskUser;
+use App\ProjectUser;
 use App\Repositories\TaskRepository;
 use App\Repositories\SprintRepository;
+use App\Repositories\UserRepository;
 use App\Http\Controllers\ApiController;
 
 class TaskController extends ApiController
 {
     private $task;
     private $sprint;
+    private $user;
 
-    public function __construct(TaskRepository $task, SprintRepository $sprint) 
+    public function __construct(TaskRepository $task, SprintRepository $sprint, UserRepository $user) 
     {
         // $this->middleware('auth:api');
     	$this->task = $task;
         $this->sprint = $sprint;
+        $this->user = $user;
     }
     /**
      * Display a listing of the resource.
@@ -73,6 +78,39 @@ class TaskController extends ApiController
         $sprint->save();
 
         return $this->showOne($task, 201);
+    }
+
+    public function attachUserToTask(Request $request)
+    {
+        $rules = [
+            'email' => 'required|email|exists:users,email'
+        ];
+
+        $this->validate($request, $rules);
+
+        $email = $request->email;
+
+        $user = $this->user->findUserByEmail($email);
+
+        if(count($user) === 0) {
+            return $this->errorResponse('No user found by that email', 401);
+        }
+
+        $userId = $user[0]->id;
+        $userExists = TaskUser::where('task_id', '=', $request->task_id)->where('user_id', '=', $userId)->first();
+
+        if(!$userExists) {
+        
+            $taskUser = new TaskUser;
+            $taskUser->task_id = $request->task_id;
+            $taskUser->user_id = $user[0]->id;
+            $taskUser->save();
+
+            return $this->showAll($user);
+        }
+        else {
+            return $this->errorResponse('User already attached to this task', 409);
+        }
     }
 
     /**
@@ -147,8 +185,8 @@ class TaskController extends ApiController
         $reqSpoints = $request->total_storypoints;
 
         $rules = [
-            'sprint_id' => 'required|exists:sprints,id',
-            'status_id' => 'required|exists:statuses,id',
+            'sprint_id' => 'exists:sprints,id',
+            'status_id' => 'exists:statuses,id',
             'name' => 'required',
             'total_storypoints' => 'required|integer|min:1',
             'remaining_storypoints' => 'min:0|greater_than_or_equal'
@@ -164,8 +202,10 @@ class TaskController extends ApiController
         $reqTotStorypoints = $request->total_storypoints;
         $reqRemStorypoints = $request->remaining_storypoints;
 
-        $task->sprint_id = $request->sprint_id;
-        $task->status_id = $request->status_id;
+        $sprint->id = $request->sprint_id;
+        if($request->status_id) {
+            $task->status_id = $request->status_id;
+        }
         $task->name = $request->name;
         $task->total_storypoints = $reqTotStorypoints;
         if($task->remaining_storypoints) {

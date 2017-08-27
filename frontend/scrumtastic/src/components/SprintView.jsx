@@ -266,7 +266,7 @@ class SprintView extends Component {
                 }
             }
         }
-        return <div className="center-align">{errors}</div>
+        return <div className="center-align-error">{errors}</div>
     }
 
     handleChange(storyId, sprintId) {

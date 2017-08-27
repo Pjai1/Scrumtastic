@@ -149,6 +149,9 @@ class Lane extends Component {
         label={card.label}
         description={card.description}
         storyId={card.story_id}
+        users={card.users}
+        remainingStorypoints={card.remaining_storypoints}
+        totalStorypoints={card.total_storypoints}
         onClick={() => onCardClick && onCardClick(card.id, card.metadata)} />
     ))
 
@@ -196,6 +199,7 @@ const cardTarget = {
     const index = component.state.placeholderIndex
     const draggedObj = monitor.getItem()
     if (id !== draggedObj.listId) {
+      console.log('ADDING CARD', id, draggedObj.card)
       props.actions.addCard({
         laneId: id,
         card: draggedObj.card,

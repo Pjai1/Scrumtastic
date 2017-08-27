@@ -22,6 +22,7 @@ class App extends Component {
           'token': localStorage.getItem('token') || '',
           'projectId': localStorage.getItem('projectId') || '',
           'sprintId': localStorage.getItem('sprintId') || '',
+          'project': localStorage.getItem('projectId') || '',
           'sprints': [],
           'tasks': [],
           'stories': [],
@@ -33,7 +34,8 @@ class App extends Component {
           'unassignedArray': [],
           'toDoArray': [],
           'inProgressArray': [],
-          'completedArray': []
+          'completedArray': [],
+          'users': null
       }
     }
 
@@ -45,6 +47,23 @@ class App extends Component {
              })
         })
     })
+  }
+
+  componentDidMount() {
+    const token = 'Bearer ' + this.state.token;
+    const projectId = this.state.projectId;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
+
+    axios.get(`${BASE_URL}/projects/${projectId}/users`)
+        .then((data) => {
+            this.setState({'users': data.data[0].users})
+            console.log('USERS',this.state.users)
+        })
+        .catch((error) => {
+            this.setState({error});
+        })  
   }
 
   renderTasks(tasks, stories, statuses) {
@@ -137,9 +156,12 @@ class App extends Component {
                   "id": toDo.id,
                   "title": toDo.name,
                   "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                  "remaining_storypoints": toDo.remaining_storypoints,
+                  "total_storypoints": toDo.total_storypoints,
                   "description": toDo.description,
                   "story_id": toDo.story_id,
-                  "status_id": toDo.status_id
+                  "status_id": toDo.status_id,
+                  "users": toDo.users
                 }
                 dataCopy.lanes[1].cards.push(obj)
               })
@@ -149,9 +171,12 @@ class App extends Component {
                   "id": toDo.id,
                   "title": toDo.name,
                   "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                  "remaining_storypoints": toDo.remaining_storypoints,
+                  "total_storypoints": toDo.total_storypoints,
                   "description": toDo.description,
                   "story_id": toDo.story_id,
-                  "status_id": toDo.status_id
+                  "status_id": toDo.status_id,
+                  "users": toDo.users
                 }
                   dataCopy.lanes[3].cards.push(obj)
               })
@@ -161,9 +186,12 @@ class App extends Component {
                   "id": toDo.id,
                   "title": toDo.name,
                   "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                  "remaining_storypoints": toDo.remaining_storypoints,
+                  "total_storypoints": toDo.total_storypoints,
                   "description": toDo.description,
                   "story_id": toDo.story_id,
-                  "status_id": toDo.status_id
+                  "status_id": toDo.status_id,
+                  "users": toDo.users
                 }
                   dataCopy.lanes[0].cards.push(obj)
               })
@@ -173,9 +201,12 @@ class App extends Component {
                     "id": toDo.id,
                     "title": toDo.name,
                     "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                    "remaining_storypoints": toDo.remaining_storypoints,
+                    "total_storypoints": toDo.total_storypoints,
                     "description": toDo.description,
                     "story_id": toDo.story_id,
-                    "status_id": toDo.status_id
+                    "status_id": toDo.status_id,
+                    "users": toDo.users
                   }
                   dataCopy.lanes[2].cards.push(obj)
                 })
@@ -446,7 +477,7 @@ class App extends Component {
       return (
         <div className="row">
           <div className="col s12">
-            <Spinner style={{marginLeft: '40px', marginTop: '20px'}} name="ball-spin-fade-loader" />
+            <Spinner style={{marginLeft: '40px', marginTop: '20px'}} name="ball-spin-fade-loader" /><br /><p>Molding data ...</p>
           </div>
         </div>
       )

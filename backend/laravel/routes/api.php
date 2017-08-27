@@ -130,5 +130,6 @@ Route::get('slack', function() {
 
 Route::post('userid', 'UserController@showUserByEmail');
 Route::post('attachuser', 'UserController@attachUserToProject');
+Route::post('attachtask', 'TaskController@attachUserToTask');
 Route::post('oauth/token', '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken');
 Route::post('logout', 'UserController@logout');
