@@ -175,6 +175,19 @@ class BoardContainer extends Component {
         return items;
     }
 
+    loadSomeStories() {
+        const stories = this.state.stories;
+        console.log('storyqdqdzq', stories)
+        let items = [];
+        if(stories) {
+          for(let i = 0; i < stories.length; i++) {
+              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
+          }
+        }
+  
+        return items;
+    }
+
     handleChange(storyId, storyDesc) {
       this.setState({storyId: storyId})
       this.setState({storyDesc: storyDesc})
