@@ -71,6 +71,7 @@ Route::get('sprints/{sprint}/stories', 'SprintController@showSprintStories');
 **/
 
 Route::resource('sprintlogs', 'SprintLogController', ['except' => ['create', 'edit']]);
+Route::get('sprintlog/{id}', 'SprintLogController@showAllLogsById');
 
 /** 
  * Statuses

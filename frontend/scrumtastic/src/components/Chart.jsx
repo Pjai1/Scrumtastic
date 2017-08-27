@@ -12,19 +12,21 @@ class SprintChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        sprintId:'',
+        error: [],
+        sprintId: '',
         sprintName: '',
         token: '',
         email: '',
         options: {
-        title: 'Burndown Chart Sprint',
-        hAxis: { title: 'Date', minValue: 0, maxValue: 15 },
-        vAxis: { title: 'Storypoints', minValue: 0, maxValue: 15 },
-        legend: 'true',
-        },
+            title: 'Burndown Chart Sprint',
+            hAxis: { title: 'Day', minValue: 0, maxValue: 7 },
+            vAxis: { title: 'Storypoints', minValue: 0, maxValue: 50 },
+            legend: 'true',
+            },
         data: [
         ['Day', 'Storypoints (Max)', 'Storypoints (Day)'],
-        [1, 20, 20],
+        [0, 25, 25],
+        [1, 21, 21],
         [2, 16.5, 18],
         [3, 13, 17],
         [4, 10, 14],
@@ -48,12 +50,28 @@ class SprintChart extends Component {
             let options = JSON.parse(JSON.stringify(this.state.options))
             options.title = 'Burndown Chart ' + data.data.name;
             this.setState({sprintName: data.data.name, options})
+            this.getSprintLogData();
         })
         .catch((error) => {
-
+            this.setState({error: error})
         }) 
 
     this.setState({title: 'Burndown Chart Sprint '+ this.state.sprintName})
+  }
+
+  getSprintLogData() {
+    const token = 'Bearer ' + this.state.token;
+    let sprintId = this.state.sprintId;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.headers.common['Authorization'] = token
+    axios.get(`${BASE_URL}/sprintlog/${sprintId}`)
+        .then((data) => {
+            console.log(data)
+        })
+        .catch((error) => {
+            this.setState({error: error})
+        }) 
   }
 
     logOut() {
@@ -74,8 +92,23 @@ class SprintChart extends Component {
                 }
             })
             .catch((error) => {
-
+                this.setState({error: error})
             }) 
+    }
+
+    renderErrors() {
+        let errors = [];
+        if(this.state.error.response && this.state.error.response.data) {
+            const errorResp = this.state.error.response.data.error;
+            if (typeof errorResp === "string") {
+                errors.push(<p className="errorMessage" key={"error_" + 1}>{errorResp}</p>)
+            } else {
+                for (let key in errorResp) {
+                    errors.push(<p className="errorMessage" key={"error_" + key}>{errorResp[key]}</p>)
+                }
+            }
+        }
+        return <div className="center-align-error">{errors}</div>
     }
 
   render() {
@@ -112,6 +145,7 @@ class SprintChart extends Component {
                 height="400px"
                 legend_toggle
             />
+            {this.renderErrors()}
         </div>
     );
   }

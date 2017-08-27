@@ -22,4 +22,9 @@ class SprintLogRepository
     {
         return $sprintLog;
     }
+
+    public function findAllById($id)
+    {
+        return $this->sprintLog->where('sprint_id', $id)->get();
+    }
 }

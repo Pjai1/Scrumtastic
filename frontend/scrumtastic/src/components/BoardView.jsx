@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem } from 'react-materialize';
+import { Dropdown, Button, NavItem, Icon } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -44,7 +44,7 @@ class App extends Component {
                  //making sure all the state is cached, this seems to be an error with a hot reload dev server, not sure how to workaround yet
                  setTimeout(() => {
                     this.renderTasks(tasks, stories, statuses)
-                 }, 1000)
+                 }, 2000)
              })
         })
     })
@@ -55,7 +55,7 @@ class App extends Component {
     const projectId = this.state.projectId;
 
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
+    axios.defaults.headers.common['Authorization'] = token;
 
     axios.get(`${BASE_URL}/projects/${projectId}/users`)
         .then((data) => {
@@ -399,8 +399,9 @@ class App extends Component {
           }.bind(this))
   }
 
-  componentDidMount() {
-    }
+ goToChart() {
+     browserHistory.push('/chart');
+ }
 
 
   logOut() {
@@ -512,6 +513,9 @@ class App extends Component {
           <div className="row">
           <div className="col s8">
             <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
+            <Button onClick={this.goToChart.bind(this)} style={{float: 'right', position: 'relative', top: '-61px', left: '630px'}}><Icon small>
+                insert_chart
+            </Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Burndown Chart</span></Button>
           </div>
           <div className="col s4" />
           </div>

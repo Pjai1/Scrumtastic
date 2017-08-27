@@ -75,6 +75,13 @@ class SprintLogController extends ApiController
         return $this->showOne($sprintlog);
     }
 
+    public function showAllLogsById($id)
+    {
+        $sprintlog = $this->sprintlog->findAllById($id);
+
+        return $this->showAll($sprintlog);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
