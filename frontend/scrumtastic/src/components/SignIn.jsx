@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
 import logo from '../images/scrumtastic_logo_black_inverse.png';
-import { Icon } from 'react-materialize';
+import { Icon, Dropdown, Button, NavItem } from 'react-materialize';
 import axios from 'axios';
 import { BASE_URL, CLIENT_ID, CLIENT_SECRET } from '../constants';
 import Toast from './Toast'
@@ -27,6 +27,28 @@ class SignIn extends Component {
         if(this.state.token.length > 0 || localStorage.getItem('token')) {
             browserHistory.push('/')
         }
+    }
+
+        logOut() {
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.post(`${BASE_URL}/logout`, {
+            'email': this.state.email,
+        })
+            .then((data) => {
+                if(data.status === 200) {
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('email')
+                    let t = new Toast("Succesfully logged out!", 2500)
+                    t.Render(); 
+                    setTimeout(() => {browserHistory.push('/signin')}, 2500)
+                }
+            })
+            .catch((error) => {
+                this.setState({error: error})
+            }) 
     }
 
     signIn() {

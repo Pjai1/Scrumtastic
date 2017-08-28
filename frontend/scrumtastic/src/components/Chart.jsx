@@ -130,7 +130,7 @@ class SprintChart extends Component {
                         <Dropdown trigger={
                             <Button style={{display: 'inline'}}>{this.state.email}</Button>
                             }>
-                            <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
+                            <NavItem onClick={this.logOut.bind(this)}>Log Out</NavItem>
                             <NavItem divider />
                         </Dropdown>
                     </ul>
@@ -147,6 +147,7 @@ class SprintChart extends Component {
                 legend_toggle
             />
             {this.renderErrors()}
+            test
         </div>
     );
   }

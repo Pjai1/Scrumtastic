@@ -9,6 +9,7 @@ import '../App.css';
 import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -304,7 +305,7 @@ class App extends Component {
                             <Dropdown trigger={
                                 <Button style={{display: 'inline'}}>{this.state.email}</Button>
                                 }>
-                                <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
+                                <NavItem onClick={this.logOut.bind(this)}>Log Out</NavItem>
                                 <NavItem divider />
                             </Dropdown>
                         </ul>

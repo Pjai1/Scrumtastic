@@ -465,7 +465,7 @@ class SprintView extends Component {
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={<a onClick={this.sprintIdToStorage.bind(this, sprint.id)}>{sprint.name}</a>}>
+                            <Tab key={sprint.id} title={sprint.name}>
 
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
@@ -570,7 +570,7 @@ class SprintView extends Component {
                             <Dropdown trigger={
                                 <Button style={{display: 'inline'}}>{this.state.email}</Button>
                                 }>
-                                <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
+                                <NavItem onClick={this.logOut.bind(this)}>Log Out</NavItem>
                                 <NavItem divider />
                             </Dropdown>
                         </ul>

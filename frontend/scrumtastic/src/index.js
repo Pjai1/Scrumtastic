@@ -54,6 +54,7 @@ ReactDOM.render(
             <Route path="/" component={App} onEnter={requireAuthentication.bind(this)}  />
             <Route path="/signin" component={SignIn} />
             <Route path="/signup" component={SignUp} />
+            {/* <Route path="/app" component={App} /> */}
             <Route path="/board" onEnter={requireAuthentication.bind(this)} component={BoardView} />
             <Route path="/projects" onEnter={requireAuthentication.bind(this)} component={ProjectView} />
             <Route path="/newproject" onEnter={requireAuthentication.bind(this)} component={CreateProject} />
