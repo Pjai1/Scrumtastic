@@ -98,7 +98,7 @@ class BoardContainer extends Component {
                 let t = new Toast("Task added successfully!", 2500)
                 t.Render(); 
                 console.log('CHECK', cardId, data.data.name, data.data.remaining_storypoints+"/"+data.data.total_storypoints+" SP", data.data.description, storyId)
-                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: data.data.name, label: newLabel, description: data.data.description, storyId: storyId} })
+                this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: data.data.name, label: newLabel, description: data.data.description, storyId: storyId, storyDesc: this.state.storyDesc} })
                 this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null, storyId: null})
             })
             .catch((error) => {
@@ -136,22 +136,9 @@ class BoardContainer extends Component {
         }) 
     }
 
-    loadStories() {
-      const stories = this.state.stories;
-      console.log('storyqdqdzq', stories)
-      let items = [];
-      if(stories) {
-        for(let i = 0; i < stories.length; i++) {
-            items.push(<NavItem key={i} value={stories[i].description} onClick={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</NavItem>);
-        }
-      }
-
-      return items;
-    }
-
     loadSomeStories() {
         const stories = this.state.stories;
-        console.log('storyqdqdzq', stories)
+
         let items = [];
         if(stories) {
           for(let i = 0; i < stories.length; i++) {
@@ -162,9 +149,12 @@ class BoardContainer extends Component {
         return items;
     }
 
-    handleChange(storyId, storyDesc) {
-      this.setState({storyId: storyId})
-      this.setState({storyDesc: storyDesc})
+    handleSelect(event, value) {
+        let select = document.getElementById('storySelect');
+        let dataAttr = select.options[select.selectedIndex].dataset.id;
+        let storyDesc = event.target.value;
+
+        this.setState({storyDesc: storyDesc, storyId: dataAttr})
     }
 
   renderErrors() {
@@ -181,12 +171,6 @@ class BoardContainer extends Component {
             }
         }
         return <div className="center-align-error">{errors}</div>
-    }
-
-    handleSelect(event, value, index) {
-        let select = document.getElementById('storySelect');
-        let dataAttr = select.options[select.selectedIndex].dataset.id;
-        console.log(select, dataAttr)
     }
 
   render () {
@@ -296,17 +280,11 @@ class BoardContainer extends Component {
                     <div className="row">
                         <div className="col s3" />
                         <div className="col s6">
-                        <Dropdown trigger={
-                            <Button><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Select User Story</span><Icon small>arrow_drop_down</Icon></Button>
-                            }>
-                            {this.loadStories()}
-                        </Dropdown>
                         <Row>
-                            <Input s={12} id="storySelect" type='select' label="Story Select" value={this.state.selectValue} onChange={this.handleSelect} defaultValue="1">
+                            <Input s={12} id="storySelect" type='select' label="Story Select" value={this.state.selectValue} onChange={this.handleSelect.bind(this)}>
                                 {this.loadSomeStories()}
                             </Input>
                         </Row>
-                        <p><b>Selected Story:</b> {this.state.storyDesc}</p>
                         <Button onClick={this.addLaneCard.bind(this)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button>
                         </div>
                         <div className="col s3" />

@@ -216,10 +216,13 @@ class Card extends Component {
   }
 
   renderDisplayMode() {
-    const {id, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
-    const opacity = isDragging ? 0 : 1
-    const background = isDragging ? '#CCC' : '#E3E3E3'
-    console.log('STORYPOINTS', remainingStorypoints, totalStorypoints)
+    const {id, storyDesc, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
+    const opacity = isDragging ? 0 : 1;
+    const background = isDragging ? '#CCC' : '#E3E3E3';
+    let storyDescription = this.state.storyDesc;
+    if(this.props.storyDesc) {
+      storyDescription = this.props.storyDesc;
+    }
     return (
       <div style={{background: background}}>
           <CardWrapper key={id} data-id={id} {...otherProps} style={{opacity: opacity}}>
@@ -243,7 +246,7 @@ class Card extends Component {
                                           <h2 style={{color: '#26a69a'}}>Task: {this.props.title}</h2>
                                             <p><Icon tiny>description</Icon> {this.props.description}</p>
                                             <p><Icon tiny>timelapse</Icon> {this.props.label}</p>
-                                            <p><Icon tiny>label_outline</Icon> {this.state.storyDesc}</p>
+                                            <p><Icon tiny>label_outline</Icon> {storyDescription}</p>
                                           </div>
                                         </div>
                                         <div className="row">
@@ -376,9 +379,10 @@ Card.propTypes = {
   description: PropTypes.string,
   label: PropTypes.string,
   storyId: PropTypes.string,
+  storyDesc: PropTypes.string,
   users: PropTypes.array,
-  totalStorypoints: PropTypes.string,
-  remainingStorypoints: PropTypes.string,
+  totalStorypoints: PropTypes.string || PropTypes.number,
+  remainingStorypoints: PropTypes.string || PropTypes.number,
   onClick: PropTypes.func,
   metadata: PropTypes.object,
   connectDragSource: PropTypes.func.isRequired,
