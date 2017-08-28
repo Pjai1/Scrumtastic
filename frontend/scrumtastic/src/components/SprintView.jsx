@@ -56,6 +56,7 @@ class SprintView extends Component {
             })
             .catch((error) => {
                 this.setState({error});
+                this.loadStories()
             })  
     }
 
@@ -92,7 +93,16 @@ class SprintView extends Component {
                     projectStories.push(story);
                 })
                 this.setState({'stories': projectStories});
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
                 console.log('stories')
+=======
+>>>>>>> c93ce3d... omit console.log
+=======
+>>>>>>> c93ce3d... omit console.log
+=======
+>>>>>>> c93ce3d... omit console.log
             })
             .catch((error) => {
                 this.setState({error});
@@ -287,7 +297,6 @@ class SprintView extends Component {
 
     createStorySelect(sprintId) {
         const backlogStories = this.state.backlogStories;
-        console.log(this.state.backlogStories)
         if (backlogStories) {
             let items = [];
             for(let i = 0; i < backlogStories.length; i++) {
