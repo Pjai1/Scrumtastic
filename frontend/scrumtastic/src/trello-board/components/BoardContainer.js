@@ -29,7 +29,8 @@ class BoardContainer extends Component {
             showFieldsForLane: -1,
             token: '',
             error: [],
-            stories: null
+            stories: null,
+            selectValue: ''
           }
 
   wireEventBus = () => {
@@ -154,7 +155,7 @@ class BoardContainer extends Component {
         let items = [];
         if(stories) {
           for(let i = 0; i < stories.length; i++) {
-              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
+              items.push(<option key={i} data-id={stories[i].id} value={stories[i].description}>{stories[i].description}</option>);
           }
         }
   
@@ -180,6 +181,12 @@ class BoardContainer extends Component {
             }
         }
         return <div className="center-align-error">{errors}</div>
+    }
+
+    handleSelect(event, value, index) {
+        let select = document.getElementById('storySelect');
+        let dataAttr = select.options[select.selectedIndex].dataset.id;
+        console.log(select, dataAttr)
     }
 
   render () {
@@ -294,11 +301,11 @@ class BoardContainer extends Component {
                             }>
                             {this.loadStories()}
                         </Dropdown>
-                        {/* <Row>
-                            <Input s={12} type='select' label="Story Select" defaultValue='' onChange={this.wow()}>
+                        <Row>
+                            <Input s={12} id="storySelect" type='select' label="Story Select" value={this.state.selectValue} onChange={this.handleSelect} defaultValue="1">
                                 {this.loadSomeStories()}
                             </Input>
-                        </Row> */}
+                        </Row>
                         <p><b>Selected Story:</b> {this.state.storyDesc}</p>
                         <Button onClick={this.addLaneCard.bind(this)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button>
                         </div>

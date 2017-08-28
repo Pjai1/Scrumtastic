@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Story;
+use App\Sprint;
 use App\Repositories\StoryRepository;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,23 @@ class StoryController extends ApiController
         $story->sprints()->attach($request->sprint_id);
 
         return $this->showOne($story, 201);
+    }
+
+    public function deleteFromSprint(Request $request)
+    {
+        $rules = [
+            'sprint_id' => 'required|exists:sprints,id',
+            'story_id' => 'required|exists:stories,id'
+        ];
+
+        $this->validate($request, $rules);  
+        
+        $story = Story::findOrFail($request->story_id);
+        $sprint = Sprint::findOrFail($request->sprint_id);
+        
+        $story->sprints()->detach($request->sprint_id);
+
+        return $this->showOne($story);
     }
 
     public function storePivotSprint(Request $request)

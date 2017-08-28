@@ -56,7 +56,6 @@ class SprintView extends Component {
             })
             .catch((error) => {
                 this.setState({error});
-                this.loadStories()
             })  
     }
 
@@ -93,6 +92,7 @@ class SprintView extends Component {
                     projectStories.push(story);
                 })
                 this.setState({'stories': projectStories});
+                console.log('stories')
             })
             .catch((error) => {
                 this.setState({error});
@@ -200,6 +200,7 @@ class SprintView extends Component {
                 data.data[0].stories.forEach((story) => {
                     projectStories.push(story);
                 })
+                console.log('backlogstories', this.state.backlogStories)
                 this.setState({'backlogStories': projectStories});
             })
             .catch((error) => {
@@ -286,6 +287,7 @@ class SprintView extends Component {
 
     createStorySelect(sprintId) {
         const backlogStories = this.state.backlogStories;
+        console.log(this.state.backlogStories)
         if (backlogStories) {
             let items = [];
             for(let i = 0; i < backlogStories.length; i++) {
@@ -310,7 +312,8 @@ class SprintView extends Component {
                 data.data.pivot = { 'sprint_id': sprintId, 'story_id': data.data.id};
                 stories.push(data.data);
                 this.setState({'stories': stories});
-                this.forceUpdate();
+                let t = new Toast("Story added to sprint!", 2500)
+                t.Render(); 
             })
             .catch((error) => {
                 this.setState({error});
@@ -415,7 +418,12 @@ class SprintView extends Component {
 
         axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         axios.defaults.headers.common['Authorization'] = token
-        axios.delete(`${BASE_URL}/stories/${storyId}`)
+        axios.delete(`${BASE_URL}/deletesprintstory`, {
+            params: {
+                'sprint_id': this.state.sprintId,
+                'story_id': storyId
+            }
+        })
             .then((data) => {
                 this.searchAndDeleteStoryFromState(storyId, stories);
             })
