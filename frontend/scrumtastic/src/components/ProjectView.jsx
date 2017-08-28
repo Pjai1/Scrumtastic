@@ -471,7 +471,7 @@ class ProjectView extends Component {
                             <Dropdown trigger={
                                 <Button style={{display: 'inline'}}>{this.state.email}</Button>
                                 }>
-                                <NavItem onClick={this.logOut.bind(this)}>Log Out</NavItem>
+                                <NavItem onClick={this.logOut.bind(this)}><span><span id="nav-icon"><Icon large>input</Icon></span><span style={{position: 'relative', fontSize: '2.5rem', top: '15px', left: '10px', float: 'left'}}>Log Out</span></span></NavItem>
                                 <NavItem divider />
                             </Dropdown>
                         </ul>

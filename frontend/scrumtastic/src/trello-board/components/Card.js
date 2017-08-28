@@ -35,11 +35,7 @@ class Card extends Component {
           error: []
       }
   }
-
-  componentWillMount() {
-
-  }
-
+  
   componentDidMount() {
     const token = 'Bearer ' + this.state.token;
 

@@ -45,8 +45,6 @@ const LaneHelper = {
       }
       return lane
     })
-    let t = new Toast("Succesfully deleted user!", 2500)
-    t.Render(); 
     return {...state, ...lanes}
   },
 

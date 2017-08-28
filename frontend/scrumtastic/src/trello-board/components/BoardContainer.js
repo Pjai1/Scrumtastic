@@ -149,61 +149,12 @@ class BoardContainer extends Component {
         return items;
     }
 
-    loadSomeStories() {
-        const stories = this.state.stories;
-        console.log('storyqdqdzq', stories)
-        let items = [];
-        if(stories) {
-          for(let i = 0; i < stories.length; i++) {
-              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
-          }
-        }
-  
-        return items;
-    }
+    handleSelect(event, value) {
+        let select = document.getElementById('storySelect');
+        let dataAttr = select.options[select.selectedIndex].dataset.id;
+        let storyDesc = event.target.value;
 
-    loadSomeStories() {
-        const stories = this.state.stories;
-        console.log('storyqdqdzq', stories)
-        let items = [];
-        if(stories) {
-          for(let i = 0; i < stories.length; i++) {
-              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
-          }
-        }
-  
-        return items;
-    }
-
-    loadSomeStories() {
-        const stories = this.state.stories;
-        console.log('storyqdqdzq', stories)
-        let items = [];
-        if(stories) {
-          for(let i = 0; i < stories.length; i++) {
-              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
-          }
-        }
-  
-        return items;
-    }
-
-    loadSomeStories() {
-        const stories = this.state.stories;
-        console.log('storyqdqdzq', stories)
-        let items = [];
-        if(stories) {
-          for(let i = 0; i < stories.length; i++) {
-              items.push(<option key={i} value={stories[i].description} onChange={this.handleChange.bind(this, stories[i].id, stories[i].description)}>{stories[i].description}</option>);
-          }
-        }
-  
-        return items;
-    }
-
-    handleChange(storyId, storyDesc) {
-      this.setState({storyId: storyId})
-      this.setState({storyDesc: storyDesc})
+        this.setState({storyDesc: storyDesc, storyId: dataAttr})
     }
 
   renderErrors() {
@@ -329,17 +280,11 @@ class BoardContainer extends Component {
                     <div className="row">
                         <div className="col s3" />
                         <div className="col s6">
-                        <Dropdown trigger={
-                            <Button><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Select User Story</span><Icon small>arrow_drop_down</Icon></Button>
-                            }>
-                            {this.loadStories()}
-                        </Dropdown>
-                        {/* <Row>
-                            <Input s={12} type='select' label="Story Select" defaultValue='' onChange={this.wow()}>
+                        <Row>
+                            <Input s={12} id="storySelect" type='select' label="Story Select" value={this.state.selectValue} onChange={this.handleSelect.bind(this)}>
                                 {this.loadSomeStories()}
                             </Input>
-                        </Row> */}
-                        <p><b>Selected Story:</b> {this.state.storyDesc}</p>
+                        </Row>
                         <Button onClick={this.addLaneCard.bind(this)}><Icon small>add</Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Add Task</span></Button>
                         </div>
                         <div className="col s3" />

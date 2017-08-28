@@ -56,6 +56,16 @@ body {
     overflow-x: hidden;
 }
 
+#nav-icon {
+    position: relative !important; 
+    top: -5px !important;
+    float: left !important;
+}
+
+#nav-icon i {
+    font-size: 3rem !important; 
+}
+
 .card-content .card-title {
     display: inline-block;
     width: 100%;
