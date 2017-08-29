@@ -7,6 +7,8 @@ import { BASE_URL } from '../constants';
 import moment from 'moment';
 import Toast from './Toast';
 import '../App.css';
+import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 class SprintView extends Component {
     constructor(props) {
@@ -54,6 +56,7 @@ class SprintView extends Component {
             })
             .catch((error) => {
                 this.setState({error});
+                this.loadStories()
             })  
     }
 
@@ -77,9 +80,67 @@ class SprintView extends Component {
             }) 
     }
 
+    loadStories() {
+        const token = 'Bearer ' + this.state.token
+        const projectId = this.state.projectId;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.get(`${BASE_URL}/projects/${projectId}/stories`)
+            .then((data) => {
+                let projectStories = [];
+                data.data[0].stories.forEach((story) => {
+                    projectStories.push(story);
+                })
+                this.setState({'stories': projectStories});
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
+    }
+
     saveStoriesToStorage() {
         localStorage.setItem('stories', this.state.stories);
         localStorage.setItem('sprintId', this.state.sprintId);
+    }
+
+    confirmStory(storyId) {
+        confirmAlert({                   
+            message: 'Are you sure you want to delete this story?',              
+            confirmLabel: 'Delete',                        
+            cancelLabel: 'Cancel',                           
+            onConfirm: () => this.deleteStory(storyId)
+          })
+    }
+
+    confirmUser(userId) {
+        confirmAlert({                   
+            message: 'Are you sure you want to delete this user from the project?',              
+            confirmLabel: 'Delete',                        
+            cancelLabel: 'Cancel',                           
+            onConfirm: () => this.deleteUser(userId)
+          })
+    }
+
+    deleteUser(userId) {
+        let users = this.state.users;
+        let projectId = this.state.projectId;
+        const token = 'Bearer ' + this.state.token;
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token
+        axios.delete(`${BASE_URL}/deleteprojectuser`, {
+            params : {
+                "user_id": userId,
+                "project_id": projectId
+            }
+        })
+            .then((data) => {
+                this.searchAndDeleteUserFromState(userId, users);
+            })
+            .catch((error) => {
+                this.setState({error});
+            }) 
     }
 
     renderUsers() {
@@ -89,7 +150,9 @@ class SprintView extends Component {
             {
             this.state.users.map(user => {
                     return (
-                        <li key={user.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>account_box</Icon></div>{user.email}</li>
+                        <li key={user.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>account_box</Icon></div>{user.email}
+                        <a onClick={this.confirmUser.bind(this, user.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                        </li>
                     )  
             })
             }
@@ -222,7 +285,7 @@ class SprintView extends Component {
     }
 
     createStorySelect(sprintId) {
-        const backlogStories = this.state.stories;
+        const backlogStories = this.state.backlogStories;
         if (backlogStories) {
             let items = [];
             for(let i = 0; i < backlogStories.length; i++) {
@@ -266,7 +329,7 @@ class SprintView extends Component {
                 }
             }
         }
-        return <div className="center-align">{errors}</div>
+        return <div className="center-align-error">{errors}</div>
     }
 
     handleChange(storyId, sprintId) {
@@ -275,7 +338,7 @@ class SprintView extends Component {
 
     goToTasks(sprintId) {
         localStorage.setItem('sprintId', sprintId);
-        browserHistory.push('/list');
+        browserHistory.push('/board');
     }
 
     addUser() {
@@ -361,11 +424,24 @@ class SprintView extends Component {
             }) 
     }
 
+    searchAndDeleteUserFromState(keyName, array) {
+        for (var i=0; i < array.length; i++) {
+            if (array[i].id === keyName) {
+                delete array[i]
+                this.setState({'users': array});
+                let t = new Toast("Succesfully deleted user!", 2500)
+                t.Render(); 
+            }
+        }    
+    }
+
     searchAndDeleteStoryFromState(keyName, array) {
         for (var i=0; i < array.length; i++) {
             if (array[i].id === keyName) {
                 delete array[i]
                 this.setState({'stories': array});
+                let t = new Toast("Succesfully deleted story!", 2500)
+                t.Render(); 
             }
         }    
     }
@@ -381,7 +457,7 @@ class SprintView extends Component {
                 {
                     sprints.map(sprint => {
                         return (
-                            <Tab key={sprint.id} title={sprint.name}>
+                            <Tab key={sprint.id} title={<a onClick={this.sprintIdToStorage.bind(this, sprint.id)}>{sprint.name}</a>}>
 
                                 <h3>{moment(sprint.start_date).format("MMM Do YY")} - {moment(sprint.end_date).format("MMM Do YY")}</h3>
                                 {
@@ -395,7 +471,7 @@ class SprintView extends Component {
                                                         (!this.state.storyEditingMode && (this.state.clickedStory === null)) || (!this.state.storyEditingMode && (this.state.clickedStory === story.id)) || (!this.state.storyEditingMode && (this.state.clickedStory !== story.id)) || (this.state.storyEditingMode && (this.state.clickedStory !== story.id)) ?
                                                         <div>
                                                             <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>label_outline</Icon></div> {story.description}
-                                                            <a onClick={this.deleteStory.bind(this, story.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                                                            <a onClick={this.confirmStory.bind(this, story.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
                                                             <a onClick={this.editStory.bind(this, story.id, story.description)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2633a6', float: 'right'}}>mode_edit</i></a>
                                                         </div>
                                                         :
@@ -459,7 +535,7 @@ class SprintView extends Component {
                                     className="waves-effect waves-light btn-large"
                                     onClick={() => this.goToTasks(sprint.id)}
                                 >
-                                Go To Sprint Board
+                                Sprint Board
                                 </a>
                             </Tab>
                         )
@@ -486,7 +562,7 @@ class SprintView extends Component {
                             <Dropdown trigger={
                                 <Button style={{display: 'inline'}}>{this.state.email}</Button>
                                 }>
-                                <NavItem onClick={this.logOut.bind(this)}><span><span id="nav-icon"><Icon large>input</Icon></span><span style={{position: 'relative', fontSize: '2.5rem', top: '15px', left: '10px', float: 'left'}}>Log Out</span></span></NavItem>
+                                <NavItem onClick={this.logOut.bind(this)}><i className="material-icons">input</i>Log Out</NavItem>
                                 <NavItem divider />
                             </Dropdown>
                         </ul>
