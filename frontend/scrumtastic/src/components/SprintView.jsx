@@ -149,8 +149,10 @@ class SprintView extends Component {
             <ul className="collection">
             {
             this.state.users.map(user => {
+                console.log('some user',user)
                     return (
                         <li key={user.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>account_box</Icon></div>{user.email}
+                        {(user.admin === "true") ? <div style={{float: 'right'}}><i className="material-icons">supervisor_account</i></div> : null}
                         <a onClick={this.confirmUser.bind(this, user.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
                         </li>
                     )  
@@ -368,6 +370,7 @@ class SprintView extends Component {
 
     sprintIdToStorage(sprintId) {
         this.setState({sprintId: sprintId})
+        console.log(sprintId)
     }
 
     editStory(storyId, storyDescription) {

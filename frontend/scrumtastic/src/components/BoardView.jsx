@@ -94,8 +94,29 @@ class BoardView extends Component {
           }
         })
       })
-      this.fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray)
+      this.fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray, stories, statuses)
     }
+  }
+
+  getTaskComments(taskId) {
+    return new Promise(function(resolve, reject) {
+        if(!taskId) {
+            reject()
+        }
+
+        const token = 'Bearer ' + this.state.token;
+        
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['Authorization'] = token;
+    
+        axios.get(`${BASE_URL}/tasks/${taskId}/comments`)
+            .then((data) => {
+                return resolve(data.data[0].comments)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    }.bind(this))
   }
 
   fillBoardData(unassignedArray, toDoArray, inProgressArray, completedArray, stories, statuses) {
@@ -156,7 +177,8 @@ class BoardView extends Component {
                   "description": toDo.description,
                   "story_id": toDo.story_id,
                   "status_id": toDo.status_id,
-                  "users": toDo.users
+                  "users": toDo.users,
+                  "comments": toDo.comments
                 }
                 dataCopy.lanes[1].cards.push(obj)
               })
@@ -171,24 +193,28 @@ class BoardView extends Component {
                   "description": toDo.description,
                   "story_id": toDo.story_id,
                   "status_id": toDo.status_id,
-                  "users": toDo.users
+                  "users": toDo.users,
+                  "comments": toDo.comments
                 }
                   dataCopy.lanes[3].cards.push(obj)
               })
     
               unassignedArray.forEach((toDo, i) => {
-                let obj = {
-                  "id": toDo.id,
-                  "title": toDo.name,
-                  "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
-                  "remaining_storypoints": toDo.remaining_storypoints,
-                  "total_storypoints": toDo.total_storypoints,
-                  "description": toDo.description,
-                  "story_id": toDo.story_id,
-                  "status_id": toDo.status_id,
-                  "users": toDo.users
-                }
-                  dataCopy.lanes[0].cards.push(obj)
+
+                    let obj = {
+                        "id": toDo.id,
+                        "title": toDo.name,
+                        "label": toDo.remaining_storypoints+" / "+toDo.total_storypoints+" SP",
+                        "remaining_storypoints": toDo.remaining_storypoints,
+                        "total_storypoints": toDo.total_storypoints,
+                        "description": toDo.description,
+                        "story_id": toDo.story_id,
+                        "status_id": toDo.status_id,
+                        "users": toDo.users,
+                        "comments": toDo.comments
+                      }
+
+                      dataCopy.lanes[0].cards.push(obj)
               })
     
                 inProgressArray.forEach((toDo, i) => {
@@ -201,10 +227,12 @@ class BoardView extends Component {
                     "description": toDo.description,
                     "story_id": toDo.story_id,
                     "status_id": toDo.status_id,
-                    "users": toDo.users
+                    "users": toDo.users,
+                    "comments": toDo.comments
                   }
                   dataCopy.lanes[2].cards.push(obj)
                 })
+                console.log('datacopy', dataCopy)
                 this.setState({boardData: dataCopy, stories: stories, statuses: statuses})
             })
             .catch((error) => {
@@ -278,7 +306,8 @@ class BoardView extends Component {
                         "status_id": null,
                         "users": [
                         ],
-                        "status": null
+                        "status": null,
+                        "comments": null
                     }
                   let tasks = data.data[0].tasks
                   let promises = []
@@ -302,7 +331,12 @@ class BoardView extends Component {
                                     nextObj.status = status;
                                   }
                                   resolve()
-                              })                                 
+                              }),
+                              self.getTaskComments(task.id).then((comment)=> {
+                                  if(comment) {
+                                    nextObj.comments = comment;
+                                  }
+                              })                    
                           ]).then(function() {
                              nextObj.id = task.id;
                              nextObj.name = task.name;

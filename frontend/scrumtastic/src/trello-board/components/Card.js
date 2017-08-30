@@ -32,7 +32,10 @@ class Card extends Component {
           totalStorypoints: this.props.totalStorypoints,
           users: this.props.users,
           token: localStorage.getItem('token') || '',
-          error: []
+          error: [],
+          comment: null,
+          comments: this.props.comments,
+          userId: localStorage.getItem('userId') || ''
       }
   }
   
@@ -180,6 +183,22 @@ class Card extends Component {
     }
   }
 
+  renderComments() {
+    if(this.state.comments) {
+      return (
+          <ul className="collection">
+          {
+          this.state.comments.map(comment => {
+                  return (
+                      <li key={comment.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>comment</Icon></div>{comment.message}</li>
+                  )  
+          })
+          }
+          </ul>
+      )
+    }
+  }
+
   addUser() {
     const token = 'Bearer ' + this.state.token;
     let users = this.state.users;
@@ -201,6 +220,30 @@ class Card extends Component {
         })   
   }
 
+  addComment() {
+    const token = 'Bearer ' + this.state.token;
+    let comment = this.state.comment;
+    let comments = this.state.comments;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.headers.common['Authorization'] = token
+    axios.post(`${BASE_URL}/comments`, {
+        'message': comment,
+        'task_id': this.props.id,
+        'user_id': this.state.userId
+    })
+        .then((data) => {
+            comments.push(data.data);
+            this.setState({comments: comments})
+            let t = new Toast("Comment added successfully!", 2500)
+            t.Render(); 
+        })
+        .catch((error) => {
+            this.setState({error});
+        }) 
+  }
+
+
   confirmUser(listId, taskId) {
     const {id, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
     confirmAlert({                   
@@ -212,10 +255,11 @@ class Card extends Component {
   }
 
   renderDisplayMode() {
-    const {id, storyDesc, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
+    const {id, storyDesc, comments, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
     const opacity = isDragging ? 0 : 1;
     const background = isDragging ? '#CCC' : '#E3E3E3';
     let storyDescription = this.state.storyDesc;
+
     if(this.props.storyDesc) {
       storyDescription = this.props.storyDesc;
     }
@@ -244,6 +288,34 @@ class Card extends Component {
                                             <p><Icon tiny>timelapse</Icon> {this.props.label}</p>
                                             <p><Icon tiny>label_outline</Icon> {storyDescription}</p>
                                           </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col s12">
+                                            <h2 style={{color: '#26a69a'}}>Comments</h2>     
+                                            {
+                                              this.renderComments()
+                                            }
+                                            </div>
+                                            <div className="col s1" style={{paddingTop: '25px', paddingLeft: '40px'}}>
+                                                  <Icon small>
+                                                  comment    
+                                                  </Icon>
+                                              </div>
+                                              <div className="input-field inline col s11">
+                                                  <input 
+                                                      className="validate"
+                                                      id="user"
+                                                      type="text"
+                                                      defaultValue=""
+                                                      onChange={event => this.setState({comment:event.target.value})}
+                                                      onKeyPress={event => {
+                                                      if(event.key === "Enter") {
+                                                              this.addComment();
+                                                          }
+                                                      }}
+                                                  />
+                                                  <label htmlFor="user">Enter Comment</label>
+                                              </div>
                                         </div>
                                         <div className="row">
                                           <div className="col s12">
@@ -377,6 +449,7 @@ Card.propTypes = {
   storyId: PropTypes.string,
   storyDesc: PropTypes.string,
   users: PropTypes.array,
+  comments: PropTypes.array,
   totalStorypoints: PropTypes.string || PropTypes.number,
   remainingStorypoints: PropTypes.string || PropTypes.number,
   onClick: PropTypes.func,

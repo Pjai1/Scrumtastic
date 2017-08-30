@@ -150,6 +150,7 @@ class Lane extends Component {
         description={card.description}
         storyId={card.story_id}
         storyDesc={card.storyDesc}
+        comments={card.comments}
         users={card.users}
         remainingStorypoints={card.remaining_storypoints}
         totalStorypoints={card.total_storypoints}
