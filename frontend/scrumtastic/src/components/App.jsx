@@ -117,7 +117,7 @@ class App extends Component {
                                                     className="validate"
                                                     id="name"
                                                     type="text"
-                                                    onChange={event => this.setState({name:event.target.value})}
+                                                    onChange={event => this.setState({newName:event.target.value})}
                                                 />
                                                 <label htmlFor="name"><b>Name:</b> {project.name}</label>
                                             </div>
@@ -128,7 +128,7 @@ class App extends Component {
                                                     className="materialize-textarea"
                                                     id="description"
                                                     type="text"
-                                                    onChange={event => this.setState({description:event.target.value})}
+                                                    onChange={event => this.setState({newDesc:event.target.value})}
                                                 />
                                                 <label htmlFor="description"><b>Description:</b> {project.description}</label>
                                             </div>
@@ -153,11 +153,11 @@ class App extends Component {
             let projects = this.state.projects;
 
             if(this.state.name) {
-                newName = this.state.name
+                newName = this.state.newName
             }
 
             if(this.state.description) {
-                newDesc = this.state.description
+                newDesc = this.state.newDesc
             }
 
             axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -243,8 +243,9 @@ class App extends Component {
         })
             .then((data) => {
                 projects.push(data.data);
-                this.setState({projects: projects});
-                this.setState({newProjectBool: false});
+                this.setState({projects: projects, newProjectBool: !this.state.newProjectBool});
+                let t = new Toast("Succesfully added project!", 2500)
+                t.Render(); 
             })
             .catch((error) => {
                 this.setState({error});
@@ -252,7 +253,7 @@ class App extends Component {
     }
 
     setNewProjectBool() {
-        this.setState({newProjectBool: true})
+        this.setState({newProjectBool: !this.state.newProjectBool})
     }
 
     renderNewProject() {
@@ -288,6 +289,7 @@ class App extends Component {
                     </div>
                 </form>
                 <a onClick={() => {this.newProject()}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#2ca626', float: 'right'}}>add_box</i></a>
+                <a onClick={() => {this.setNewProjectBool()}} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>cancel</i></a>
                 </Card>
                 }
             </Col>  
