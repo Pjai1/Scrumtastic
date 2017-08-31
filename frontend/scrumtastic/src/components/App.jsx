@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Col, Card, Icon } from 'react-materialize';
+import $ from 'jquery';
+import { Dropdown, Button, NavItem, Col, Card, Icon, Modal } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -172,6 +173,8 @@ class App extends Component {
                             projects[i].name = newName;
                             projects[i].description = newDesc;
                             this.setState({'projects': projects});
+                            let t = new Toast("Succesfully edited project!", 2500)
+                            t.Render(); 
                         }
                     }  
                 })
@@ -331,7 +334,20 @@ class App extends Component {
                     </div>
                     <div className="col s2" />
                 </div>
-            </div>    
+                <Modal
+                header={<h2 style={{color: '#26a69a'}}>Projects</h2>}
+                bottomSheet
+                trigger={<a style={{position: 'fixed', right: '50px'}} className="btn btn-floating btn-large"><i className="material-icons">help_outline</i></a>}
+                >
+                    <h4>What can I do here?</h4>
+                    <ol>
+                        <li>Check projects</li>
+                        <li>Create projects</li>
+                        <li>Edit projects</li>
+                        <li>Delete projects</li>
+                    </ol>
+                </Modal>
+        </div>
         )
     }
 }

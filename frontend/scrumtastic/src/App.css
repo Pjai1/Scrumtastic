@@ -37,6 +37,10 @@ body {
   font-size: large;
 }
 
+ol > li {
+    font-size: 22px;
+}
+
 .center-align-error {
     background-color: #ee6e73;
     width: 50%;

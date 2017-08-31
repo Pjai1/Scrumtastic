@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Icon } from 'react-materialize';
+import { Dropdown, Button, NavItem, Icon, Modal } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import Toast from './Toast';
 import axios from 'axios';
@@ -143,6 +143,7 @@ class ProjectView extends Component {
         })
             .then((data) => {
                 stories.push(data.data);
+                document.getElementById('story').value = "";
                 this.setState({'storyDesc': ''});
                 this.setState({'stories': stories});
             })
@@ -211,6 +212,8 @@ class ProjectView extends Component {
                             stories[i].description = newStoryDesc;
                             this.setState({'storyDesc': ''});
                             this.setState({'stories': stories});
+                            let t = new Toast("Succesfully edited user story!", 2500)
+                            t.Render(); 
                         }
                     }  
                 })
@@ -252,6 +255,8 @@ class ProjectView extends Component {
                             features[i].name = newFeatureName;
                             this.setState({'featureName': ''});
                             this.setState({'features': features});
+                            let t = new Toast("Succesfully edited feature!", 2500)
+                            t.Render(); 
                         }
                     }  
                 })
@@ -281,6 +286,7 @@ class ProjectView extends Component {
         })
             .then((data) => {
                 features.push(data.data);
+                document.getElementById('feature').value = "";
                 this.setState({'features': features});
             })
             .catch((error) => {
@@ -434,7 +440,7 @@ class ProjectView extends Component {
                                             }
                                         }}
                                     />
-                                    <label htmlFor="feature">Add Feature</label>
+                                    <label htmlFor="feature">Feature</label>
                                 </div>
                             </div>
                         </h4></li>
@@ -485,6 +491,19 @@ class ProjectView extends Component {
                     </div>
                     <div className="col s2" />
                 </div>
+                <Modal
+                header={<h2 style={{color: '#26a69a'}}>Backlog View</h2>}
+                bottomSheet
+                trigger={<div className="row"><div className="col s12"><a style={{position: 'absolute', right: '50px', bottom: '30px'}} className="btn btn-floating btn-large"><i className="material-icons">help_outline</i></a></div></div>}
+                >
+                    <h4>What can I do here?</h4>
+                    <ol>
+                        <li>Check user stories/features</li>
+                        <li>Create user stories/features</li>
+                        <li>Edit user stories/features</li>
+                        <li>Delete user stories/features</li>
+                    </ol>
+                </Modal>
             </div>
         )
     }
