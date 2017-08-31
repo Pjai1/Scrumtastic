@@ -151,9 +151,8 @@ class SprintView extends Component {
             this.state.users.map(user => {
                 console.log('some user',user)
                     return (
-                        <li key={user.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>account_box</Icon></div>{user.email}
-                        {(user.admin === "true") ? <div style={{float: 'right'}}><i className="material-icons">supervisor_account</i></div> : null}
-                        <a onClick={this.confirmUser.bind(this, user.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
+                        <li key={user.id} className="collection-item">{user.email}{(user.admin === "true") ? <div style={{float: 'left', position: 'relative', top: '-5px'}}><i className="material-icons">supervisor_account</i></div> : <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon>account_box</Icon></div>}
+                            <a onClick={this.confirmUser.bind(this, user.id)} style={{cursor: 'pointer'}}><i className="material-icons small" style={{color: '#a6262c', float: 'right'}}>delete_forever</i></a>
                         </li>
                     )  
             })
@@ -275,7 +274,7 @@ class SprintView extends Component {
                 data.data.pivot = { 'sprint_id': sprintId, 'story_id': data.data.id};
                 stories.push(data.data);
                 this.setState({'stories': stories});
-                this.forceUpdate();
+                document.getElementById('story').value = "";
             })
             .catch((error) => {
                 this.setState({error});
@@ -393,8 +392,9 @@ class SprintView extends Component {
                     for (var i=0; i < stories.length; i++) {
                         if (stories[i].id === storyId) {
                             stories[i].description = newStoryDesc;
-                            this.setState({'storyDesc': ''});
-                            this.setState({'stories': stories});
+                            this.setState({'stories': stories, 'storyDesc': ''});
+                            let t = new Toast("Succesfully edited story!", 2500)
+                            t.Render(); 
                         }
                     }  
                 })
@@ -508,6 +508,7 @@ class SprintView extends Component {
                                     <input 
                                         className="validate"
                                         type="text"
+                                        id="story"
                                         placeholder="Add Your User Story"
                                         onChange={event => this.setState({storyDesc:event.target.value})}
                                         onKeyPress={event => {
@@ -558,7 +559,7 @@ class SprintView extends Component {
                         <ul id="nav-mobile" className="left hide-on-med-and-down" style={{paddingLeft: '180px'}}>
                             <li><a href="/">Projects</a></li>
                             <li><a href="/projects">Backlog</a></li>
-                            <li><a onClick={this.saveStoriesToStorage.bind(this)} href="/list">Tasks</a></li>
+                            <li><a onClick={this.saveStoriesToStorage.bind(this)} href="/list">Board</a></li>
                         </ul>
                         <ul id="nav-mobile" className="right hide-on-med-and-down" style={{marginRight: '10px'}}>
                             <i className="material-icons" style={{height: 'inherit', lineHeight: 'inherit', float: 'left', margin: '0 30px 0 0', width: '2px'}}>perm_identity</i>
@@ -581,7 +582,7 @@ class SprintView extends Component {
                         <div className="row">
                             <div className="col s2" />
                             <div className="col s7">
-                                <h3 style={{paddingLeft: '89px'}}>Add Sprint</h3>
+                                <h2 style={{paddingLeft: '77px', color: '#26a69a'}}>Add Sprint</h2>
                             </div>
                             <div className="col s3" />
                         </div>
@@ -589,7 +590,9 @@ class SprintView extends Component {
                             <div className="col s3" />
                             <div className="col s6">
                             <Row>
+                                <i className="material-icons" style={{position: 'relative', top: '30px', float: 'left'}}>date_range</i>
                                 <Input style={{width: '175px'}} name='on' type='date' placeholder="Start Date" onChange={event => this.setState({sprintStartDate:event.target.value})} />
+                                <i className="material-icons" style={{position: 'relative', top: '30px', float: 'left'}}>date_range</i>
                                 <Input style={{width: '175px'}} name='on' type='date' placeholder="End Date" onChange={event => this.setState({sprintEndDate:event.target.value})} />
                                 <Button
                                     onClick={() => this.addSprint()}
@@ -615,7 +618,7 @@ class SprintView extends Component {
                         <div className="row">
                             <div className="col s2" />
                             <div className="col s7">
-                                <h3 style={{paddingLeft: '25px'}}>Add User</h3>
+                                <h2 style={{paddingLeft: '25px', color: '#26a69a'}}>Add User</h2>
                             </div>
                             <div className="col s3" />
                         </div>
@@ -662,6 +665,20 @@ class SprintView extends Component {
                     </div>
                     <div className="col s2" />
                 </div>
+                <Modal
+                header={<h2 style={{color: '#26a69a'}}>Sprint View</h2>}
+                bottomSheet
+                trigger={<div className="row"><div className="col s12"><a style={{position: 'absolute', right: '50px', bottom: '30px'}} className="btn btn-floating btn-large"><i className="material-icons">help_outline</i></a></div></div>}
+                >
+                    <h4>What can I do here?</h4>
+                    <ol>
+                        <li>Check user stories/sprints</li>
+                        <li>Create user stories/sprints</li>
+                        <li>Edit user stories</li>
+                        <li>Delete user stories</li>
+                        <li>Manage contributors of sprints</li>
+                    </ol>
+                </Modal>
             </div>
         )
     }
