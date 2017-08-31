@@ -397,7 +397,6 @@ class ListView extends Component {
     }
 
     goToChart() {
-
         browserHistory.push('/chart');
     }
 
@@ -427,12 +426,10 @@ class ListView extends Component {
                 </nav>
                 <div className="row">
                     <div className="col s12"> 
-                        <h2 style={{color: '#26a69a'}}>{this.state.projectName}: List View</h2><a 
-                                    className="waves-effect waves-light btn-large"
-                                    onClick={() => this.goToChart()}
-                                >
-                                Go To Burndown
-                                </a>
+                        <h2 style={{color: '#26a69a'}}>{this.state.projectName}: List View</h2>
+                        <Button onClick={this.goToChart.bind(this)} style={{float: 'right', position: 'relative', top: '-61px'}}><Icon small>
+                            insert_chart
+                        </Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Burndown Chart</span></Button>
                         <Table className="striped">
                             <thead>
                                 <tr>

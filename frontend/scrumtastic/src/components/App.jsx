@@ -72,7 +72,7 @@ class App extends Component {
             }
         }
 
-        return <div className="center-align-error">{errors}</div>
+        return <div id="errors" className="center-align-error">{errors}</div>
     }
 
     logOut() {

@@ -198,7 +198,7 @@ class BoardContainer extends Component {
                   <div className="row">
                         <div className="col s2" />
                         <div className="col s7">
-                            <h3 style={{paddingLeft: '89px'}}>Add Task</h3>
+                            <h3 style={{paddingLeft: '89px', color: '#26a69a'}}>Add Task</h3>
                         </div>
                         <div className="col s3" />
                     </div>
