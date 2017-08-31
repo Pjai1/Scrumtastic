@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Chart } from 'react-google-charts';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Icon } from 'react-materialize';
+import { Dropdown, Button, NavItem, Icon, Modal } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -11,31 +11,32 @@ import '../App.css';
 class SprintChart extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-        sprintlogs: null,
-        error: [],
-        sprintId: '',
-        sprintName: '',
-        token: '',
-        email: '',
-        options: {
-            title: 'Burndown Chart Sprint',
-            hAxis: { title: 'Day', minValue: 0, maxValue: 7 },
-            vAxis: { title: 'Storypoints', minValue: 0, maxValue: 50 },
-            legend: 'true',
-            },
-        data: [
-        ['Day', 'Storypoints (Max)', 'Storypoints (Day)'],
-        [0, 25, 25],
-        [1, 21, 21],
-        [2, 16.5, 18],
-        [3, 13, 17],
-        [4, 10, 14],
-        [5, 7, 5],
-        [6, 4, 2],
-        [7, 0, 0],
-        ],
-    };
+        this.state = {
+            sprintlogs: null,
+            error: [],
+            sprintId: '',
+            sprintName: '',
+            maxStorypoints: null,
+            token: '',
+            email: '',
+            options: {
+                title: 'Burndown Chart Sprint',
+                hAxis: { title: 'Day', minValue: 0, maxValue: 7 },
+                vAxis: { title: 'Storypoints', minValue: 0, maxValue: 40 || this.state.maxStorypoints },
+                legend: 'true',
+                },
+            data: [
+            ['Day', 'Storypoints (Max)', 'Storypoints (Day)'],
+            [0, 40, 40],
+            [1, 34.3, 30],
+            [2, 28.6, 25],
+            [3, 22.9, 20],
+            [4, 17.2, 14],
+            [5, 11.5, 5],
+            [6, 5.75, 2],
+            [7, 0, 0],
+            ],
+        };
     }
 
   componentWillMount() {
@@ -68,7 +69,7 @@ class SprintChart extends Component {
     axios.defaults.headers.common['Authorization'] = token
     axios.get(`${BASE_URL}/sprintlog/${sprintId}`)
         .then((data) => {
-            this.setState({sprintlogs: data.data})
+            this.setState({sprintlogs: data.data, maxStorypoints: data.data[0].total_storypoints})
         })
         .catch((error) => {
             this.setState({error: error})
@@ -147,7 +148,18 @@ class SprintChart extends Component {
                 legend_toggle
             />
             {this.renderErrors()}
-            test
+            <Modal
+            header={<h2 style={{color: '#26a69a'}}>Burndown Chart</h2>}
+            bottomSheet
+            trigger={<a style={{position: 'fixed', right: '50px'}} className="btn btn-floating btn-large"><i className="material-icons">help_outline</i></a>}
+            >
+                <h4>What can I do here?</h4>
+                <ol>
+                    <li>Check Team Performance</li>
+                    <li><span style={{color: '#dc3912'}}>Red</span> is the remaining work</li>
+                    <li><span style={{color: '#3366cc'}}>Blue</span> is the total workload of the sprint</li>
+                </ol>
+            </Modal>
         </div>
     );
   }

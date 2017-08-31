@@ -35,7 +35,9 @@ class Card extends Component {
           error: [],
           comment: null,
           comments: this.props.comments,
-          userId: localStorage.getItem('userId') || ''
+          userId: localStorage.getItem('userId') || '',
+          commentsActive: false,
+          usersActive: false
       }
   }
   
@@ -174,7 +176,7 @@ class Card extends Component {
           {
           this.state.users.map(user => {
                   return (
-                      <li key={user.id} className="collection-item"><div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon small>account_box</Icon></div>{user.email}</li>
+                      <li key={user.id} className="collection-item">{(user.admin === "true") ? <div style={{float: 'left', position: 'relative', top: '-5px'}}><i className="material-icons">supervisor_account</i></div> : <div style={{float: 'left', position: 'relative', top: '-5px'}}><Icon>account_box</Icon></div>}{user.email}</li>
                   )  
           })
           }
@@ -254,6 +256,14 @@ class Card extends Component {
       })
   }
 
+  setCommentsBool() {
+    this.setState({commentsActive: !this.state.commentsActive});
+  }
+
+  setUsersBool() {
+    this.setState({usersActive: !this.state.usersActive});
+  }
+
   renderDisplayMode() {
     const {id, storyDesc, comments, title, description, users, remainingStorypoints, totalStorypoints, label, storyId, tags, connectDragSource, connectDropTarget, isDragging, ...otherProps} = this.props
     const opacity = isDragging ? 0 : 1;
@@ -270,7 +280,7 @@ class Card extends Component {
               <CardTitle>{title}</CardTitle>
               <CardRightContent>{label}</CardRightContent>
             </CardHeader>
-            <Detail>{description}<div style={{marginTop: '10px', position: 'relative', left: '70px'}} className="center-align">
+            <Detail>{description}<div style={{marginTop: '10px', position: 'relative', left: '65px'}} className="center-align">
                                     <span onClick={this.toggleEditMode.bind(this)}>
                                       <i className="material-icons small" style={{color: '#2633a6'}}>mode_edit</i>
                                     </span>
@@ -287,9 +297,15 @@ class Card extends Component {
                                             <p><Icon tiny>description</Icon> {this.props.description}</p>
                                             <p><Icon tiny>timelapse</Icon> {this.props.label}</p>
                                             <p><Icon tiny>label_outline</Icon> {storyDescription}</p>
+                                            <Button style={{position: 'relative', top: '-180px', left: '650px'}} onClick={this.setCommentsBool.bind(this)} waves="light"><Icon left>
+                                                  comment    
+                                                  </Icon>Comments</Button>
+                                            <Button style={{position: 'relative', top: '-180px', left: '660px'}} onClick={this.setUsersBool.bind(this)} waves="light"><Icon left>
+                                                  account_box    
+                                                  </Icon>Members</Button>
                                           </div>
                                         </div>
-                                        <div className="row">
+                                        {(this.state.commentsActive) ? <div className="row">
                                             <div className="col s12">
                                             <h2 style={{color: '#26a69a'}}>Comments</h2>     
                                             {
@@ -316,8 +332,8 @@ class Card extends Component {
                                                   />
                                                   <label htmlFor="user">Enter Comment</label>
                                               </div>
-                                        </div>
-                                        <div className="row">
+                                        </div> : null}
+                                        {(this.state.usersActive) ? <div className="row">
                                           <div className="col s12">
                                             <h2 style={{color: '#26a69a'}}>Members</h2>                    
                                               {this.renderUsers()}
@@ -340,9 +356,9 @@ class Card extends Component {
                                                           }
                                                       }}
                                                   />
-                                                  <label htmlFor="user">Add User Email</label>
+                                                  <label htmlFor="user">User Email</label>
                                               </div>
-                                          </div>
+                                          </div> : null}
                                           <div className="row">
                                             <div className="col s12">
                                               {this.renderErrors()}

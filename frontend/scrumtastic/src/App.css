@@ -129,6 +129,10 @@ ol > li {
     padding-right: 16px;
 }
 
+.hide {
+    display: none;
+}
+
 .toast-message {
   height: 50px;
   margin-top: 50px;

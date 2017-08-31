@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import { Dropdown, Button, NavItem, Icon } from 'react-materialize';
+import { Dropdown, Button, NavItem, Icon, Modal, Row, Input } from 'react-materialize';
 import logo from '../images/scrumtastic_logo_white.png';
 import axios from 'axios';
 import { BASE_URL } from '../constants';
@@ -59,12 +59,62 @@ class BoardView extends Component {
 
     axios.get(`${BASE_URL}/projects/${projectId}/users`)
         .then((data) => {
-            this.setState({'users': data.data[0].users})
+            // this.setState({'users': data.data[0].users})
+            this.getProjectSprints(data.data[0].users)
         })
         .catch((error) => {
             this.setState({error});
         })  
   }
+
+  getProjectSprints(users) {
+    const token = 'Bearer ' + this.state.token
+    const projectId = this.state.projectId;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    axios.defaults.headers.common['Authorization'] = token
+    axios.get(`${BASE_URL}/projects/${projectId}/sprints`)
+        .then((data) => {
+            let projectSprints = [];
+            data.data[0].sprints.forEach((sprint) => {
+                projectSprints.push(sprint);
+            })
+            this.setState({'sprints': projectSprints, 'users': users});
+        })
+        .catch((error) => {
+            this.setState({error});
+        }) 
+    }
+
+    renderSprints() {
+        const sprints = this.state.sprints;
+        
+        let items = [];
+        if(sprints) {
+            for(let i = 0; i < sprints.length; i++) {
+                items.push(<option key={i} data-id={sprints[i].id} value={sprints[i].name}>{sprints[i].name}</option>);
+            }
+        }
+    
+        return items;
+    }
+
+    handleSelect(event, value) {
+        let select = document.getElementById('sprintSelect');
+        let dataAttr = select.options[select.selectedIndex].dataset.id;
+        let storyDesc = event.target.value;
+        console.log('dataAttr',dataAttr)
+        this.setState({sprintId: dataAttr})
+
+        this.getUserStoriesForSprint().then((stories) => {
+            this.getStoryTasks(stories).then((tasks) => {
+                //making sure all the state is cached, this seems to be an error with a hot reload dev server, not sure how to workaround yet
+                setTimeout(() => {
+                   this.renderTasks(tasks, stories, this.state.statuses)
+                }, 2000)
+            })
+       })
+    }
 
   renderTasks(tasks, stories, statuses) {
     if(tasks) {
@@ -477,7 +527,7 @@ class BoardView extends Component {
     const shouldReceiveNewData = (nextData) => {
 
     }
-
+    console.log('render Datastate')
     if(dataState) {
       return (
         <div className="row">
@@ -524,13 +574,31 @@ class BoardView extends Component {
           <div className="row">
           <div className="col s8">
             <h2 style={{color: '#26a69a'}}>{this.state.projectName}: Board View</h2>
-            <Button onClick={this.goToChart.bind(this)} style={{float: 'right', position: 'relative', top: '-61px', left: '630px'}}><Icon small>
+            <div style={{float: 'right', position: 'relative', top: '-75px', left: '370px'}}>
+                <Input s={12} id="sprintSelect" type='select' label="Sprint Select" onChange={this.handleSelect.bind(this)}>
+                    {this.renderSprints()}
+                </Input>
+            </div>
+            <Button onClick={this.goToChart.bind(this)} style={{float: 'right', position: 'relative', top: '-61px', left: '815px'}}><Icon small>
                 insert_chart
             </Icon><span style={{position: 'relative', top: '-4px', marginLeft: '5px'}}>Burndown Chart</span></Button>
           </div>
           <div className="col s4" />
           </div>
           {this.renderBoard()}
+          <Modal
+            header={<h2 style={{color: '#26a69a'}}>Board View</h2>}
+            bottomSheet
+            trigger={<div className="row"><div className="col s12"><a style={{position: 'absolute', right: '50px', bottom: '30px'}} className="btn btn-floating btn-large"><i className="material-icons">help_outline</i></a></div></div>}
+            >
+                <h4>What can I do here?</h4>
+                <ol>
+                    <li>Check task (details)</li>
+                    <li>Create tasks</li>
+                    <li>Edit tasks</li>
+                    <li>Delete tasks</li>
+                </ol>
+            </Modal>
         </div>
     );
   }

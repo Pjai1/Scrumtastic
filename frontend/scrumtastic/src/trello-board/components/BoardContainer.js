@@ -100,6 +100,9 @@ class BoardContainer extends Component {
                 console.log('CHECK', cardId, data.data.name, data.data.remaining_storypoints+"/"+data.data.total_storypoints+" SP", data.data.description, storyId)
                 this.props.actions.addCard({ laneId: 'Unassigned', card: {id: cardId, title: data.data.name, label: newLabel, description: data.data.description, storyId: storyId, storyDesc: this.state.storyDesc} })
                 this.setState({'showFieldsForLane': -1, cardId: null, label: null, description: null, title: null, storyId: null})
+                document.getElementById('name').value = "";
+                document.getElementById('description').value = "";
+                document.getElementById('storypoints').value = "";
             })
             .catch((error) => {
                 this.setState({error: error})
@@ -281,7 +284,7 @@ class BoardContainer extends Component {
                         <div className="col s3" />
                         <div className="col s6">
                         <Row>
-                            <Input s={12} id="storySelect" type='select' label="Story Select" value={this.state.selectValue} onChange={this.handleSelect.bind(this)}>
+                            <Input s={12} id="storySelect" type='select' label="Story Select" onChange={this.handleSelect.bind(this)}>
                                 {this.loadSomeStories()}
                             </Input>
                         </Row>
@@ -292,7 +295,7 @@ class BoardContainer extends Component {
                     <div className="row">
                         <div className="col s3" />
                         <div className="col s6">
-                            {this.renderErrors.bind(this)}
+                            {this.renderErrors()}
                         </div>
                         <div className="col s3" />
                     </div>
