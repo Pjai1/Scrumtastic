@@ -540,7 +540,7 @@ class BoardView extends Component {
       return (
         <div className="row">
           <div className="col s12">
-            <Spinner style={{marginLeft: '40px', marginTop: '20px'}} name="ball-spin-fade-loader" /><br /><p>Molding data ...</p>
+            <Spinner style={{marginLeft: '40px', marginTop: '20px'}} name="ball-spin-fade-loader" /><br /><p>Loading data ...</p>
           </div>
         </div>
       )

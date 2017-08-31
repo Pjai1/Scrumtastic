@@ -201,6 +201,7 @@ class SprintView extends Component {
                 data.data[0].stories.forEach((story) => {
                     projectStories.push(story);
                 })
+                console.log('projectstories', projectStories)
                 this.setState({'backlogStories': projectStories});
             })
             .catch((error) => {
