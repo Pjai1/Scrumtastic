@@ -21,7 +21,7 @@ class SprintChart extends Component {
             email: '',
             options: {
                 title: 'Burndown Chart Sprint',
-                hAxis: { title: 'Day', minValue: 0, maxValue: 7 },
+                hAxis: { title: 'Day', minValue: 0, maxValue: 7, ticks: [1,2,3,4,5,6,7] },
                 vAxis: { title: 'Storypoints', minValue: 0, maxValue: 40 || this.state.maxStorypoints },
                 legend: 'true',
                 },
